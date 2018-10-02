@@ -1,0 +1,66 @@
+{
+  "name": "@tartarus/tartarus-deep",
+  "version": "0.0.0",
+  "description": "Tartarus Deep",
+  "main": "lib/index.js",
+  "scripts": {
+    "ed3n:publish": "node_modules/.bin/ed3n-dev publish",
+    "local:debug:start": "node --trace-warnings --inspect-brk=0.0.0.0:9229 app.js",
+    "local:debug:test": "node --trace-warnings --inspect-brk=0.0.0.0:9229 node_modules/.bin/_mocha --timeout 6000 --recursive --color --reporter spec test",
+    "local:report": "gulp report",
+    "local:test": "node --trace-warnings node_modules/.bin/gulp build",
+    "prepublishOnly": "publish-please guard",
+    "publish-please": "echo \"Use 'ed3n-dev publish --message <message> instead'\"",
+    "test": "npm run docker:test",
+    "docker:services": "gulp docker.services",
+    "docker:clean": "gulp docker.clean",
+    "docker:test": "gulp docker.test",
+    "docker:test:watch": "nodemon --exec 'gulp docker.test'",
+    "docker:report": "gulp docker.report",
+    "docker:debug:test": "gulp docker.debug.test",
+    "start": "npm run docker:start",
+    "test:watch": "npm run docker:test:watch",
+    "docker:start": "gulp docker.start",
+    "docker:debug:start": "gulp docker.debug.start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com:franksrevenge/tartarus-deep.git"
+  },
+  "keywords": [
+    "ed3n",
+    "ed3n-mw",
+    "r3pi"
+  ],
+  "files": [
+    "ed3n.json",
+    "etc",
+    "lib",
+    "resources"
+  ],
+  "engines": {
+    "node": ">= 8.0.0"
+  },
+  "author": {
+    "name": "Aleksi Asikainen",
+    "email": "aleksi.asikainen@gmail.com"
+  },
+  "license": "SEE LICENSE IN license.md",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "@r3pi/ed3n-mw-dev-tools": "^4.0.0-alpha.58",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^4.19.1",
+    "eslint-plugin-filenames": "^1.3.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-security": "^1.4.0",
+    "gulp": "^3.9.1",
+    "mocha": "^5.2.0"
+  },
+  "peerDependencies": {},
+  "bin": {}
+}
