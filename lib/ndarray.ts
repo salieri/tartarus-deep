@@ -5,12 +5,29 @@ import _ from 'lodash';
  * new Matrix( 20, 30, 40, 50 )
  */
 
+type NumberTreeElement = number[] | number;
+
+
 class NDArray
 {
+	private static idCounter: number = 0;
+
+	protected id: number = 0;
+	protected dimensions: number[] = [];
+	protected data: NumberTreeElement[] = [];
+
+
 	/**
-	 * @param {Integer...|NDArray|Number[]} dimensions
+	 * new NDArray( 20, 30, 40 ) // create n-dimensional array the size of 20x30x40
+	 * new NDArray( anotherNdArray ) // create a clone of `anotherNdArray`
+	 * new NDArray( [ // create a n-dimensional array from the specified array
+	 * 		[ 0, 0, 0 ],
+	 * 	    [ 1, 1, 1 ],
+	 * 	    [ 2, 3, 4 ]
+	 * 	]
+	 * )
 	 */
-	constructor( ...dimensions )
+	constructor( ...dimensions: any[] )
 	{
 		this.validateConstructor( dimensions );
 
@@ -39,7 +56,7 @@ class NDArray
 	}
 
 
-	validateConstructor( dimensions )
+	protected validateConstructor( dimensions: any[] )
 	{
 		if( ( !dimensions ) || ( dimensions.length === 0 ) )
 		{
@@ -53,9 +70,9 @@ class NDArray
 	 * @param {Number} [initialValue=0]
 	 * @returns {Number[]} Multi-dimensional array representing the matrix
 	 */
-	static createDimArray( dimensions, initialValue = 0 )
+	public static createDimArray( dimensions : number[], initialValue: number = 0 ) : NumberTreeElement[]
 	{
-		function iterateCreation( depthIndex )
+		function iterateCreation( depthIndex: number ) : NumberTreeElement[]
 		{
 			const size = dimensions[ depthIndex ];
 
@@ -64,14 +81,14 @@ class NDArray
 				return _.fill( Array( size ), initialValue );
 			}
 
-			return _.map( Array( size ), () => iterateCreation( depthIndex + 1, initialValue, dimensions ) );
+			return <NumberTreeElement[]> _.map( Array( size ), () => iterateCreation( depthIndex + 1 ) );
 		}
 
 		return iterateCreation( 0 );
 	}
 
 
-	static resolveDimensions( data )
+	protected static resolveDimensions( data: NumberTreeElement )
 	{
 		const dimensions = [];
 
@@ -79,6 +96,8 @@ class NDArray
 
 		while( _.isArray( dp ) === true )
 		{
+			dp = <number[]> dp;
+
 			dimensions.push( dp.length );
 
 			dp = dp[ 0 ];
@@ -94,19 +113,20 @@ class NDArray
 	 * @param {function(value, position)} callback Called for each element in the matrix. If the function returns a value other than
 	 * undefined, the matrix element will be set to that value.
 	 */
-	traverse( callback )
+	public traverse( callback: Function )
 	{
 		const dimensions = this.dimensions;
 
-		function iterateMatrix( depthIndex, positionPath, dataSource )
+		function iterateMatrix( depthIndex: number, positionPath: number[], dataSource: NumberTreeElement[] )
 		{
 			positionPath.push( 0 );
 
-			const posIdx = positionPath.length - 1;
+			const posIdx	= positionPath.length - 1,
+				dsArray		= <number[]>dataSource;
 
 			_.each(
-				dataSource,
-				( dataVal, dataIdx ) => {
+				dsArray,
+				( dataVal : NumberTreeElement, dataIdx : number ) => {
 					positionPath[ posIdx ] = dataIdx;
 
 					if( depthIndex === dimensions.length - 1 )
@@ -115,12 +135,12 @@ class NDArray
 
 						if( _.isUndefined( result ) === false )
 						{
-							dataSource[ dataIdx ] = result;
+							dsArray[ dataIdx ] = result;
 						}
 					}
 					else
 					{
-						iterateMatrix( depthIndex + 1, positionPath, dataVal );
+						iterateMatrix( depthIndex + 1, positionPath, <number[]>dataVal );
 					}
 				}
 			);
@@ -134,17 +154,14 @@ class NDArray
 
 	/**
 	 * Clone a matrix
-	 * @param {NDArray} [targetObj=null]
-	 * @returns {NDArray}
-	 * @public
 	 */
-	clone( targetObj )
+	public clone( targetObj?: NDArray )
 	{
 		targetObj = targetObj || new NDArray( ...this.dimensions );
 
 		_.each(
 			this,
-			( v, k ) => ( targetObj[ k ] = _.cloneDeep( v ) )
+			( v, k ) => ( (<any>targetObj)[ k ] = _.cloneDeep( v ) )
 		);
 
 		targetObj.id = NDArray.idCounter++;
@@ -155,9 +172,8 @@ class NDArray
 
 	/**
 	 * Set all matrix values to zero
-	 * @public
 	 */
-	zero()
+	public zero()
 	{
 		this.set( 0 );
 	}
@@ -165,10 +181,8 @@ class NDArray
 
 	/**
 	 * Set all matrix values to the specified value
-	 * @param {Number} value
-	 * @public
 	 */
-	set( value )
+	public set( value: number )
 	{
 		this.traverse( () => ( value ) );
 	}
@@ -176,20 +190,17 @@ class NDArray
 
 	/**
 	 * Get matrix data
-	 * @returns {Number[]}
-	 * @public
 	 */
-	get()
+	public get() : number[]
 	{
-		return _.cloneDeep( this.data );
+		return _.cloneDeep( <number[]>this.data );
 	}
 
 
 	/**
 	 * Get value from specific position
-	 * @param {int[]} positionPath
 	 */
-	getAt( positionPath )
+	public getAt( positionPath: number[] )
 	{
 		this.validatePosition( positionPath );
 
@@ -199,10 +210,8 @@ class NDArray
 
 	/**
 	 * Set value at specific position
-	 * @param {int[]} positionPath
-	 * @param {Number} value
 	 */
-	setAt( positionPath, value )
+	public setAt( positionPath: number[], value: number )
 	{
 		this.validatePosition( positionPath );
 
@@ -212,13 +221,11 @@ class NDArray
 
 	/**
 	 * Set matrix data
-	 * @param {Number[]} data
-	 * @public
 	 */
-	setData( data )
+	public setData( data: NumberTreeElement )
 	{
 		this.traverse(
-			( v, positionPath ) => {
+			( v : number, positionPath : number[] ) => {
 				const newVal = _.get( data, _.join( positionPath, '.' ), '### not found ###' );
 
 				if( newVal === '### not found ###' )
@@ -234,10 +241,8 @@ class NDArray
 
 	/**
 	 * Validate position path
-	 * @param {int[]} positionPath
-	 * @private
 	 */
-	validatePosition( positionPath )
+	protected validatePosition( positionPath: number[] )
 	{
 		if( positionPath.length !== this.dimensions.length )
 		{
@@ -260,10 +265,8 @@ class NDArray
 
 	/**
 	 * Returns number of dimensions in NDArray
-	 * @returns {int}
-	 * @public
 	 */
-	countDims()
+	public countDims() : number
 	{
 		return this.dimensions.length;
 	}
@@ -271,10 +274,8 @@ class NDArray
 
 	/**
 	 * Returns dimension sizes in NDArray
-	 * @returns {int[]}
-	 * @public
 	 */
-	getDims()
+	public getDims() : number[]
 	{
 		return _.cloneDeep( this.dimensions );
 	}
@@ -282,11 +283,8 @@ class NDArray
 
 	/**
 	 * Compare with another NDArray
-	 * @param {NDArray} b
-	 * @returns {boolean}
-	 * @public
 	 */
-	equals( b )
+	public equals( b : NDArray )
 	{
 		if( b.countDims() !== this.countDims() )
 		{
@@ -297,20 +295,17 @@ class NDArray
 	}
 
 
-	toString()
+	public toString() : string
 	{
 		return `NDArray#${this.id}: ${this.data.toString()}`;
 	}
 
 
-	toJSON()
+	public toJSON() : NumberTreeElement[]
 	{
 		return _.cloneDeep( this.data );
 	}
 }
-
-
-NDArray.idCounter = 0;
 
 
 export default NDArray;

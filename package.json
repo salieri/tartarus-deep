@@ -23,20 +23,31 @@
   },
   "license": "SEE LICENSE IN license.md",
   "dependencies": {
+    "@babel/polyfill": "^7.0.0",
+    "@types/lodash": "^4.14.116",
     "bluebird": "^3.5.1",
     "esm": "^3.0.84",
     "lodash": "^4.17.10"
   },
   "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-typescript": "^7.1.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "eslint": "^4.19.1",
     "eslint-plugin-filenames": "^1.3.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-typescript": "^0.12.0",
     "gulp": "^3.9.1",
     "mocha": "^5.2.0",
-    "nyc": "^13.0.1"
+    "nyc": "^13.0.1",
+    "typescript": "^3.1.1",
+    "typescript-eslint-parser": "^19.0.2"
   },
   "peerDependencies": {},
   "bin": {}

@@ -1,15 +1,15 @@
-import NDArray from './ndarray.mjs';
+import NDArray from './ndarray';
 import _ from 'lodash';
 
 class Matrix extends NDArray
 {
-	constructor( ...dimensions )
+	constructor( ...dimensions : any[] )
 	{
 		super( ...dimensions );
 	}
 
 
-	validateConstructor( dimensions )
+	protected validateConstructor( dimensions : any[] )
 	{
 		super.validateConstructor( dimensions );
 
@@ -39,7 +39,7 @@ class Matrix extends NDArray
 	 * @public
 	 * @returns {int}
 	 */
-	getCols()
+	public getCols() : number
 	{
 		return this.dimensions[ 1 ];
 	}
@@ -49,7 +49,7 @@ class Matrix extends NDArray
 	 * @public
 	 * @returns {int}
 	 */
-	getRows()
+	public getRows() : number
 	{
 		return this.dimensions[ 0 ];
 	}
@@ -59,7 +59,7 @@ class Matrix extends NDArray
 	 * @public
 	 * @return {Matrix}
 	 */
-	transpose()
+	public transpose() : Matrix
 	{
 		const result = new Matrix( this.getCols(), this.getRows() );
 
@@ -81,11 +81,11 @@ class Matrix extends NDArray
 	 * @returns {Matrix}
 	 * @public
 	 */
-	clone( targetObj )
+	public clone( targetObj : Matrix ) : Matrix
 	{
 		targetObj = targetObj || new Matrix( ...this.dimensions );
 
-		return super.clone( targetObj );
+		return <Matrix>super.clone( targetObj );
 	}
 }
 

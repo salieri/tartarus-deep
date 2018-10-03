@@ -1,16 +1,22 @@
-import NDArray from './ndarray.mjs';
-import Matrix from './matrix.mjs';
+import NDArray from './ndarray';
+import Matrix from './matrix';
 import _ from 'lodash';
+
+export enum VectorDirection {
+	Row,
+	Col
+}
+
 
 class Vector extends NDArray
 {
-	constructor( ...dimensions )
+	constructor( ...dimensions : any[] )
 	{
 		super( ...dimensions );
 	}
 
 
-	validateConstructor( dimensions )
+	protected validateConstructor( dimensions : any[] )
 	{
 		super.validateConstructor( dimensions );
 
@@ -36,7 +42,7 @@ class Vector extends NDArray
 	}
 
 
-	getSize()
+	public getSize() : number
 	{
 		return this.dimensions[ 0 ];
 	}
@@ -48,11 +54,11 @@ class Vector extends NDArray
 	 * @returns {Vector}
 	 * @public
 	 */
-	clone( targetObj )
+	public clone( targetObj: Vector ) : Vector
 	{
 		targetObj = targetObj || new Vector( ...this.dimensions );
 
-		return super.clone( targetObj );
+		return <Vector>super.clone( targetObj );
 	}
 
 
@@ -63,31 +69,30 @@ class Vector extends NDArray
 	 * @param {String} direction 'row' or 'col'
 	 * @returns {Matrix}
 	 */
-	expandToMatrix( rows, cols, direction )
+	public expandToMatrix( rows : number, cols : number, direction : VectorDirection ) : Matrix
 	{
 		const result = new Matrix( rows, cols );
 
 		if(
-			( ( direction === 'row' ) && ( rows !== this.getSize() ) ) ||
-			( ( direction === 'col' ) && ( cols !== this.getSize() ) ) ||
-			( ( direction !== 'row' ) && ( direction !== 'col' ) )
+			( ( direction === VectorDirection.Row ) && ( rows !== this.getSize() ) ) ||
+			( ( direction === VectorDirection.Col ) && ( cols !== this.getSize() ) )
 		)
 		{
 			throw new Error( `Vector does not fit the shape of the matrix` );
 		}
 
-		let tPos;
+		let tPos = 0;
 
 		for( let y = 0; y < rows; y++ )
 		{
-			if( direction === 'row' )
+			if( direction === VectorDirection.Row )
 			{
 				tPos = y;
 			}
 
 			for( let x = 0; x < cols; x++ )
 			{
-				if( direction === 'col' )
+				if( direction === VectorDirection.Col )
 				{
 					tPos = x;
 				}
@@ -102,4 +107,3 @@ class Vector extends NDArray
 
 
 export default Vector;
-
