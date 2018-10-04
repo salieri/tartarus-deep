@@ -71,7 +71,7 @@ class Vector extends NDArray
 	 */
 	public expandToMatrix( rows : number, cols : number, direction : VectorDirection ) : Matrix
 	{
-		const result = new Matrix( rows, cols );
+		const result : Matrix = new Matrix( rows, cols );
 
 		if(
 			( ( direction === VectorDirection.Row ) && ( rows !== this.getSize() ) ) ||
@@ -81,16 +81,16 @@ class Vector extends NDArray
 			throw new Error( `Vector does not fit the shape of the matrix` );
 		}
 
-		let tPos = 0;
+		let tPos : number = 0;
 
-		for( let y = 0; y < rows; y++ )
+		for( let y : number = 0; y < rows; y++ )
 		{
 			if( direction === VectorDirection.Row )
 			{
 				tPos = y;
 			}
 
-			for( let x = 0; x < cols; x++ )
+			for( let x : number = 0; x < cols; x++ )
 			{
 				if( direction === VectorDirection.Col )
 				{

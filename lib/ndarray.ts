@@ -191,7 +191,7 @@ class NDArray
 	/**
 	 * Get matrix data
 	 */
-	public get() : number[]
+	public get() : NumberTreeElement[]
 	{
 		return _.cloneDeep( <number[]>this.data );
 	}

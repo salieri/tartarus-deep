@@ -9,10 +9,9 @@
       <env name="BLUEBIRD_DEBUG" value="1" />
     </envs>
     <ui>bdd</ui>
-    <extra-mocha-options />
-    <test-kind>DIRECTORY</test-kind>
-    <test-directory>$PROJECT_DIR$/test</test-directory>
-    <recursive>true</recursive>
+    <extra-mocha-options>-r ts-node/register</extra-mocha-options>
+    <test-kind>PATTERN</test-kind>
+    <test-pattern>test/**/*.ts</test-pattern>
     <method v="2" />
   </configuration>
 </component>

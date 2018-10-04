@@ -1,4 +1,7 @@
-const { NDArray } = require( '../../lib/index' );
+import 'mocha';
+import { expect } from 'chai';
+
+import NDArray from '../../lib/ndarray';
 
 
 describe( 'N-dimensional Array',
@@ -22,7 +25,7 @@ describe( 'N-dimensional Array',
 				m.getDims()[ 1 ].should.equal( 4 );
 
 				m.get().length.should.equal( 3 );
-				m.get()[ 1 ].length.should.equal( 4 );
+				(<number[]>m.get()[ 1 ] ).length.should.equal( 4 );
 			}
 		);
 
@@ -43,7 +46,7 @@ describe( 'N-dimensional Array',
 				m.getDims()[ 1 ].should.equal( 4 );
 
 				m.get().length.should.equal( 3 );
-				m.get()[ 1 ].length.should.equal( 4 );
+				(<number[]>m.get()[ 1 ] ).length.should.equal( 4 );
 
 				m.getAt( [ 0, 0 ] ).should.equal( 0 );
 				m.getAt( [ 1, 1 ] ).should.equal( 1 );
@@ -71,7 +74,7 @@ describe( 'N-dimensional Array',
 				m.getDims()[ 1 ].should.equal( 4 );
 
 				m.get().length.should.equal( 3 );
-				m.get()[ 1 ].length.should.equal( 4 );
+				(<number[]>m.get()[ 1 ] ).length.should.equal( 4 );
 
 				m.getAt( [ 0, 0 ] ).should.equal( 0 );
 				m.getAt( [ 1, 1 ] ).should.equal( 1 );
