@@ -33,7 +33,7 @@ class Vector extends NDArray
 			}
 			else if( _.isArray( dimEl ) === true )
 			{
-				if( dimEl.length !== 1 )
+				if( Vector.resolveDimensions( dimEl ).length !== 1 )
 				{
 					throw new Error( `Vector must have exactly one data dimension` );
 				}

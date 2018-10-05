@@ -26,7 +26,7 @@ class Matrix extends NDArray
 			}
 			else if( _.isArray( dimEl ) === true )
 			{
-				if( dimEl.length !== 2 )
+				if( Matrix.resolveDimensions( dimEl ).length !== 2 )
 				{
 					throw new Error( `Matrix must have exactly two data dimensions` );
 				}
