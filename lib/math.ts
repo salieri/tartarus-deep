@@ -74,7 +74,7 @@ const Math = {
 		/**
 		 * Elementwise multiplication
 		 */
-		mul : ( a : NDArray, b : NDArray ) : NDArray => {
+		mul : ( a : NDArray, b : NDArray|number ) : NDArray => {
 			return Math.elementwise.baseOperation(
 				a,
 				b,
@@ -87,7 +87,7 @@ const Math = {
 		/**
 		 * Elementwise div
 		 */
-		div : ( a : NDArray, b : NDArray ) : NDArray => {
+		div : ( a : NDArray, b : NDArray|number ) : NDArray => {
 			return Math.elementwise.baseOperation(
 				a,
 				b,

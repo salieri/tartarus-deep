@@ -42,6 +42,9 @@ class Vector extends NDArray
 	}
 
 
+	/**
+	 * Get vector size
+	 */
 	public getSize() : number
 	{
 		return this.dimensions[ 0 ];
