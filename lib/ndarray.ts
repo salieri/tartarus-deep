@@ -56,7 +56,7 @@ class NDArray
 	}
 
 
-	protected validateConstructor( dimensions: any[] )
+	protected validateConstructor( dimensions: any[] ) : void
 	{
 		if( ( !dimensions ) || ( dimensions.length === 0 ) )
 		{
@@ -88,7 +88,7 @@ class NDArray
 	}
 
 
-	protected static resolveDimensions( data: NumberTreeElement )
+	protected static resolveDimensions( data: NumberTreeElement ) : number[]
 	{
 		const dimensions = [];
 
@@ -113,7 +113,7 @@ class NDArray
 	 * @param {function(value, position)} callback Called for each element in the matrix. If the function returns a value other than
 	 * undefined, the matrix element will be set to that value.
 	 */
-	public traverse( callback: Function )
+	public traverse( callback: Function ) : void
 	{
 		const dimensions = this.dimensions;
 
@@ -155,7 +155,7 @@ class NDArray
 	/**
 	 * Clone a matrix
 	 */
-	public clone( targetObj?: NDArray )
+	public clone( targetObj?: NDArray ) : NDArray
 	{
 		targetObj = targetObj || new NDArray( ...this.dimensions );
 
@@ -173,7 +173,7 @@ class NDArray
 	/**
 	 * Set all matrix values to zero
 	 */
-	public zero()
+	public zero() : void
 	{
 		this.set( 0 );
 	}
@@ -182,7 +182,7 @@ class NDArray
 	/**
 	 * Set all matrix values to the specified value
 	 */
-	public set( value: number )
+	public set( value: number ) : void
 	{
 		this.traverse( () => ( value ) );
 	}
@@ -200,7 +200,7 @@ class NDArray
 	/**
 	 * Get value from specific position
 	 */
-	public getAt( positionPath: number[] )
+	public getAt( positionPath: number[] ) : number
 	{
 		this.validatePosition( positionPath );
 
@@ -211,18 +211,18 @@ class NDArray
 	/**
 	 * Set value at specific position
 	 */
-	public setAt( positionPath: number[], value: number )
+	public setAt( positionPath: number[], value: number ) : void
 	{
 		this.validatePosition( positionPath );
 
-		return _.set( this.data, _.join( positionPath, '.' ), value );
+		_.set( this.data, _.join( positionPath, '.' ), value );
 	}
 
 
 	/**
 	 * Set matrix data
 	 */
-	public setData( data: NumberTreeElement )
+	public setData( data: NumberTreeElement ) : void
 	{
 		this.traverse(
 			( v : number, positionPath : number[] ) => {
@@ -242,7 +242,7 @@ class NDArray
 	/**
 	 * Validate position path
 	 */
-	protected validatePosition( positionPath: number[] )
+	protected validatePosition( positionPath: number[] ) : void
 	{
 		if( positionPath.length !== this.dimensions.length )
 		{
@@ -284,7 +284,7 @@ class NDArray
 	/**
 	 * Compare with another NDArray
 	 */
-	public equals( b : NDArray )
+	public equals( b : NDArray ) : boolean
 	{
 		if( b.countDims() !== this.countDims() )
 		{

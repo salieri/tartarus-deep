@@ -17,7 +17,7 @@ const Math = {
 		 * @return {NDArray}
 		 * @private
 		 */
-		baseOperation : ( a : NDArray, b : NDArray | number, operationCb : Function, opName : string ) => {
+		baseOperation : ( a : NDArray, b : NDArray | number, operationCb : Function, opName : string ) : NDArray => {
 			if( b instanceof NDArray )
 			{
 				if( _.isEqual( a.getDims(), b.getDims() ) === false )
@@ -138,7 +138,7 @@ const Math = {
 	/**
 	 * Multiply matrix `a` with vector `b` by expanding `b` into a matrix
 	 */
-	vecmul( a : Matrix, b : Vector, dimension : VectorDirection )
+	vecmul( a : Matrix, b : Vector, dimension : VectorDirection ) : Matrix
 	{
 		const bMat = b.expandToMatrix( a.getCols(), a.getRows(), dimension );
 

@@ -9,7 +9,7 @@ class Matrix extends NDArray
 	}
 
 
-	protected validateConstructor( dimensions : any[] )
+	protected validateConstructor( dimensions : any[] ) : void
 	{
 		super.validateConstructor( dimensions );
 
