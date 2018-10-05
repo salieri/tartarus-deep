@@ -56,6 +56,51 @@ describe( 'N-dimensional Array',
 		);
 
 
+		it( 'should reject NDArrays with inconsistent data shape',
+			function()
+			{
+				( () => ( new NDArray(
+					[
+						[ 1, 0, 0 ],
+						[ 1, 0, 0, 0 ],
+						[ 1, 0 , 0 ]
+					]
+				) )
+				).should.Throw( /Inconsistent data size/ );
+			}
+		);
+
+
+		it( 'should refuse to set data to NDArrays, if the data shape does not match',
+			function()
+			{
+				const nd = new NDArray( 2, 3 );
+
+				( () => ( nd.setData(
+					[
+						[ 1, 2, 3 ]
+					]
+				) ) ).should.Throw( /Inconsistent data size/ );
+
+				( () => ( nd.setData(
+					[
+						[ 1, 2, 3 ],
+						[ 1, 2, 3 ],
+						[ 1, 2, 3 ]
+					]
+				) ) ).should.Throw( /Inconsistent data size/ );
+
+				( () => ( nd.setData(
+					[
+						[ 1, 2 ],
+						[ 1, 2 ],
+						[ 1, 2 ]
+					]
+				) ) ).should.Throw( /Inconsistent data size/ );
+			}
+		);
+
+
 		it( 'should create NDArray from another NDArray',
 			function()
 			{

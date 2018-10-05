@@ -9,7 +9,7 @@
       <env name="BLUEBIRD_DEBUG" value="1" />
     </envs>
     <ui>bdd</ui>
-    <extra-mocha-options>-r ts-node/register --sourceMaps</extra-mocha-options>
+    <extra-mocha-options>-r ts-node/register -r source-map-support/register</extra-mocha-options>
     <test-kind>PATTERN</test-kind>
     <test-pattern>test/**/*.ts</test-pattern>
     <method v="2" />

@@ -114,11 +114,11 @@ const Math = {
 			throw new Error( `Cannot multiply matrices where a.cols does not match b.rows` );
 		}
 
-		const result : Matrix = new Matrix( bCols, aRows );
+		const result : Matrix = new Matrix( aRows, bCols );
 
-		for( let y : number = 0; y < bCols; y++ )
+		for( let y : number = 0; y < aRows; y++ )
 		{
-			for( let x : number = 0; x < aRows; x++ )
+			for( let x : number = 0; x < bCols; x++ )
 			{
 				let val : number = 0;
 

@@ -26,13 +26,15 @@ describe( 'Math',
 
 				const result = Math.matmul( m1, m2 );
 
-				result.toJSON().should.equal(
+				result.getRows().should.equal( 2 );
+				result.getCols().should.equal( 3 );
+
+				result.toJSON().should.deep.equal(
 					[
-						[ 34, 40, 32 ],
-						[ 98, 120, 104 ]
+						[ 48, 54, 60 ],
+						[ 136, 158, 180 ]
 					]
 				);
-
 			}
 		);
 	}

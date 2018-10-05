@@ -1,10 +1,5 @@
 import _ from 'lodash';
 
-/**
- * new Matrix( 20 )
- * new Matrix( 20, 30, 40, 50 )
- */
-
 type NumberTreeElement = number[] | number;
 
 
@@ -68,7 +63,7 @@ class NDArray
 	/**
 	 * @param {int[]} dimensions
 	 * @param {Number} [initialValue=0]
-	 * @returns {Number[]} Multi-dimensional array representing the matrix
+	 * @returns {Number[]} Multi-dimensional array representing the data
 	 */
 	public static createDimArray( dimensions : number[], initialValue: number = 0 ) : NumberTreeElement[]
 	{
@@ -108,52 +103,85 @@ class NDArray
 
 
 	/**
-	 * Traverse all elements in the matrix
-	 *
-	 * @param {function(value, position)} callback Called for each element in the matrix. If the function returns a value other than
-	 * undefined, the matrix element will be set to that value.
+	 * Traverse all elements and arrays in the NDArray
+	 * @param depthIndex
+	 * @param positionPath
+	 * @param dataSource
+	 * @param dimensions
+	 * @param [elementCallback]
+	 * @param [arrayCallback]
 	 */
-	public traverse( callback: Function ) : void
+	private static traverseNDArray(
+		depthIndex: number,
+		positionPath: number[],
+		dataSource: NumberTreeElement[],
+		dimensions : number[],
+		elementCallback? : Function,
+		arrayCallback? : Function
+	)
 	{
-		const dimensions = this.dimensions;
+		positionPath.push( 0 );
 
-		function iterateMatrix( depthIndex: number, positionPath: number[], dataSource: NumberTreeElement[] )
-		{
-			positionPath.push( 0 );
+		const posIdx	= positionPath.length - 1,
+			dsArray		= <number[]>dataSource;
 
-			const posIdx	= positionPath.length - 1,
-				dsArray		= <number[]>dataSource;
+		_.each(
+			dsArray,
+			( dataVal : NumberTreeElement, dataIdx : number ) => {
+				positionPath[ posIdx ] = dataIdx;
 
-			_.each(
-				dsArray,
-				( dataVal : NumberTreeElement, dataIdx : number ) => {
-					positionPath[ posIdx ] = dataIdx;
-
-					if( depthIndex === dimensions.length - 1 )
+				if( depthIndex === dimensions.length - 1 )
+				{
+					if( elementCallback )
 					{
-						const result = callback( dataVal, positionPath );
+						const result = elementCallback( dataVal, positionPath );
 
 						if( _.isUndefined( result ) === false )
 						{
 							dsArray[ dataIdx ] = result;
 						}
 					}
-					else
-					{
-						iterateMatrix( depthIndex + 1, positionPath, <number[]>dataVal );
-					}
 				}
-			);
+				else
+				{
+					if( arrayCallback )
+					{
+						arrayCallback( dataVal, positionPath );
+					}
 
-			positionPath.pop();
-		}
+					NDArray.traverseNDArray( depthIndex + 1, positionPath, <number[]>dataVal, dimensions, elementCallback, arrayCallback );
+				}
+			}
+		);
 
-		iterateMatrix( 0, [], this.data );
+		positionPath.pop();
 	}
 
 
 	/**
-	 * Clone a matrix
+	 * Traverse all arrays in the multi-dimensional array
+	 * @param {function(NumberTreeElement[] array, number[] position)} callback
+	 */
+	public traverseArrays( callback : Function ) : void
+	{
+		NDArray.traverseNDArray( 0, [], this.data, this.dimensions, undefined, callback );
+	}
+
+
+	/**
+	 * Traverse all elements in the multi-dimensional array
+	 *
+	 * @param {function(number value, number[] position)} callback Called for each element in the multi-dimensional array.
+	 *  If the function returns a value other than undefined, the element will be set to that value.
+	 */
+	public traverse( callback: Function ) : void
+	{
+		NDArray.traverseNDArray( 0, [], this.data, this.dimensions, callback, undefined );
+	}
+
+
+	/**
+	 * Clone an NDArray
 	 */
 	public clone( targetObj?: NDArray ) : NDArray
 	{
@@ -171,7 +199,7 @@ class NDArray
 
 
 	/**
-	 * Set all matrix values to zero
+	 * Set all values to zero
 	 */
 	public zero() : void
 	{
@@ -180,7 +208,7 @@ class NDArray
 
 
 	/**
-	 * Set all matrix values to the specified value
+	 * Set all values to the specified value
 	 */
 	public set( value: number ) : void
 	{
@@ -189,7 +217,7 @@ class NDArray
 
 
 	/**
-	 * Get matrix data
+	 * Get NDArray data
 	 */
 	public get() : NumberTreeElement[]
 	{
@@ -220,10 +248,29 @@ class NDArray
 
 
 	/**
-	 * Set matrix data
+	 * Set NDArray data
 	 */
-	public setData( data: NumberTreeElement ) : void
+	public setData( data: NumberTreeElement[] ) : void
 	{
+		if( data.length !== this.dimensions[ 0 ] )
+		{
+			throw new Error( 'Inconsistent data size' );
+		}
+
+		NDArray.traverseNDArray(
+			0,
+			[],
+			data,
+			this.dimensions,
+			undefined,
+			( a : NumberTreeElement[], positionPath : number[] ) => {
+				if( a.length !== this.dimensions[ positionPath.length ] )
+				{
+					throw new Error( 'Inconsistent data size' );
+				}
+			}
+		);
+
 		this.traverse(
 			( v : number, positionPath : number[] ) => {
 				const newVal = _.get( data, _.join( positionPath, '.' ), '### not found ###' );
