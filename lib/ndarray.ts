@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import MathHelper from './math-helper';
 
 type NumberTreeElement = number[] | number;
 
@@ -199,6 +200,19 @@ class NDArray
 
 
 	/**
+	 * Randomize all values
+	 * @param [min=0.0]
+	 * @param [max=1.0]
+	 */
+	rand( min = 0.0, max = 1.0 )
+	{
+		return this.traverse(
+			() : number => ( min + Math.random() * ( max - min ) )
+		);
+	}
+
+
+	/**
 	 * Set all values to zero
 	 */
 	public zero() : void
@@ -212,7 +226,7 @@ class NDArray
 	 */
 	public set( value: number ) : void
 	{
-		this.traverse( () => ( value ) );
+		this.traverse( () : number => ( value ) );
 	}
 
 
@@ -291,6 +305,10 @@ class NDArray
 	 */
 	protected validatePosition( positionPath: number[] ) : void
 	{
+		if( positionPath.length == 0 )
+		{
+		}
+
 		if( positionPath.length !== this.dimensions.length )
 		{
 			throw new Error( `Invalid position path: expected ${this.dimensions.length} dimensions` );
@@ -352,6 +370,194 @@ class NDArray
 	{
 		return _.cloneDeep( this.data );
 	}
+
+
+
+	public apply( valCallback : Function ) : NDArray
+	{
+		const clone = this.clone();
+
+		clone.traverse(
+			( val : number, pos : number[] ) : number => {
+				return valCallback( val );
+			}
+		);
+
+		return clone;
+	}
+
+
+	/* --------------------------- Math shortcuts --------------------------- */
+
+	/**
+	 * Elementwise operation between NDArrays of the same size
+	 * @param {NDArray|number} b
+	 * @param {function(number, number) : number} operationCb
+	 * @param {string} opName
+	 * @return {NDArray}
+	 * @protected
+	 */
+	elementwiseOp( b : NDArray | number, operationCb : Function, opName : string ) : NDArray
+	{
+		if( b instanceof NDArray )
+		{
+			if( _.isEqual( this.getDims(), b.getDims() ) === false )
+			{
+				throw new Error( `Cannot do elementwise ${opName} on NDArrays with differing dimensions` );
+			}
+		}
+
+		const aClone = this.clone();
+
+		aClone.traverse(
+			( val : number, pos : number[] ) : number => {
+				let bVal = b;
+
+				if( b instanceof NDArray )
+				{
+					bVal = b.getAt( pos );
+				}
+
+				return operationCb( val, bVal );
+			}
+		);
+
+		return aClone;
+	}
+
+
+	/**
+	 * Elementwise subtract
+	 * @param subtrahend Value(s) to be subtracted
+	 */
+	public sub( subtrahend : NDArray|number ) : NDArray
+	{
+		return this.elementwiseOp(
+			subtrahend,
+			( aVal : number, bVal : number ) : number => ( aVal - bVal ),
+			'subtraction'
+		);
+	}
+
+
+	/**
+	 * Elementwise addition
+	 * @param addend Value(s) to be added
+	 */
+	public add( addend : NDArray|number ) : NDArray
+	{
+		return this.elementwiseOp(
+			addend,
+			( aVal : number, bVal : number ) : number => ( aVal + bVal ),
+			'addition'
+		);
+	}
+
+
+	/**
+	 * Elementwise multiplication
+	 * @param multiplicand Value(s) to be multiplied by
+	 */
+	public mul( multiplicand : NDArray|number ) : NDArray
+	{
+		return this.elementwiseOp(
+			multiplicand,
+			( aVal : number, bVal : number ) : number => ( aVal * bVal ),
+			'multiplication'
+		);
+	}
+
+
+	/**
+	 * Elementwise division
+	 * @param divisor Value(s) to be divided by
+	 */
+	public div( divisor : NDArray|number ) : NDArray
+	{
+		return this.elementwiseOp(
+			divisor,
+			( aVal : number, bVal : number ) : number => ( aVal / bVal ),
+			'division'
+		);
+	}
+
+
+	/**
+	 * Elementwise exponent (element^exponent)
+	 * @param exponent Value(s) to be exponented by
+	 */
+	public pow( exponent : NDArray|number ) : NDArray
+	{
+		return this.elementwiseOp(
+			exponent,
+			( aVal : number, bVal : number ) : number => Math.pow( aVal, bVal ),
+			'exponentation'
+		);
+	}
+
+
+	/**
+	 * Elementwise abs
+	 */
+	public abs() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.abs( val ) );
+	}
+
+
+	/**
+	 * Elementwise log
+	 */
+	public log() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.log( val ) );
+	}
+
+
+	/**
+	 * Elementwise exp
+	 */
+	public exp() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.exp( val ) );
+	}
+
+
+	/**
+	 * Calculate total sum of elements
+	 * @param {Function( elementValue : number ) : number} [summingCallback] If defined, the return value of this function is used instead of the element value
+	 */
+	public sum( summingCallback? : Function ) : number
+	{
+		let total : number = 0;
+
+		this.traverse(
+			( val : number ) => {
+				if( summingCallback )
+				{
+					total += summingCallback( val );
+				}
+				else
+				{
+					total += val;
+				}
+			}
+		);
+
+		return total;
+	}
+
+
+	/**
+	 * Normalize elements
+	 */
+	public normalize() : NDArray
+	{
+		const expSum = Math.sqrt( this.sum( ( val : number ) : number => Math.pow( val, 2 ) ) );
+
+		return this.apply( ( val : number ) : number => ( val / expSum ) );
+	}
+
 }
 
 

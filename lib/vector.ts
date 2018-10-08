@@ -106,6 +106,35 @@ class Vector extends NDArray
 
 		return result;
 	}
+
+
+	/**
+	 * Calculate dot product between two vectors
+	 * @param {Vector} b
+	 */
+	public dot( b : Vector ) : number
+	{
+		let total : number = 0;
+
+		this.traverse(
+			( aVal : number, path : number[] ) => {
+				const bVal : number = b.getAt( path );
+
+				total += aVal * bVal;
+			}
+		);
+
+		return total;
+	}
+
+
+	/**
+	 * Calculate Euclidean length of the vector
+	 */
+	public length() : number
+	{
+		return Math.sqrt( this.sum( ( val : number ) : number => Math.pow( val, 2 ) ) );
+	}
 }
 
 

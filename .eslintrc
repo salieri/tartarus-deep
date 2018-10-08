@@ -150,12 +150,16 @@
 	"plugins" : [
 		"filenames",
 		"node",
-		"security"
+		"security",
+		"eslint"
 	],
 
 	"parserOptions" : {
 		"ecmaVersion"	: 2017,
 		"sourceType" : "module"
-	}
+	},
+
+	"parser" : "typescript-eslint-parser"
+
 
 }

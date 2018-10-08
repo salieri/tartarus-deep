@@ -1,5 +1,7 @@
 import NDArray from './ndarray';
 import _ from 'lodash';
+import MathHelper from './math-helper';
+
 
 class Matrix extends NDArray
 {
@@ -86,6 +88,42 @@ class Matrix extends NDArray
 		targetObj = targetObj || new Matrix( ...this.dimensions );
 
 		return <Matrix>super.clone( targetObj );
+	}
+
+
+	/**
+	 * Matrix multiplication
+	 */
+	matmul( b : Matrix ) : Matrix
+	{
+		const aCols : number = this.getCols(),
+			aRows : number = this.getRows(),
+			bCols : number = b.getCols(),
+			bRows : number = b.getRows();
+
+		if( aCols !== bRows )
+		{
+			throw new Error( `Cannot multiply matrices where a.cols does not match b.rows` );
+		}
+
+		const result : Matrix = new Matrix( aRows, bCols );
+
+		for( let y : number = 0; y < aRows; y++ )
+		{
+			for( let x : number = 0; x < bCols; x++ )
+			{
+				let val : number = 0;
+
+				for( let i : number = 0; i < aCols; i++ )
+				{
+					val += this.getAt( [ y, i ] ) * b.getAt( [ i, x ] );
+				}
+
+				result.setAt( [ y, x ], val );
+			}
+		}
+
+		return result;
 	}
 }
 
