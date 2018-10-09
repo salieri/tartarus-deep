@@ -26,11 +26,8 @@ Provides from-the-ground-up implementation for:
 Decidedly unoptimized -- written for convenience, not for speed.
 
 
-https://isaacchanghau.github.io/post/loss_functions/
 
+## Acknowledgements
 
-## Further Reading
-
-* https://ml-cheatsheet.readthedocs.io/
-* https://isaacchanghau.github.io/
-
+* https://isaacchanghau.github.io/post/loss_functions/
+* https://ml-cheatsheet.readthedocs.io/en/latest/
