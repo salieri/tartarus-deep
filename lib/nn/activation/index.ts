@@ -1,8 +1,11 @@
+import Node from '../node';
 
-class Activation
+
+class Activation extends Node
 {
 	constructor()
 	{
+		super();
 	}
 
 	calculate()

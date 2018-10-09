@@ -57,7 +57,7 @@ class Vector extends NDArray
 	 * @returns {Vector}
 	 * @public
 	 */
-	public clone( targetObj: Vector ) : Vector
+	public clone( targetObj?: Vector ) : Vector
 	{
 		targetObj = targetObj || new Vector( ...this.dimensions );
 

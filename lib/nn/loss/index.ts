@@ -7,13 +7,22 @@ import Vector from '../../vector';
  */
 class Loss
 {
-	constructor()
+	protected params : object;
+
+	constructor( params : object = {} )
 	{
+		this.params = params;
 	}
 
-	calculate( yHat : Vector, y : Vector ) : number
+	public calculate( yHat : Vector, y : Vector ) : number
 	{
 		throw new Error( 'Not implemented' );
+	}
+
+
+	public getDescriptor()
+	{
+		return {};
 	}
 }
 

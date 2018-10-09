@@ -215,18 +215,18 @@ class NDArray
 	/**
 	 * Set all values to zero
 	 */
-	public zero() : void
+	public zero() : NDArray
 	{
-		this.set( 0 );
+		return this.set( 0 );
 	}
 
 
 	/**
 	 * Set all values to the specified value
 	 */
-	public set( value: number ) : void
+	public set( value: number ) : NDArray
 	{
-		this.traverse( () : number => ( value ) );
+		return this.apply(() => ( value ) );
 	}
 
 
@@ -347,6 +347,19 @@ class NDArray
 
 
 	/**
+	 * Count all elements in NDArray
+	 */
+	public countElements() : number
+	{
+		return _.reduce(
+			this.dimensions,
+			( dims, accumulator ) => ( dims + accumulator ),
+			0
+		);
+	}
+
+
+	/**
 	 * Compare with another NDArray
 	 */
 	public equals( b : NDArray ) : boolean
@@ -379,7 +392,7 @@ class NDArray
 
 		clone.traverse(
 			( val : number, pos : number[] ) : number => {
-				return valCallback( val );
+				return valCallback( val, pos );
 			}
 		);
 
@@ -556,6 +569,35 @@ class NDArray
 		const expSum = Math.sqrt( this.sum( ( val : number ) : number => Math.pow( val, 2 ) ) );
 
 		return this.apply( ( val : number ) : number => ( val / expSum ) );
+	}
+
+
+	/**
+ 	 * Calculate mean of NDArray
+	 */
+	public mean() : number
+	{
+		return this.sum() / this.countElements();
+	}
+
+
+
+	public static iterate( callback : Function, ...arrays : NDArray[] ) : NDArray
+	{
+		const clone = arrays[ 0 ].clone();
+
+		clone.traverse(
+			( val : number, pos : number[] ) : number => {
+				const vals : number[] = _.map(
+					arrays,
+					( arr : NDArray ) => ( arr.getAt( pos ) )
+				);
+
+				return callback( ...vals, pos );
+			}
+		);
+
+		return clone;
 	}
 
 }

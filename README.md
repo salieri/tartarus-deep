@@ -21,7 +21,16 @@ Provides from-the-ground-up implementation for:
 * Neural networks
 * CNNs
 * RNNs
+* Regularization
 
 Decidedly unoptimized -- written for convenience, not for speed.
 
+
+https://isaacchanghau.github.io/post/loss_functions/
+
+
+## Further Reading
+
+* https://ml-cheatsheet.readthedocs.io/
+* https://isaacchanghau.github.io/
 

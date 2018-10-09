@@ -1,15 +1,15 @@
-import Loss from './loss';
+import Loss from './';
 import Vector from '../../vector';
 
 /**
- * Mean Absolute Error / L1
+ * L1
  */
 class L1 extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
-		// sum( abs( yHat - y ) ) / size
-		return yHat.sub( y ).abs().sum() / y.getSize();
+		// sum( abs( yHat - y ) )
+		return yHat.sub( y ).abs().sum();
 	}
 }
 

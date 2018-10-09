@@ -1,4 +1,4 @@
-import Activation from './activation';
+import Activation from './';
 import Vector from '../../vector';
 
 /**
