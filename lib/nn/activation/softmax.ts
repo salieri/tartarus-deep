@@ -1,14 +1,14 @@
-import Activation from './';
-import Vector from '../../vector';
+import Activation from '.';
+import NDArray from '../../ndarray';
 
 /**
  * Softmax
  */
 class Softmax extends Activation
 {
-	calculate( yHat : Vector, y : Vector ) : Vector
+	calculate( z : NDArray ) : NDArray
 	{
-		return <Vector>yHat.exp().div( yHat.exp().sum() );
+		return z.exp().div( z.exp().sum() );
 	}
 }
 

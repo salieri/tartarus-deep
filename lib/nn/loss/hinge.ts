@@ -6,12 +6,6 @@ import Joi from 'joi';
 
 class Hinge extends Loss
 {
-	constructor( params : object )
-	{
-		super( params );
-	}
-
-
 	public calculate( yHat : Vector, y : Vector ) : number
 	{
 		return NDArray.iterate(

@@ -537,6 +537,78 @@ class NDArray
 
 
 	/**
+	 * Negate values
+	 */
+	public neg() : NDArray
+	{
+		return this.apply( ( val : number ) : number => ( -val ) );
+	}
+
+
+	/**
+	 * Sin
+	 */
+	public sin() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.sin( val ) );
+	}
+
+
+	/**
+	 * Cos
+	 */
+	public cos() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.cos( val ) );
+	}
+
+
+	/**
+	 * Tan
+	 */
+	public tan() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.tan( val ) );
+	}
+
+
+	/**
+	 * Asin
+	 */
+	public asin() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.asin( val ) );
+	}
+
+
+	/**
+	 * Acos
+	 */
+	public acos() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.acos( val ) );
+	}
+
+
+	/**
+	 * Atan
+	 */
+	public atan() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.atan( val ) );
+	}
+
+
+	/**
+	 * Square root
+	 */
+	public sqrt() : NDArray
+	{
+		return this.apply( ( val : number ) : number => Math.sqrt( val ) );
+	}
+
+
+	/**
 	 * Calculate total sum of elements
 	 * @param {Function( elementValue : number ) : number} [summingCallback] If defined, the return value of this function is used instead of the element value
 	 */

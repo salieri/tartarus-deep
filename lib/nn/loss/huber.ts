@@ -5,12 +5,6 @@ import Joi from "joi";
 
 class Huber extends Loss
 {
-	constructor( params : object )
-	{
-		super( params );
-	}
-
-
 	calculate( yHat : Vector, y : Vector ) : number
 	{
 		return yHat.apply(
