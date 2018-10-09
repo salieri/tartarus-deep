@@ -1,5 +1,10 @@
 import Vector from '../../vector';
 
+interface LossParams {
+	[key : string]: any;
+}
+
+
 /**
  * A loss function returns a scalar measuring
  * the performance of a model. Inputs are:
@@ -7,9 +12,9 @@ import Vector from '../../vector';
  */
 class Loss
 {
-	protected params : object;
+	protected params : LossParams;
 
-	constructor( params : object = {} )
+	constructor( params : LossParams = {} )
 	{
 		this.params = params;
 	}

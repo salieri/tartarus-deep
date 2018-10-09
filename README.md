@@ -31,3 +31,4 @@ Decidedly unoptimized -- written for convenience, not for speed.
 
 * https://isaacchanghau.github.io/post/loss_functions/
 * https://ml-cheatsheet.readthedocs.io/en/latest/
+* https://en.wikipedia.org/wiki/Activation_function
