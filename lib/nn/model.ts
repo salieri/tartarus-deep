@@ -1,11 +1,21 @@
+import LayerGraph from './layer-graph';
+import Layer from './layer';
+
 
 class Model
 {
-	protected nodes : NodeCache;
+	protected graph : LayerGraph = new LayerGraph();
 
 
-	public link( newNode : Node, existingNode : Node )
+	public add( layer : Layer, parentLayer? : Layer )
 	{
+		return this.graph.add( layer, parentLayer );
+	}
+
+
+	public push( layer : Layer )
+	{
+		return this.graph.push( layer );
 	}
 
 

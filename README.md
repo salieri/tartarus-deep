@@ -22,6 +22,7 @@ Provides from-the-ground-up implementation for:
 * CNNs
 * RNNs
 * Regularization
+* Graph networks
 
 Decidedly unoptimized -- written for convenience, not for speed.
 
@@ -29,8 +30,10 @@ Decidedly unoptimized -- written for convenience, not for speed.
 
 ## Acknowledgements
 
+Many ideas, designs, algorithms, and approaches have been shamelessly stolen from...
+
 * https://isaacchanghau.github.io/post/loss_functions/
 * https://ml-cheatsheet.readthedocs.io/en/latest/
 * https://en.wikipedia.org/wiki/Activation_function
 * https://keras.io/
-
+* https://www.tensorflow.org/api_docs/python/

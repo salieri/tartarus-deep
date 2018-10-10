@@ -1,4 +1,4 @@
-import Node from '../node';
+import Neuron from '../node';
 import NDArray from '../../ndarray';
 import Joi from 'joi';
 
@@ -6,7 +6,7 @@ import Joi from 'joi';
 /**
  * Activation function `g` takes net input `z`
  * and outputs non-linear result `a` that determines
- * how active each neuron in the input should be
+ * how active each layer in the input should be
  *
  * z = wx + b
  * a = g( z )
