@@ -1,4 +1,4 @@
-import Loss from './';
+import Loss from '.';
 import Vector from '../../vector';
 
 

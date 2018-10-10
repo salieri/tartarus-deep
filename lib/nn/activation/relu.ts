@@ -1,4 +1,5 @@
 import Activation from '.';
+import {ActivationDescriptor} from '.'
 import NDArray from '../../ndarray';
 import Joi from 'joi';
 
@@ -8,14 +9,13 @@ import Joi from 'joi';
  */
 class ReLU extends Activation
 {
-
 	public calculate( z : NDArray ) : NDArray
 	{
 		return z.apply( ( val : number ) : number => ( val < 0 ? this.params.leak * val : val ) );
 	}
 
 
-	public getDescriptor() : object
+	public getDescriptor() : ActivationDescriptor
 	{
 		return {
 			leak : Joi.number().optional().default( 0.0 ).description( 'Leak multiplier' )

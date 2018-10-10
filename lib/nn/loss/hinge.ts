@@ -1,4 +1,5 @@
-import Loss from './';
+import Loss from '.';
+import {LossDescriptor} from '.';
 import Vector from '../../vector';
 import NDArray from '../../ndarray';
 import Joi from 'joi';
@@ -18,7 +19,7 @@ class Hinge extends Loss
 	}
 
 
-	public getDescriptor() : object
+	public getDescriptor() : LossDescriptor
 	{
 		return {
 			margin : Joi.number().optional().default( 1.0 )

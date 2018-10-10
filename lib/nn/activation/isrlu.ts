@@ -1,4 +1,5 @@
 import Activation from '.';
+import {ActivationDescriptor} from '.';
 import NDArray from '../../ndarray';
 import Joi from 'joi';
 
@@ -24,7 +25,7 @@ class ISRLU extends Activation
 	}
 
 
-	public getDescriptor() : object
+	public getDescriptor() : ActivationDescriptor
 	{
 		return {
 			alpha : Joi.number().optional().default( 0.0 ).description( 'Multiplier' )

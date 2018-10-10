@@ -1,4 +1,5 @@
 import NDArray from '../ndarray';
+import Model from './model';
 
 interface NodeParams {
 	[key: string]: any;
@@ -7,23 +8,45 @@ interface NodeParams {
 
 class Node
 {
-	public parent		: Node|null = null;
-	public consumers	: Node[] = [];
-	public params		: NodeParams;
+	public params	: NodeParams;
+	public model	: Model;
 
-	constructor( params : NodeParams = {} )
+	constructor( model : Model, params : NodeParams = {} )
 	{
-		this.params = params;
+		this.model	= model;
+		this.params	= params;
 	}
+
 
 	calculate( x : NDArray ) : NDArray
 	{
 		return x;
 	}
 
-	public getDescriptor() : object
+
+	public getDescriptor() : NodeParams
 	{
-		return this.params;
+		return {};
+	}
+
+
+	public forward( input : NDArray )
+	{
+	}
+
+
+	public backward( output : NDArray )
+	{
+	}
+
+
+	public getLayerVar( name : String ) : any
+	{
+	}
+
+
+	public setLayerVar( name : String, value : any )
+	{
 	}
 }
 

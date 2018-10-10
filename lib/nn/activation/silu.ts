@@ -8,7 +8,6 @@ import Joi from 'joi';
  */
 class SiLU extends Activation
 {
-
 	public calculate( z : NDArray ) : NDArray
 	{
 		return z.set( 1.0 ).div( z.neg().exp().add( 1.0 ) ).mul( z );

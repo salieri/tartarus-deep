@@ -1,6 +1,7 @@
-import Loss from './';
+import Loss from '.';
+import {LossDescriptor} from '.'
 import Vector from '../../vector';
-import Joi from "joi";
+import Joi from 'joi';
 
 
 class Huber extends Loss
@@ -22,7 +23,7 @@ class Huber extends Loss
 	}
 
 
-	public getDescriptor() : object
+	public getDescriptor() : LossDescriptor
 	{
 		return {
 			delta : Joi.number().optional().default( 1.0 )

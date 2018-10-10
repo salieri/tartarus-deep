@@ -1,6 +1,10 @@
 import Vector from '../../vector';
 
-interface LossParams {
+export interface LossParams {
+	[key : string]: any;
+}
+
+export interface LossDescriptor {
 	[key : string]: any;
 }
 
@@ -25,7 +29,7 @@ class Loss
 	}
 
 
-	public getDescriptor()
+	public getDescriptor() : LossDescriptor
 	{
 		return {};
 	}

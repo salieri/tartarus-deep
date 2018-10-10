@@ -1,5 +1,7 @@
 import Node from '../node';
 import NDArray from '../../ndarray';
+import Joi from 'joi';
+
 
 /**
  * Activation function `g` takes net input `z`
@@ -10,17 +12,36 @@ import NDArray from '../../ndarray';
  * a = g( z )
  */
 
+export interface ActivationParams {
+	[key: string]: any;
+}
 
-class Activation extends Node
+export interface ActivationDescriptor {
+	[key: string]: any;
+}
+
+
+
+class Activation
 {
-	constructor()
+	protected params : ActivationParams;
+
+
+	constructor( params : ActivationParams = {} )
 	{
-		super();
+		this.params = params;
 	}
+
 
 	public calculate( z : NDArray ) : NDArray
 	{
 		throw new Error( 'Not implemented' );
+	}
+
+
+	public getDescriptor() : ActivationDescriptor
+	{
+		return {};
 	}
 }
 

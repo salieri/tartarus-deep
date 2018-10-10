@@ -6,7 +6,7 @@ import NDArray from '../../ndarray';
  */
 class Softmax extends Activation
 {
-	calculate( z : NDArray ) : NDArray
+	public calculate( z : NDArray ) : NDArray
 	{
 		return z.exp().div( z.exp().sum() );
 	}

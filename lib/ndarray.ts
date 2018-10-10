@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import MathHelper from './math-helper';
 
 type NumberTreeElement = number[] | number;
 
@@ -514,7 +513,7 @@ class NDArray
 	 */
 	public abs() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.abs( val ) );
+		return this.apply( Math.abs );
 	}
 
 
@@ -523,7 +522,7 @@ class NDArray
 	 */
 	public log() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.log( val ) );
+		return this.apply( Math.log );
 	}
 
 
@@ -532,12 +531,12 @@ class NDArray
 	 */
 	public exp() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.exp( val ) );
+		return this.apply( Math.exp );
 	}
 
 
 	/**
-	 * Negate values
+	 * Elementwise negate values
 	 */
 	public neg() : NDArray
 	{
@@ -546,65 +545,65 @@ class NDArray
 
 
 	/**
-	 * Sin
+	 * Elementwise sin
 	 */
 	public sin() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.sin( val ) );
+		return this.apply( Math.sin );
 	}
 
 
 	/**
-	 * Cos
+	 * Elementwise cos
 	 */
 	public cos() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.cos( val ) );
+		return this.apply( Math.cos );
 	}
 
 
 	/**
-	 * Tan
+	 * Elementwise tan
 	 */
 	public tan() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.tan( val ) );
+		return this.apply( Math.tan );
 	}
 
 
 	/**
-	 * Asin
+	 * Elementwise arc sin
 	 */
 	public asin() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.asin( val ) );
+		return this.apply( Math.asin );
 	}
 
 
 	/**
-	 * Acos
+	 * Elementwise arc cos
 	 */
 	public acos() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.acos( val ) );
+		return this.apply( Math.acos );
 	}
 
 
 	/**
-	 * Atan
+	 * Elementwise arc tan
 	 */
 	public atan() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.atan( val ) );
+		return this.apply( Math.atan );
 	}
 
 
 	/**
-	 * Square root
+	 * Elementwise square root
 	 */
 	public sqrt() : NDArray
 	{
-		return this.apply( ( val : number ) : number => Math.sqrt( val ) );
+		return this.apply( Math.sqrt );
 	}
 
 

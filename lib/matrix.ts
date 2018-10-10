@@ -1,6 +1,5 @@
 import NDArray from './ndarray';
 import _ from 'lodash';
-import MathHelper from './math-helper';
 
 
 class Matrix extends NDArray
@@ -94,7 +93,7 @@ class Matrix extends NDArray
 	/**
 	 * Matrix multiplication
 	 */
-	matmul( b : Matrix ) : Matrix
+	public matmul( b : Matrix ) : Matrix
 	{
 		const aCols : number = this.getCols(),
 			aRows : number = this.getRows(),
