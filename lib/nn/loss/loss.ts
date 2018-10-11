@@ -1,4 +1,4 @@
-import { Vector } from '../../math/vector';
+import { Vector } from '../../math';
 
 export interface LossParams {
 	[key : string]: any;

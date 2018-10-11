@@ -1,4 +1,4 @@
-import { NDArray } from '../../math/ndarray';
+import { NDArray } from '../../math';
 import Joi from 'joi';
 
 

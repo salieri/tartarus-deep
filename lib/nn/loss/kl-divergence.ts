@@ -1,5 +1,5 @@
 import { Loss } from './loss';
-import { Vector } from '../../math/vector';
+import { Vector } from '../../math';
 
 /**
  * Kullback Leibler Divergence

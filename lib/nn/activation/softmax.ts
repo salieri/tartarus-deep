@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math/ndarray';
+import { NDArray } from '../../math';
 
 /**
  * Softmax
