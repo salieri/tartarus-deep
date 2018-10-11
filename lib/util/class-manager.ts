@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
-interface ClassModule {
+export interface ClassModule {
 	[key: string]: any;
 }
 
-interface InstanceParams {
+export interface InstanceParams {
 	[key: string]: any;
 }
 
@@ -44,6 +44,11 @@ export class ClassManager
 		if( instanceDefinition instanceof this.baseClass )
 		{
 			return instanceDefinition;
+		}
+
+		if( _.isString( instanceDefinition ) === false )
+		{
+			throw new Error( 'Cannot coerce: Invalid data' );
 		}
 
 		return this.factory( <string>instanceDefinition, params );

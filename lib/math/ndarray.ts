@@ -652,7 +652,12 @@ export class NDArray
 	}
 
 
-
+	/**
+	 * Iterate multiple NDArrays of the same shape and provide the element value from each NDArray to the callback.
+	 * Returns a new NDArray of the same shape with its values set to the return values of the callback
+	 * @param {Function( ...elementValues : number, pos : number[] ) : number} callback
+	 * @param arrays
+	 */
 	public static iterate( callback : Function, ...arrays : NDArray[] ) : NDArray
 	{
 		const clone = arrays[ 0 ].clone();
