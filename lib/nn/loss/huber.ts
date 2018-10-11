@@ -1,5 +1,5 @@
 import { Loss, LossDescriptor } from './loss';
-import { Vector } from '../../vector';
+import { Vector } from '../../math/vector';
 import Joi from 'joi';
 
 

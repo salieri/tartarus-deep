@@ -1,6 +1,6 @@
 import { Loss, LossDescriptor } from './loss';
-import { Vector } from '../../vector';
-import { NDArray } from '../../ndarray';
+import { Vector } from '../../math/vector';
+import { NDArray } from '../../math/ndarray';
 import Joi from 'joi';
 
 

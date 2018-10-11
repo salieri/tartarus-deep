@@ -1,7 +1,6 @@
 import 'mocha';
 import { expect } from 'chai';
-
-import NDArray from '../../lib/ndarray';
+import { NDArray } from '../../lib/math';
 
 
 describe( 'N-dimensional Array',
@@ -164,6 +163,242 @@ describe( 'N-dimensional Array',
 				n1.equals( n1 ).should.equal( true );
 			}
 		);
+
+
+		it( 'should do elementwise add operations between n-dimensional arrays and numbers',
+			function()
+			{
+				const nd = new NDArray(
+					[
+						[ 1, 2, 3 ],
+						[ 4, 5, 6 ],
+						[ 7, 8, 9 ]
+					]
+				);
+
+				nd.add( 1 ).toJSON().should.deep.equal(
+					[
+						[ 2, 3, 4 ],
+						[ 5, 6, 7 ],
+						[ 8, 9, 10 ]
+					]
+				);
+			}
+		);
+
+
+		it( 'should do elementwise subtract operations between n-dimensional arrays and numbers',
+			function()
+			{
+				const nd = new NDArray(
+					[
+						[ 1, 2, 3 ],
+						[ 4, 5, 6 ],
+						[ 7, 8, 9 ]
+					]
+				);
+
+				nd.sub( 1 ).toJSON().should.deep.equal(
+					[
+						[ 0, 1, 2 ],
+						[ 3, 4, 5 ],
+						[ 6, 7, 8 ]
+					]
+				);
+			}
+		);
+
+
+		it( 'should do elementwise mul operations between n-dimensional arrays and numbers',
+			function()
+			{
+				const nd = new NDArray(
+					[
+						[ 1, 2, 3 ],
+						[ 4, 5, 6 ],
+						[ 7, 8, 9 ]
+					]
+				);
+
+				nd.mul( 2 ).toJSON().should.deep.equal(
+					[
+						[ 1*2, 2*2, 3*2 ],
+						[ 4*2, 5*2, 6*2 ],
+						[ 7*2, 8*2, 9*2 ]
+					]
+				);
+			}
+		);
+
+
+		it( 'should do elementwise div operations between n-dimensional arrays and numbers',
+			function()
+			{
+				const nd = new NDArray(
+					[
+						[ 2, 4, 6 ],
+						[ 8, 10, 12 ],
+						[ 14, 16, 18 ]
+					]
+				);
+
+				nd.div( 2 ).toJSON().should.deep.equal(
+					[
+						[ 2/2, 4/2, 6/2 ],
+						[ 8/2, 10/2, 12/2 ],
+						[ 14/2, 16/2, 18/2 ]
+					]
+				);
+			}
+		);
+
+
+		it( 'should do elementwise add operations between two n-dimensional arrays',
+			function()
+			{
+				const nd = new NDArray(
+					[
+						[ 1, 2, 3 ],
+						[ 4, 5, 6 ],
+						[ 7, 8, 9 ]
+					]
+				);
+
+				const nd2 = new NDArray(
+					[
+						[ 2, 3, 4 ],
+						[ 5, 6, 7 ],
+						[ 8, 9, 10 ]
+					]
+				);
+
+
+				nd.add( nd2 ).toJSON().should.deep.equal(
+					[
+						[ 1+2, 2+3, 3+4 ],
+						[ 4+5, 5+6, 6+7 ],
+						[ 7+8, 8+9, 9+10 ]
+					]
+				);
+			}
+		);
+
+
+		it( 'should do elementwise subtract operations between two n-dimensional arrays',
+			function()
+			{
+				const nd = new NDArray(
+					[
+						[ 1, 2, 3 ],
+						[ 4, 5, 6 ],
+						[ 7, 8, 9 ]
+					]
+				);
+
+				const nd2 = new NDArray(
+					[
+						[ 2, 3, 4 ],
+						[ 5, 6, 7 ],
+						[ 8, 9, 10 ]
+					]
+				);
+
+
+				nd.sub( nd2 ).toJSON().should.deep.equal(
+					[
+						[ 1-2, 2-3, 3-4 ],
+						[ 4-5, 5-6, 6-7 ],
+						[ 7-8, 8-9, 9-10 ]
+					]
+				);
+			}
+		);
+
+
+		it( 'should do elementwise mul operations between two n-dimensional arrays',
+			function()
+			{
+				const nd = new NDArray(
+					[
+						[ 1, 2, 3 ],
+						[ 4, 5, 6 ],
+						[ 7, 8, 9 ]
+					]
+				);
+
+				const nd2 = new NDArray(
+					[
+						[ 2, 3, 4 ],
+						[ 5, 6, 7 ],
+						[ 8, 9, 10 ]
+					]
+				);
+
+
+				nd.mul( nd2 ).toJSON().should.deep.equal(
+					[
+						[ 1*2, 2*3, 3*4 ],
+						[ 4*5, 5*6, 6*7 ],
+						[ 7*8, 8*9, 9*10 ]
+					]
+				);
+			}
+		);
+
+
+		it( 'should do elementwise div operations between two n-dimensional arrays',
+			function()
+			{
+				const nd = new NDArray(
+					[
+						[ 1, 2, 3 ],
+						[ 4, 5, 6 ],
+						[ 7, 8, 9 ]
+					]
+				);
+
+				const nd2 = new NDArray(
+					[
+						[ 2, 3, 4 ],
+						[ 5, 6, 7 ],
+						[ 8, 9, 10 ]
+					]
+				);
+
+
+				nd.div( nd2 ).toJSON().should.deep.equal(
+					[
+						[ 1/2, 2/3, 3/4 ],
+						[ 4/5, 5/6, 6/7 ],
+						[ 7/8, 8/9, 9/10 ]
+					]
+				);
+			}
+		);
+
+
+		it( 'should not do elementwise operations between two n-dimensional arrays of different shape',
+			function()
+			{
+				const nd1 = new NDArray(
+					[
+						[ 3, 3, 3 ],
+						[ 3, 3, 3 ],
+						[ 3, 3, 3 ]
+					]
+				);
+
+				const nd2 = new NDArray(
+				[
+						[ 1, 2 ],
+						[ 1, 2 ]
+					]
+				);
+
+				( () => nd1.add( nd2 ) ).should.Throw( /Cannot do elementwise addition on NDArrays with differing dimensions/ );
+			}
+		);
+
 	}
 );
 

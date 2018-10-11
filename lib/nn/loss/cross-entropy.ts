@@ -1,5 +1,5 @@
 import { Loss } from './loss';
-import { Vector } from '../../vector';
+import { Vector } from '../../math/vector';
 
 
 export class CrossEntropy extends Loss

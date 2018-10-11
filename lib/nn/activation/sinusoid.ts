@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../ndarray';
+import { NDArray } from '../../math/ndarray';
 
 
 /**

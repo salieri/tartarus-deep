@@ -1,5 +1,5 @@
 import { Activation, ActivationDescriptor } from './activation';
-import { NDArray } from '../../ndarray';
+import { NDArray } from '../../math/ndarray';
 import Joi from 'joi';
 
 
