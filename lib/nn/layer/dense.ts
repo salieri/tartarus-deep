@@ -1,4 +1,4 @@
-import {Layer, LayerDescriptor} from '.';
+import {Layer, LayerDescriptor} from './layer';
 import Joi from 'joi';
 
 

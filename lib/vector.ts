@@ -8,7 +8,7 @@ export enum VectorDirection {
 }
 
 
-class Vector extends NDArray
+export class Vector extends NDArray
 {
 	constructor( ...dimensions : any[] )
 	{
@@ -136,6 +136,3 @@ class Vector extends NDArray
 		return Math.sqrt( this.sum( ( val : number ) : number => Math.pow( val, 2 ) ) );
 	}
 }
-
-
-export default Vector;

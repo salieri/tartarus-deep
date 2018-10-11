@@ -1,7 +1,5 @@
 import { Activation } from './activation';
 import { NDArray } from '../../ndarray';
-import Joi from 'joi';
-
 
 /**
  * Sigmoid-weighted linear unit / SiLU / Swish

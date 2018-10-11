@@ -1,5 +1,4 @@
-import { Loss } from './loss';
-import {LossDescriptor} from '.';
+import { Loss, LossDescriptor } from './loss';
 import { Vector } from '../../vector';
 import { NDArray } from '../../ndarray';
 import Joi from 'joi';

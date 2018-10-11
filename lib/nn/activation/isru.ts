@@ -1,5 +1,4 @@
-import { Activation } from './activation';
-import {ActivationDescriptor} from './activation';
+import { Activation, ActivationDescriptor } from './activation';
 import { NDArray } from '../../ndarray';
 import Joi from 'joi';
 

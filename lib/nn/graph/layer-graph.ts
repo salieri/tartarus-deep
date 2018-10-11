@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import {Layer} from '../layer';
-import {LayerGraphNode} from './layer-graph-node';
+import { Layer } from '../layer';
+import { LayerGraphNode } from './layer-graph-node';
 
 
 export class LayerGraph
