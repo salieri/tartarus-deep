@@ -1,9 +1,11 @@
 import { Layer, LayerDescriptor } from './layer';
+import { Activation } from '../activation';
+import { JoiEx } from '../../util';
+import { Vector, Matrix } from '../../math';
+
 /*import { Initializer } from '../initializer';
 import { Regularizer } from '../regularizer';
 import { Constraint } from '../constraint'; */
-import { Activation } from '../activation';
-import { JoiEx } from '../../util';
 
 
 export class Dense extends Layer
@@ -60,6 +62,37 @@ export class Dense extends Layer
 	{
 		return <Dense>this.setParam( 'kernelConstraint', kernelConstraint );
 	} */
+
+
+	getParameterDimensions()
+	{
+
+	}
+
+
+	calculate( input : Vector ) : Vector
+	{
+		const weight	= <Matrix>this.get( 'weight' ),
+			output		= weight.vecmul( input );
+
+		if( this.params.bias )
+		{
+			return <Vector>output.add( <Vector>this.get( 'bias' ) );
+		}
+
+		return output;
+	}
+
+
+	compile()
+	{
+		this.register( 'weight', new Matrix( this.params.units, inputNodes ) );
+
+		if( this.params.bias === true )
+		{
+			this.register( 'bias', new Vector( this.params.units ) );
+		}
+	}
 
 
 	getDescriptor() : LayerDescriptor

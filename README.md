@@ -37,3 +37,7 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 * https://en.wikipedia.org/wiki/Activation_function
 * https://keras.io/
 * https://www.tensorflow.org/api_docs/python/
+* https://mathinsight.org/matrix_vector_multiplication
+
+
+

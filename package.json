@@ -26,9 +26,11 @@
     "@babel/polyfill": "^7.0.0",
     "@types/joi": "^13.6.0",
     "@types/lodash": "^4.14.116",
+    "@types/random-seed": "^0.3.3",
     "bluebird": "^3.5.1",
     "joi": "^13.7.0",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "random-seed": "^0.3.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",

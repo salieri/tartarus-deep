@@ -1,4 +1,5 @@
 import { NDArray } from './ndarray';
+import { Vector } from './vector';
 import _ from 'lodash';
 
 
@@ -120,6 +121,33 @@ export class Matrix extends NDArray
 
 				result.setAt( [ y, x ], val );
 			}
+		}
+
+		return result;
+	}
+
+
+	/**
+	 * Multiply matrix by a vector
+	 */
+	public vecmul( b : Vector ) : Vector
+	{
+		const aCols : number = this.getCols(),
+			aRows : number = this.getRows(),
+			bSize : number = b.getSize();
+
+		const result : Vector = new Vector( aRows );
+
+		for( let y : number = 0; y < aRows; y++ )
+		{
+			let val : number = 0;
+
+			for( let x : number = 0; x < bSize; x++ )
+			{
+				val += this.getAt( [ y, x ] ) * b.getAt( [ x ] );
+			}
+
+			result.setAt( [ y ], val );
 		}
 
 		return result;

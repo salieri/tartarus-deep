@@ -205,7 +205,7 @@ export class NDArray
 	 */
 	rand( min = 0.0, max = 1.0 )
 	{
-		return this.traverse(
+		return this.apply(
 			() : number => ( min + Math.random() * ( max - min ) )
 		);
 	}
