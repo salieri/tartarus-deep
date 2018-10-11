@@ -1,7 +1,7 @@
 import { Loss, LossDescriptor } from './loss';
 import { Vector } from '../../math';
 import { NDArray } from '../../math';
-import Joi from 'joi';
+import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
 
 
 export class Hinge extends Loss

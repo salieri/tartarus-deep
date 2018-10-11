@@ -3,7 +3,7 @@ import { Layer, LayerDescriptor } from './layer';
 import { Regularizer } from '../regularizer';
 import { Constraint } from '../constraint'; */
 import { Activation } from '../activation';
-import Joi from 'joi';
+import { JoiEx } from '../../util';
 
 
 export class Dense extends Layer
@@ -65,19 +65,19 @@ export class Dense extends Layer
 	getDescriptor() : LayerDescriptor
 	{
 		return {
-			units				: Joi.number().optional().default( 16 ).min( 1 ).description( 'Number of outputs' ),
-			activation			: Joi.string().optional().default( 'identity' ).description( 'Activation function' ),
+			units				: JoiEx.number().default( 16 ).min( 1 ).description( 'Number of outputs' ),
+			activation			: JoiEx.activation().default( 'identity' ).description( 'Activation function' ),
 
-			bias				: Joi.boolean().optional().default( true ).description( 'Apply bias' ),
-			//biasInitializer		: Joi.string().optional().default( 'zero' ).description( 'Bias initializer' ),
-			//biasRegularizer		: Joi.string().optional().default( null ).description( 'Bias regularizer' ),
-			//biasConstraint		: Joi.string().optional().default( null ).description( 'Bias constraint' ),
+			bias				: JoiEx.boolean().default( true ).description( 'Apply bias' ),
+			//biasInitializer		: JoiEx.string().default( 'zero' ).description( 'Bias initializer' ),
+			//biasRegularizer		: JoiEx.string().default( null ).description( 'Bias regularizer' ),
+			//biasConstraint		: JoiEx.string().default( null ).description( 'Bias constraint' ),
 
-			//kernelInitializer	: Joi.string().optional().default( 'random-uniform' ).description( 'Kernel initializer' ),
-			//kernelRegularizer	: Joi.string().optional().default( 'l2' ).description( 'Kernel regularizer' ),
-			//kernelConstraint	: Joi.string().optional().default( 'max-norm' ).description( 'Kernel constraint' ),
+			//kernelInitializer	: JoiEx.string().default( 'random-uniform' ).description( 'Kernel initializer' ),
+			//kernelRegularizer	: JoiEx.string().default( 'l2' ).description( 'Kernel regularizer' ),
+			//kernelConstraint	: JoiEx.string().default( 'max-norm' ).description( 'Kernel constraint' ),
 
-			//activityRegularizer	: Joi.string().optional().default( 'l1' ).description( 'Activity regularizer' )
+			//activityRegularizer	: JoiEx.string().default( 'l1' ).description( 'Activity regularizer' )
 		};
 	}
 }

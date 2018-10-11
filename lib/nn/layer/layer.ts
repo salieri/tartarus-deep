@@ -1,5 +1,5 @@
 import { NDArray } from '../../math';
-import Joi from 'joi';
+import { JoiEx } from '../../util';
 
 
 export interface LayerParams {
@@ -27,7 +27,7 @@ export class Layer
 
 	private validateParams( params : LayerParams ) : LayerParams
 	{
-		const result = Joi.validate( params, this.getDescriptor() );
+		const result = JoiEx.validate( params, this.getDescriptor() );
 
 		if( result.error )
 		{
@@ -40,7 +40,7 @@ export class Layer
 
 	public setParam( paramName : string, value : any ) : Layer
 	{
-		const result = Joi.validate( this.params[ paramName ], value );
+		const result = JoiEx.validate( this.params[ paramName ], value );
 
 		if( result.error )
 		{

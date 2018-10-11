@@ -60,5 +60,19 @@ describe( 'JoiEx',
 				expect( result.error ).to.match( /Unexpected data type passed to the coerce function/ );
 			}
 		);
+
+
+		it( 'should instantiate default value, if no data passed',
+			function()
+			{
+				const cm	= new ClassManager( activations, Activation ),
+					schema	= JoiEx.activation().optional().default( 'sigmoid' ),
+					result	= JoiEx.validate( undefined, schema );
+
+				expect( result.error ).to.equal( null );
+				expect( result.value ).to.be.instanceOf( Activation );
+				expect( result.value ).to.be.instanceOf( activations.Sigmoid );
+			}
+		);
 	}
 );
