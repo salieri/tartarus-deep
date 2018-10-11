@@ -1,11 +1,11 @@
-import Loss from '.';
+import { Loss } from './loss';
 import {LossDescriptor} from '.';
-import Vector from '../../vector';
-import NDArray from '../../ndarray';
+import { Vector } from '../../vector';
+import { NDArray } from '../../ndarray';
 import Joi from 'joi';
 
 
-class SquaredHinge extends Loss
+export class SquaredHinge extends Loss
 {
 	public calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -26,6 +26,3 @@ class SquaredHinge extends Loss
 		};
 	}
 }
-
-
-export default SquaredHinge;

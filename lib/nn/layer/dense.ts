@@ -9,7 +9,6 @@ export class Dense extends Layer
 		return <Dense>this.setParam( 'units', units );
 	}
 
-
 	activation( activation : string ) : Dense
 	{
 		return <Dense>this.setParam( 'activation', activation );
@@ -19,6 +18,12 @@ export class Dense extends Layer
 	bias( bias : boolean ) : Dense
 	{
 		return <Dense>this.setParam( 'bias', bias );
+	}
+
+
+	biasInitializer( biasInitializer : Initializer|string|null  ) : Dense
+	{
+		return <Dense>this.setParam( 'biasInitializer', biasInitializer );
 	}
 
 
@@ -58,13 +63,15 @@ export class Dense extends Layer
 	getDescriptor() : LayerDescriptor
 	{
 		return {
-			units		: Joi.number().optional().default( 16 ).min( 1 ).description( 'Number of outputs' ),
-			activation	: Joi.string().optional().default( 'identity' ).description( 'Activation function' ),
-			bias		: Joi.boolean().optional().default( true ).description( 'Apply bias' ),
-			initializer	: Joi.object(
-				{
-					bias	: Joi.string().optional().default( 'zero' ).description( 'Bias initializer' ),
-					kernel	: Joi.string().optional().default( 'random-uniform' ).description( 'Kernel initializer' )
+			units			: Joi.number().optional().default( 16 ).min( 1 ).description( 'Number of outputs' ),
+			activation		: Joi.string().optional().default( 'identity' ).description( 'Activation function' ),
+			bias			: Joi.boolean().optional().default( true ).description( 'Apply bias' ),
+			biasInitializer	: Joi.string().optional().default( 'zero' ).description( 'Bias initializer' ),
+			biasRegularizer	: Joi.string().optional().default( null ).description( 'Bias regularizer' ),
+			bias
+
+
+			kernel	: Joi.string().optional().default( 'random-uniform' ).description( 'Kernel initializer' )
 				}
 				).optional().default( { bias : 'zero', kernel : 'random-uniform' } ).description( 'Initializers' ),
 			regularizer	: Joi.object(

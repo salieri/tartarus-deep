@@ -1,5 +1,5 @@
-import LayerGraph from './layer-graph';
-import Layer from './layer';
+import LayerGraph from './graph/layer-graph';
+import Layer from './layer/layer';
 
 
 class Model

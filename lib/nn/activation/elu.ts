@@ -1,13 +1,13 @@
-import Activation from '.';
-import {ActivationDescriptor} from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import {ActivationDescriptor} from './activation';
+import { NDArray } from '../../ndarray';
 import Joi from 'joi';
 
 
 /**
  * Exponential linear unit
  */
-class ELU extends Activation
+export class ELU extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -22,6 +22,3 @@ class ELU extends Activation
 		}
 	}
 }
-
-
-export default ELU;

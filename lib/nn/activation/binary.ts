@@ -1,11 +1,11 @@
-import Activation from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import { NDArray } from '../../ndarray';
 
 
 /**
  * Binary step
  */
-class Binary extends Activation
+export class Binary extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -13,5 +13,3 @@ class Binary extends Activation
 	}
 }
 
-
-export default Binary;

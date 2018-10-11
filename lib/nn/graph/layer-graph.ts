@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import Layer from './layer';
-import LayerGraphNode from './layer-graph-node';
+import {Layer} from '../layer';
+import {LayerGraphNode} from './layer-graph-node';
 
 
-class LayerGraph
+export class LayerGraph
 {
 	protected nodes		: LayerGraphNode[] = [];
 	protected compiled	: boolean = false;
@@ -240,5 +240,3 @@ class LayerGraph
 
 }
 
-
-export default LayerGraph;

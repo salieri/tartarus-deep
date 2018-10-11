@@ -1,10 +1,10 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 /**
  * Mean Squared Logarithmic Error
  */
-class MeanSquaredLogarithmicError extends Loss
+export class MeanSquaredLogarithmicError extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -17,5 +17,3 @@ class MeanSquaredLogarithmicError extends Loss
 	}
 }
 
-
-export default MeanSquaredLogarithmicError;

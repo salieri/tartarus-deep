@@ -1,9 +1,9 @@
 import _ from 'lodash';
 
-type NumberTreeElement = number[] | number;
+export type NumberTreeElement = number[] | number;
 
 
-class NDArray
+export class NDArray
 {
 	private static idCounter: number = 0;
 
@@ -406,7 +406,7 @@ class NDArray
 	 * @param {NDArray|number} b
 	 * @param {function(number, number) : number} operationCb
 	 * @param {string} opName
-	 * @return {NDArray}
+	 * @return { NDArray }
 	 * @protected
 	 */
 	elementwiseOp( b : NDArray | number, operationCb : Function, opName : string ) : NDArray
@@ -672,7 +672,4 @@ class NDArray
 	}
 
 }
-
-
-export default NDArray;
 

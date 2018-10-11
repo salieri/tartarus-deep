@@ -1,11 +1,11 @@
-import Activation from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import { NDArray } from '../../ndarray';
 
 
 /**
  * Sinc
  */
-class Sinc extends Activation
+export class Sinc extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -14,6 +14,3 @@ class Sinc extends Activation
 		);
 	}
 }
-
-
-export default Sinc;

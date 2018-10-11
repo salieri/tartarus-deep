@@ -1,10 +1,10 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 /**
  * Poisson
  */
-class Poisson extends Loss
+export class Poisson extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -12,6 +12,3 @@ class Poisson extends Loss
 		return yHat.sub( y.mul( yHat.log() ) ).mean();
 	}
 }
-
-
-export default Poisson;

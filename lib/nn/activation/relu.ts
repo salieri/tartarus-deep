@@ -1,13 +1,13 @@
-import Activation from '.';
-import {ActivationDescriptor} from '.'
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import {ActivationDescriptor} from './activation'
+import { NDArray } from '../../ndarray';
 import Joi from 'joi';
 
 
 /**
  * Rectified linear unit / leaky rectified linear unit / parameteric rectified linear unit
  */
-class ReLU extends Activation
+export class ReLU extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -22,6 +22,3 @@ class ReLU extends Activation
 		}
 	}
 }
-
-
-export default ReLU;

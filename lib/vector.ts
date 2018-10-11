@@ -1,5 +1,5 @@
-import NDArray from './ndarray';
-import Matrix from './matrix';
+import { NDArray } from './ndarray';
+import { Matrix } from './matrix';
 import _ from 'lodash';
 
 export enum VectorDirection {
@@ -53,8 +53,8 @@ class Vector extends NDArray
 
 	/**
 	 * Clone a vector
-	 * @param {Vector} [targetObj=null]
-	 * @returns {Vector}
+	 * @param { Vector } [targetObj=null]
+	 * @returns { Vector }
 	 * @public
 	 */
 	public clone( targetObj?: Vector ) : Vector
@@ -70,7 +70,7 @@ class Vector extends NDArray
 	 * @param {int} rows
 	 * @param {int} cols
 	 * @param {String} direction 'row' or 'col'
-	 * @returns {Matrix}
+	 * @returns { Matrix }
 	 */
 	public expandToMatrix( rows : number, cols : number, direction : VectorDirection ) : Matrix
 	{
@@ -110,7 +110,7 @@ class Vector extends NDArray
 
 	/**
 	 * Calculate dot product between two vectors
-	 * @param {Vector} b
+	 * @param { Vector } b
 	 */
 	public dot( b : Vector ) : number
 	{

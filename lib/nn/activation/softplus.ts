@@ -1,11 +1,11 @@
-import Activation from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import { NDArray } from '../../ndarray';
 
 
 /**
  * SoftPlus
  */
-class Softplus extends Activation
+export class Softplus extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -13,6 +13,3 @@ class Softplus extends Activation
 		return z.exp().add( 1 ).log();
 	}
 }
-
-
-export default Softplus;

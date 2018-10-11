@@ -1,11 +1,11 @@
-import Activation from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import { NDArray } from '../../ndarray';
 
 
 /**
  * Identity
  */
-class Identity extends Activation
+export class Identity extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -13,5 +13,3 @@ class Identity extends Activation
 	}
 }
 
-
-export default Identity;

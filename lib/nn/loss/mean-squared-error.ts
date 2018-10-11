@@ -1,10 +1,10 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 /**
  * Mean Squared Error
  */
-class MeanSquaredError extends Loss
+export class MeanSquaredError extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -13,5 +13,3 @@ class MeanSquaredError extends Loss
 	}
 }
 
-
-export default MeanSquaredError;

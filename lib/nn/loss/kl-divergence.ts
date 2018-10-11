@@ -1,10 +1,10 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 /**
  * Kullback Leibler Divergence
  */
-class KLDivergence extends Loss
+export class KLDivergence extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -16,5 +16,3 @@ class KLDivergence extends Loss
 	}
 }
 
-
-export default KLDivergence;

@@ -1,11 +1,11 @@
-import Activation from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import { NDArray } from '../../ndarray';
 
 
 /**
  * Sigmoid / soft step / logistic
  */
-class Sigmoid extends Activation
+export class Sigmoid extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -15,6 +15,3 @@ class Sigmoid extends Activation
 		return one.div( z.neg().exp().add( 1 ) );
 	}
 }
-
-
-export default Sigmoid;

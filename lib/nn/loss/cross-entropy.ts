@@ -1,8 +1,8 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 
-class CrossEntropy extends Loss
+export class CrossEntropy extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -15,5 +15,3 @@ class CrossEntropy extends Loss
 	}
 }
 
-
-export default CrossEntropy;

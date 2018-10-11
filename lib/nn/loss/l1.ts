@@ -1,10 +1,10 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 /**
  * L1
  */
-class L1 extends Loss
+export class L1 extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -13,5 +13,3 @@ class L1 extends Loss
 	}
 }
 
-
-export default L1;

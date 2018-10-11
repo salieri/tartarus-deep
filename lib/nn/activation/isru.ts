@@ -1,13 +1,13 @@
-import Activation from '.';
-import {ActivationDescriptor} from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import {ActivationDescriptor} from './activation';
+import { NDArray } from '../../ndarray';
 import Joi from 'joi';
 
 
 /**
  * Inverse square root unit
  */
-class ISRU extends Activation
+export class ISRU extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -24,5 +24,3 @@ class ISRU extends Activation
 	}
 }
 
-
-export default ISRU;

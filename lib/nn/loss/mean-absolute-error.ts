@@ -1,10 +1,10 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 /**
  * Mean Absolute Error
  */
-class MeanAbsoluteError extends Loss
+export class MeanAbsoluteError extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -13,5 +13,3 @@ class MeanAbsoluteError extends Loss
 	}
 }
 
-
-export default MeanAbsoluteError;

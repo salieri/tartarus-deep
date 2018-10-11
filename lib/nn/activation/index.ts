@@ -1,49 +1,18 @@
-import Neuron from '../node';
-import NDArray from '../../ndarray';
-import Joi from 'joi';
-
-
-/**
- * Activation function `g` takes net input `z`
- * and outputs non-linear result `a` that determines
- * how active each layer in the input should be
- *
- * z = wx + b
- * a = g( z )
- */
-
-export interface ActivationParams {
-	[key: string]: any;
-}
-
-export interface ActivationDescriptor {
-	[key: string]: any;
-}
-
-
-
-class Activation
-{
-	protected params : ActivationParams;
-
-
-	constructor( params : ActivationParams = {} )
-	{
-		this.params = params;
-	}
-
-
-	public calculate( z : NDArray ) : NDArray
-	{
-		throw new Error( 'Not implemented' );
-	}
-
-
-	public getDescriptor() : ActivationDescriptor
-	{
-		return {};
-	}
-}
-
-
-export default Activation;
+export * from './activation';
+export * from './arctan';
+export * from './bent-identity';
+export * from './binary';
+export * from './elu';
+export * from './gaussian';
+export * from './identity';
+export * from './isrlu';
+export * from './isru';
+export * from './relu';
+export * from './sigmoid';
+export * from './silu';
+export * from './sinc';
+export * from './sinusoid';
+export * from './softmax';
+export * from './softplus';
+export * from './softsign';
+export * from './tanh';

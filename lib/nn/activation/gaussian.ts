@@ -1,11 +1,11 @@
-import Activation from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import { NDArray } from '../../ndarray';
 
 
 /**
  * Gaussian
  */
-class Gaussian extends Activation
+export class Gaussian extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -13,5 +13,3 @@ class Gaussian extends Activation
 	}
 }
 
-
-export default Gaussian;

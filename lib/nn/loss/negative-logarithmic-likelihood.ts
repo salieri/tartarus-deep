@@ -1,10 +1,10 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 /**
  * Negative Logarithmic Likelihood
  */
-class NegativeLogarithmicLikelihood extends Loss
+export class NegativeLogarithmicLikelihood extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -13,5 +13,3 @@ class NegativeLogarithmicLikelihood extends Loss
 	}
 }
 
-
-export default NegativeLogarithmicLikelihood;

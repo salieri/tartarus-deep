@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Layer from './layer';
+import {Layer} from '../layer';
 
 
 export class LayerGraphFeed {
@@ -54,4 +54,3 @@ export class LayerGraphNode
 }
 
 
-export default LayerGraphNode;

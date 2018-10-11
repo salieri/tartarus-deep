@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import NDArray from './ndarray';
-import Matrix from './matrix';
-import Vector from './vector';
+import { NDArray } from './ndarray';
+import { Matrix } from './matrix';
+import { Vector } from './vector';
 import {VectorDirection} from './vector';
 
 

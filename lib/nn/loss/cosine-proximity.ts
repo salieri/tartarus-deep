@@ -1,10 +1,10 @@
-import Loss from '.';
-import Vector from '../../vector';
+import { Loss } from './loss';
+import { Vector } from '../../vector';
 
 /**
  * Cosine Proximity
  */
-class CosineProximity extends Loss
+export class CosineProximity extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -16,6 +16,3 @@ class CosineProximity extends Loss
 		return -dividend / divisor;
 	}
 }
-
-
-export default CosineProximity;

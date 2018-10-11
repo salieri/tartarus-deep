@@ -1,8 +1,8 @@
-import NDArray from './ndarray';
+import { NDArray } from './ndarray';
 import _ from 'lodash';
 
 
-class Matrix extends NDArray
+export class Matrix extends NDArray
 {
 	constructor( ...dimensions : any[] )
 	{
@@ -58,7 +58,7 @@ class Matrix extends NDArray
 
 	/**
 	 * @public
-	 * @return {Matrix}
+	 * @return { Matrix }
 	 */
 	public transpose() : Matrix
 	{
@@ -78,8 +78,8 @@ class Matrix extends NDArray
 
 	/**
 	 * Clone a matrix
-	 * @param {Matrix} [targetObj=null]
-	 * @returns {Matrix}
+	 * @param { Matrix } [targetObj=null]
+	 * @returns { Matrix }
 	 * @public
 	 */
 	public clone( targetObj : Matrix ) : Matrix
@@ -126,6 +126,4 @@ class Matrix extends NDArray
 	}
 }
 
-
-export default Matrix;
 

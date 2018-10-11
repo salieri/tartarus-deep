@@ -1,11 +1,11 @@
-import Activation from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import { NDArray } from '../../ndarray';
 
 
 /**
  * ArcTan
  */
-class ArcTan extends Activation
+export class ArcTan extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -13,5 +13,3 @@ class ArcTan extends Activation
 	}
 }
 
-
-export default ArcTan;

@@ -1,11 +1,11 @@
-import Activation from '.';
-import NDArray from '../../ndarray';
+import { Activation } from './activation';
+import { NDArray } from '../../ndarray';
 
 
 /**
  * Softsign
  */
-class Softsign extends Activation
+export class Softsign extends Activation
 {
 	public calculate( z : NDArray ) : NDArray
 	{
@@ -13,6 +13,3 @@ class Softsign extends Activation
 		return z.div( z.abs().add( 1.0 ) );
 	}
 }
-
-
-export default Softsign;

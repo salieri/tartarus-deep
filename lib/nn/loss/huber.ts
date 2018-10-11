@@ -1,10 +1,10 @@
-import Loss from '.';
+import { Loss } from './loss';
 import {LossDescriptor} from '.'
-import Vector from '../../vector';
+import { Vector } from '../../vector';
 import Joi from 'joi';
 
 
-class Huber extends Loss
+export class Huber extends Loss
 {
 	calculate( yHat : Vector, y : Vector ) : number
 	{
@@ -31,5 +31,3 @@ class Huber extends Loss
 	}
 }
 
-
-export default Huber;
