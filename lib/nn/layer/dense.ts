@@ -14,7 +14,7 @@ export class Dense extends Layer
 	}
 
 
-	activation( activation : string|Activation|null ) : Dense
+	activation( activation : string|Activation ) : Dense
 	{
 		return <Dense>this.setParam( 'activation', activation );
 	}
@@ -69,15 +69,15 @@ export class Dense extends Layer
 			activation			: JoiEx.activation().default( 'identity' ).description( 'Activation function' ),
 
 			bias				: JoiEx.boolean().default( true ).description( 'Apply bias' ),
-			//biasInitializer		: JoiEx.string().default( 'zero' ).description( 'Bias initializer' ),
-			//biasRegularizer		: JoiEx.string().default( null ).description( 'Bias regularizer' ),
-			//biasConstraint		: JoiEx.string().default( null ).description( 'Bias constraint' ),
+			//biasInitializer		: JoiEx.initializer().default( 'zero' ).description( 'Bias initializer' ),
+			//biasRegularizer		: JoiEx.regularizer().default( null ).description( 'Bias regularizer' ),
+			//biasConstraint		: JoiEx.constraint().default( null ).description( 'Bias constraint' ),
 
-			//kernelInitializer	: JoiEx.string().default( 'random-uniform' ).description( 'Kernel initializer' ),
-			//kernelRegularizer	: JoiEx.string().default( 'l2' ).description( 'Kernel regularizer' ),
-			//kernelConstraint	: JoiEx.string().default( 'max-norm' ).description( 'Kernel constraint' ),
+			//kernelInitializer	: JoiEx.initializer().default( 'random-uniform' ).description( 'Kernel initializer' ),
+			//kernelRegularizer	: JoiEx.regularizer().default( 'l2' ).description( 'Kernel regularizer' ),
+			//kernelConstraint	: JoiEx.constraint().default( 'max-norm' ).description( 'Kernel constraint' ),
 
-			//activityRegularizer	: JoiEx.string().default( 'l1' ).description( 'Activity regularizer' )
+			//activityRegularizer	: JoiEx.regularizer().default( 'l1' ).description( 'Activity regularizer' )
 		};
 	}
 }

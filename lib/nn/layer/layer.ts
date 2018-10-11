@@ -13,8 +13,10 @@ export interface LayerDescriptor {
 
 export class Layer
 {
-	public params	: LayerParams;
-	public name		: string;
+	public params		: LayerParams;
+	public name			: string;
+
+	protected compiled	: boolean = false;
 
 	private static layerCounter : number = 0;
 
@@ -82,6 +84,23 @@ export class Layer
 
 	public setLayerVar( name : String, value : any )
 	{
+	}
+
+
+	protected canModify() : void
+	{
+		if( this.compiled )
+		{
+			throw new Error( `Layer cannot be modified after compilation` );
+		}
+	}
+
+
+	public compile() : void
+	{
+		this.canModify();
+
+		this.compiled = true;
 	}
 }
 

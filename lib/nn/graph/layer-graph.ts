@@ -118,7 +118,7 @@ export class LayerGraph
 	{
 		_.each(
 			( direction === 'forward' ) ? node.outputs : node.inputs,
-			( linkNode : LayerGraphNode ) => {
+			( linkNode : LayerGraphNode ) : void => {
 				callback( linkNode );
 				this.traverse( linkNode, direction, callback );
 			}
