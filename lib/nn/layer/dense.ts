@@ -72,12 +72,12 @@ export class Dense extends Layer
 
 	calculate( input : Vector ) : Vector
 	{
-		const weight	= <Matrix>this.get( 'weight' ),
+		const weight	= <Matrix>this.session.get( 'weight' ),
 			output		= weight.vecmul( input );
 
 		if( this.params.bias )
 		{
-			return <Vector>output.add( <Vector>this.get( 'bias' ) );
+			return <Vector>output.add( <Vector>this.session.get( 'bias' ) );
 		}
 
 		return output;
@@ -86,11 +86,22 @@ export class Dense extends Layer
 
 	compile()
 	{
-		this.register( 'weight', new Matrix( this.params.units, inputNodes ) );
+		this.session.register( 'weight', new Matrix( this.params.units, inputNodes ) );
 
 		if( this.params.bias === true )
 		{
-			this.register( 'bias', new Vector( this.params.units ) );
+			this.session.register( 'bias', new Vector( this.params.units ) );
+		}
+	}
+
+
+	initialize()
+	{
+		this.register( 'weight', this.params.weightInitializer.initialize( this.get( 'weight' ) ) );
+
+		if( this.params.bias === true )
+		{
+			this.register( 'bias', this.params.biasInitializer.initialize( this.get( 'bias' ) ) );
 		}
 	}
 
@@ -102,11 +113,13 @@ export class Dense extends Layer
 			activation			: JoiEx.activation().default( 'identity' ).description( 'Activation function' ),
 
 			bias				: JoiEx.boolean().default( true ).description( 'Apply bias' ),
-			//biasInitializer		: JoiEx.initializer().default( 'zero' ).description( 'Bias initializer' ),
+			biasInitializer		: JoiEx.initializer().default( 'zero' ).description( 'Bias initializer' ),
+
 			//biasRegularizer		: JoiEx.regularizer().default( null ).description( 'Bias regularizer' ),
 			//biasConstraint		: JoiEx.constraint().default( null ).description( 'Bias constraint' ),
 
-			//kernelInitializer	: JoiEx.initializer().default( 'random-uniform' ).description( 'Kernel initializer' ),
+			weightInitializer	: JoiEx.initializer().default( 'random-uniform' ).description( 'Weight initializer' ),
+
 			//kernelRegularizer	: JoiEx.regularizer().default( 'l2' ).description( 'Kernel regularizer' ),
 			//kernelConstraint	: JoiEx.constraint().default( 'max-norm' ).description( 'Kernel constraint' ),
 

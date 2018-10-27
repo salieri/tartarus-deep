@@ -1,7 +1,7 @@
 import { Initializer, InitializerDescriptor, InitializerParams } from './initializer';
 import { NDArray } from '../../math';
 import Joi from 'joi';
-import {create as createRandomSeed, RandomSeed} from 'random-seed';
+import { create as createRandomSeed, RandomSeed } from 'random-seed';
 
 
 export class RandomUniform extends Initializer {

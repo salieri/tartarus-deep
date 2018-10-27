@@ -1,5 +1,6 @@
 import { NDArray } from '../../math';
 import { JoiEx } from '../../util';
+import { Symbol, SymbolCollection } from '../symbol';
 
 
 export interface LayerParams {
@@ -82,8 +83,38 @@ export class Layer
 	}
 
 
-	public setLayerVar( name : String, value : any )
+	public setLayerVar( name : String, symbol : Symbol )
 	{
+
+	}
+
+	public hasLayerVar( name : String )
+	{
+
+	}
+
+
+	protected mustHaveVar( name : String ) : void
+	{
+
+	}
+
+
+	public register( variableName : string, symbol : Symbol ) : void
+	{
+		this.symbols.add( this.getLayerVarName( variableName ), symbol );
+	}
+
+
+	public getLayerVarName( variableName : string ) : string
+	{
+		return `${this.getLayerName()}-${variableName}`;
+	}
+
+
+	public getLayerName()
+	{
+		return this.name;
 	}
 
 

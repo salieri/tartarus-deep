@@ -6,6 +6,8 @@ import {ClassManager} from './class-manager';
 import * as activations from '../nn/activation';
 // import * as layers from '../nn/layer'; // -- this will cause circular dependencies
 import * as losses from '../nn/loss';
+import * as initializers from '../nn/initializer';
+
 
 
 function createCMExtension( name : string, cm : ClassManager ) : Function
@@ -37,7 +39,7 @@ const customJoi = Joi.extend(
 	[
 		createCMExtension( 'activation', new ClassManager( activations, activations.Activation ) ),
 		// createCMExtension( 'constraint', new ClassManager( constraints, constraints.Constraint ) ),
-		// createCMExtension( 'initializer', new ClassManager( initializers, initializers.Initializer ) ),
+		createCMExtension( 'initializer', new ClassManager( initializers, initializers.Initializer ) ),
 
 		// createCMExtension( 'layer', new ClassManager( layers, layers.Layer ) ), // -- this will cause circular dependencies
 
