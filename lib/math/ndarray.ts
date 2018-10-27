@@ -352,8 +352,8 @@ export class NDArray
 	{
 		return _.reduce(
 			this.dimensions,
-			( dims, accumulator ) => ( dims + accumulator ),
-			0
+			( dims, accumulator ) => ( dims * accumulator ),
+			1
 		);
 	}
 
@@ -604,6 +604,17 @@ export class NDArray
 	public sqrt() : NDArray
 	{
 		return this.apply( Math.sqrt );
+	}
+
+
+	/**
+	 * Elementwise clamping
+	 */
+	public clamp( minVal : number, maxVal : number ) : NDArray
+	{
+		return this.apply(
+			( v : number ) : number => Math.min( Math.max( v, minVal ), maxVal )
+		);
 	}
 
 
