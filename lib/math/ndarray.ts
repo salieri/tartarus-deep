@@ -200,10 +200,10 @@ export class NDArray
 
 	/**
 	 * Randomize all values
-	 * @param [min=0.0]
-	 * @param [max=1.0]
+	 * @param [min=0.0] (inclusive)
+	 * @param [max=1.0] (exclusive)
 	 */
-	rand( min = 0.0, max = 1.0 )
+	rand( min : number = 0.0, max : number = 1.0 ) : NDArray
 	{
 		return this.apply(
 			() : number => ( min + Math.random() * ( max - min ) )

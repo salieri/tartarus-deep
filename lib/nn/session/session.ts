@@ -1,13 +1,19 @@
-import {create as createRandomSeed, RandomSeed} from 'random-seed';
+import {Xoshiro128, Randomizer} from "../../math/randomizer";
 
 
 export class Session
 {
-	public rand : RandomSeed;
+	public randomizer : Randomizer;
 
 	constructor( seed? : string )
 	{
-		this.rand = createRandomSeed( seed );
+		this.randomizer = new Xoshiro128( seed );
+	}
+
+
+	public random() : number
+	{
+		return this.randomizer.random();
 	}
 }
 

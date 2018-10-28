@@ -1,33 +1,32 @@
 import { Initializer, InitializerDescriptor, InitializerParams } from './initializer';
 import { NDArray } from '../../math';
-import Joi from 'joi';
-import { create as createRandomSeed, RandomSeed } from 'random-seed';
+import { JoiEx } from '../../util';
+import { Randomizer, Xoshiro128 } from '../../math/randomizer';
 
 
 export class RandomUniform extends Initializer {
-
-	private rand : RandomSeed;
+	private randomizer : Randomizer;
 
 	constructor( params : InitializerParams )
 	{
 		super( params );
 
-		this.rand = createRandomSeed( this.params.seed );
+		this.randomizer = params.randomizer;
 	}
 
 
 	public initialize( data : NDArray ) : NDArray
 	{
-		return data.apply( () : number => ( this.rand.floatBetween( this.params.min, this.params.max ) ) );
+		return data.apply( () : number => ( this.randomizer.floatBetween( this.params.min, this.params.max ) ) );
 	}
 
 
 	public getDescriptor() : InitializerDescriptor
 	{
 		return {
-			min		: Joi.number().default( 0.0 ).description( 'Minimum random value' ),
-			max		: Joi.number().default( 1.0 ).description( 'Maximum random value' ),
-			seed	: Joi.string().optional().description( 'Random seed' )
+			min			: JoiEx.number().default( 0.0 ).description( 'Minimum random value' ),
+			max			: JoiEx.number().default( 1.0 ).description( 'Maximum random value' ),
+			randomizer	: JoiEx.random().description( 'Randomizer' ).default( new Xoshiro128() )
 		};
 	}
 }

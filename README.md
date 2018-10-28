@@ -38,6 +38,7 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 * https://keras.io/
 * https://www.tensorflow.org/api_docs/python/
 * https://mathinsight.org/matrix_vector_multiplication
+* https://stackoverflow.com/a/47593316/844771
 
 
 

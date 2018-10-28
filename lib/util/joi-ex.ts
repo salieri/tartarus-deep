@@ -7,6 +7,7 @@ import * as activations from '../nn/activation';
 // import * as layers from '../nn/layer'; // -- this will cause circular dependencies
 import * as losses from '../nn/loss';
 import * as initializers from '../nn/initializer';
+import * as randomizers from '../math/randomizer';
 
 
 
@@ -44,6 +45,8 @@ const customJoi = Joi.extend(
 		// createCMExtension( 'layer', new ClassManager( layers, layers.Layer ) ), // -- this will cause circular dependencies
 
 		createCMExtension( 'loss', new ClassManager( losses, losses.Loss ) ),
+		createCMExtension( 'randomizer', new ClassManager( randomizers, randomizers.Randomizer ) )
+
 		// createCMExtension( 'regularizer', new ClassManager( regularizers, regularizers.Regularizer ) )
 	]
 );
