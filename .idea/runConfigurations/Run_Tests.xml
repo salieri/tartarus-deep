@@ -1,7 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Tests" type="mocha-javascript-test-runner" factoryName="Mocha">
+  <configuration default="false" name="Run Tests" type="mocha-javascript-test-runner">
     <node-interpreter>project</node-interpreter>
     <node-options>--trace-warnings</node-options>
+    <mocha-package>$PROJECT_DIR$/node_modules/mocha</mocha-package>
     <working-directory>$PROJECT_DIR$</working-directory>
     <pass-parent-env>true</pass-parent-env>
     <envs>
@@ -9,7 +10,7 @@
       <env name="BLUEBIRD_DEBUG" value="1" />
     </envs>
     <ui>bdd</ui>
-    <extra-mocha-options>-r ts-node/register -r source-map-support/register</extra-mocha-options>
+    <extra-mocha-options />
     <test-kind>PATTERN</test-kind>
     <test-pattern>test/**/*.ts</test-pattern>
     <method v="2" />

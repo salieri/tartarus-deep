@@ -1,2 +1,3 @@
---require ./test/mocha-options
+--require ./test/typescriptify
+--require ./test/mocha-options.ts
 --timeout 6000

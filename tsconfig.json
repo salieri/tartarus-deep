@@ -1,17 +1,21 @@
 {
-	"compilerOptions": {
-		"target"			: "esnext",
-		"moduleResolution"	: "node",
-		"allowJs"			: true,
-		"noEmit"			: true,
-		"strict"			: true,
-		"isolatedModules"	: true,
-		"esModuleInterop"	: true,
-		"sourceMap"			: true,
-		"outDir"			: "./build"
-	},
+  "compilerOptions": {
+    "target"            : "esnext",
+    "moduleResolution"  : "node",
+    "module"            : "CommonJS",
+    "allowJs"           : true,
+    "checkJs"           : true,
+    "noEmit"            : true,
+    "strict"            : true,
+    "isolatedModules"   : true,
+    "esModuleInterop"   : true,
+    "sourceMap"         : true,
+    "resolveJsonModule" : true,
+    "noImplicitAny"     : true,
+    "outDir"            : "./build"
+  },
 
-	"include" : [
-		"lib"
-	]
+  "include": [
+    "src"
+  ]
 }

@@ -1,78 +1,80 @@
-import {JoiEx, ClassManager} from '../../../lib/util';
-import {Activation} from '../../../lib/nn/activation';
-import * as activations from '../../../lib/nn/activation';
+import { JoiEx, ClassManager } from '../../../src/util';
+import { Activation } from '../../../src/nn/activation';
+
+// tslint:disable-next-line
+import * as activations from '../../../src/nn/activation';
 
 import { expect } from 'chai';
 
 
-describe( 'JoiEx',
-	function()
-	{
-		it( 'should pass instantiated objects through coercing validators',
-			function()
-			{
-				const cm 		= new ClassManager( activations, Activation ),
-					schema		= JoiEx.activation(),
-					activation	= cm.factory( 'sigmoid' ),
-					result		= JoiEx.validate( activation, schema );
+describe(
+  'JoiEx',
+  () => {
+    it(
+      'should pass instantiated objects through coercing validators',
+      () => {
+        const cm          = new ClassManager(activations, Activation);
+        const schema      = JoiEx.activation();
+        const activation  = cm.factory('sigmoid');
+        const result      = JoiEx.validate(activation, schema);
 
-				expect( result.error ).to.equal( null );
-				expect( result.value ).to.equal( activation );
-				expect( result.value ).to.be.instanceOf( Activation );
-				expect( result.value ).to.be.instanceOf( activations.Sigmoid );
-			}
-		);
+        expect(result.error).to.equal(null);
+        expect(result.value).to.equal(activation);
+        expect(result.value).to.be.instanceOf(Activation);
+        expect(result.value).to.be.instanceOf(activations.Sigmoid);
+      }
+    );
 
-		it( 'should not pass instantiated objects through coercing validators',
-			function()
-			{
-				const cm 		= new ClassManager( activations, Activation ),
-					schema		= JoiEx.activation(),
-					activation	= { moo : 'moo' },
-					result		= JoiEx.validate( activation, schema );
+    it(
+      'should not pass instantiated objects through coercing validators',
+      () => {
+        const cm          = new ClassManager(activations, Activation);
+        const schema      = JoiEx.activation();
+        const activation  = { moo: 'moo' };
+        const result      = JoiEx.validate(activation, schema);
 
-				expect( result.error ).to.match( /Unexpected data type passed to the coerce function/ );
-			}
-		);
-
-
-		it( 'should instantiate class names passed to coerce() validator',
-			function()
-			{
-				const cm	= new ClassManager( activations, Activation ),
-					schema	= JoiEx.activation(),
-					result	= JoiEx.validate( 'sigmoid', schema );
-
-				expect( result.error ).to.equal( null );
-				expect( result.value ).to.be.instanceOf( Activation );
-				expect( result.value ).to.be.instanceOf( activations.Sigmoid );
-			}
-		);
+        expect(result.error).to.match(/Unexpected data type passed to the coerce function/);
+      }
+    );
 
 
-		it( 'should not instantiate unknown class names passed to coerce() validator',
-			function()
-			{
-				const cm	= new ClassManager( activations, Activation ),
-					schema	= JoiEx.activation(),
-					result	= JoiEx.validate( 'this-does-not-exist', schema );
+    it(
+      'should instantiate class names passed to coerce() validator',
+      () => {
+        const cm      = new ClassManager(activations, Activation);
+        const schema  = JoiEx.activation();
+        const result  = JoiEx.validate('sigmoid', schema);
 
-				expect( result.error ).to.match( /Unexpected data type passed to the coerce function/ );
-			}
-		);
+        expect(result.error).to.equal(null);
+        expect(result.value).to.be.instanceOf(Activation);
+        expect(result.value).to.be.instanceOf(activations.Sigmoid);
+      }
+    );
 
 
-		it( 'should instantiate default value, if no data passed',
-			function()
-			{
-				const cm	= new ClassManager( activations, Activation ),
-					schema	= JoiEx.activation().optional().default( 'sigmoid' ),
-					result	= JoiEx.validate( undefined, schema );
+    it(
+      'should not instantiate unknown class names passed to coerce() validator',
+      () => {
+        const cm      = new ClassManager(activations, Activation);
+        const schema  = JoiEx.activation();
+        const result  = JoiEx.validate('this-does-not-exist', schema);
 
-				expect( result.error ).to.equal( null );
-				expect( result.value ).to.be.instanceOf( Activation );
-				expect( result.value ).to.be.instanceOf( activations.Sigmoid );
-			}
-		);
-	}
+        expect(result.error).to.match(/Unexpected data type passed to the coerce function/);
+      }
+    );
+
+
+    it(
+      'should instantiate default value, if no data passed',
+      () => {
+        const cm      = new ClassManager(activations, Activation);
+        const schema  = JoiEx.activation().optional().default('sigmoid');
+        const result  = JoiEx.validate(undefined, schema);
+
+        expect(result.error).to.equal(null);
+        expect(result.value).to.be.instanceOf(Activation);
+        expect(result.value).to.be.instanceOf(activations.Sigmoid);
+      }
+    );
+  }
 );
