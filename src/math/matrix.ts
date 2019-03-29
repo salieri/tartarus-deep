@@ -87,7 +87,7 @@ export class Matrix extends NDArray
 	{
 		targetObj = targetObj || new Matrix( ...this.dimensions );
 
-		return <Matrix>super.clone( targetObj );
+		return super.clone( targetObj ) as Matrix;
 	}
 
 

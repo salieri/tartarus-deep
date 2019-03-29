@@ -70,7 +70,7 @@ export class NDArray {
         return _.fill(Array(size), initialValue);
       }
 
-      return <NumberTreeElement[]>_.map(Array(size), () => iterateCreation(depthIndex + 1));
+      return _.map(Array(size), () => iterateCreation(depthIndex + 1)) as NumberTreeElement[];
     }
 
     return iterateCreation(0);
@@ -83,7 +83,7 @@ export class NDArray {
     let dp = data;
 
     while (_.isArray(dp) === true) {
-      dp = <number[]>dp;
+      dp = dp as number[];
 
       dimensions.push(dp.length);
 
@@ -114,7 +114,7 @@ export class NDArray {
     positionPath.push(0);
 
     const posIdx  = positionPath.length - 1;
-    const dsArray = <number[]>dataSource;
+    const dsArray = dataSource as number[];
 
     _.each(
       dsArray,
@@ -171,7 +171,7 @@ export class NDArray {
 
     _.each(
       this,
-      (v, k) => ((<any>target)[k] = _.cloneDeep(v))
+      (v, k) => ((target as any)[k] = _.cloneDeep(v))
     );
 
     NDArray.idCounter += 1;
@@ -214,7 +214,7 @@ export class NDArray {
    * Get NDArray data
    */
   public get(): NumberTreeElement[] {
-    return _.cloneDeep(<number[]>this.data);
+    return _.cloneDeep(this.data as number[]);
   }
 
 

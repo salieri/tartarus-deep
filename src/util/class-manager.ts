@@ -44,7 +44,7 @@ export class ClassManager {
       throw new Error('Cannot coerce: Invalid data');
     }
 
-    return this.factory(<string>instanceDefinition, params);
+    return this.factory(instanceDefinition as string, params);
   }
 
 

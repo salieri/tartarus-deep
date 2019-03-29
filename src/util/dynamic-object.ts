@@ -12,7 +12,7 @@ export default {
     _.each(
       descriptor,
       (validator: any, key: string) => {
-        if (typeof (<any>instance)[key] !== 'undefined') {
+        if (typeof (instance as any)[key] !== 'undefined') {
           throw new Error(`${instance.constructor.name} tries to overwrite existing method or property '${key}'`);
         }
 

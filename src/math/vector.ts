@@ -50,7 +50,7 @@ export class Vector extends NDArray {
   public clone(targetObj?: Vector): Vector {
     const target = targetObj || new Vector(...this.dimensions);
 
-    return <Vector>super.clone(target);
+    return super.clone(target) as Vector;
   }
 
 

@@ -177,15 +177,15 @@ export class LayerGraph {
    */
   public find(layer: Layer | string | number): LayerGraphNode {
     if (_.isNumber(layer) === true) {
-      return this.nodes[<number>layer];
+      return this.nodes[layer as number];
     }
 
     let node;
 
     if (_.isString(layer) === true) {
-      node = _.find(this.nodes, (n: LayerGraphNode) => (n.layer.name === <string>layer));
+      node = _.find(this.nodes, (n: LayerGraphNode) => (n.layer.name === layer as string));
     } else {
-      node = _.find(this.nodes, (n: LayerGraphNode) => (n.layer === <Layer>layer));
+      node = _.find(this.nodes, (n: LayerGraphNode) => (n.layer === layer as Layer));
     }
 
     if (_.isUndefined(node)) {

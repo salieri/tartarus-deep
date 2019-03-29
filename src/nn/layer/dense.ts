@@ -10,17 +10,17 @@ import { Constraint } from '../constraint'; */
 
 export class Dense extends Layer {
   units(units: number): Dense {
-    return <Dense>this.setParam('units', units);
+    return this.setParam('units', units) as Dense;
   }
 
 
   activation(activation: string | Activation): Dense {
-    return <Dense>this.setParam('activation', activation);
+    return this.setParam('activation', activation) as Dense;
   }
 
 
   bias(bias: boolean): Dense {
-    return <Dense>this.setParam('bias', bias);
+    return this.setParam('bias', bias) as Dense;
   }
 
 
@@ -60,11 +60,11 @@ export class Dense extends Layer {
 
 
   calculate(input: Vector): Vector {
-    const weight  = <Matrix>this.session.get('weight');
+    const weight  = this.session.get('weight') as Matrix;
     const output  = weight.vecmul(input);
 
     if (this.params.bias) {
-      return <Vector>output.add(<Vector>this.session.get('bias'));
+      return output.add(this.session.get('bias') as Vector) as Vector;
     }
 
     return output;
