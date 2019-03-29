@@ -24,7 +24,7 @@ describe(
         m.getDims()[1].should.equal(4);
 
         m.get().length.should.equal(3);
-        (<number[]>m.get()[1]).length.should.equal(4);
+        (m.get()[1] as number[]).length.should.equal(4);
       }
     );
 
@@ -45,7 +45,7 @@ describe(
         m.getDims()[1].should.equal(4);
 
         m.get().length.should.equal(3);
-        (<number[]>m.get()[1]).length.should.equal(4);
+        (m.get()[1] as number[]).length.should.equal(4);
 
         m.getAt([0, 0]).should.equal(0);
         m.getAt([1, 1]).should.equal(1);
@@ -118,7 +118,7 @@ describe(
         m.getDims()[1].should.equal(4);
 
         m.get().length.should.equal(3);
-        (<number[]>m.get()[1]).length.should.equal(4);
+        (m.get()[1] as number[]).length.should.equal(4);
 
         m.getAt([0, 0]).should.equal(0);
         m.getAt([1, 1]).should.equal(1);
