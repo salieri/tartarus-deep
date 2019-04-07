@@ -1,7 +1,7 @@
 import { NDArray } from '../../math';
 
 
-export class Symbol {
+export abstract class Symbol {
   protected name: string;
   protected data: NDArray;
 
@@ -12,9 +12,7 @@ export class Symbol {
   }
 
 
-  public canOptimize(): boolean {
-    throw new Error('Not implemented');
-  }
+  public abstract canOptimize(): boolean;
 
 
   public get(): NDArray {

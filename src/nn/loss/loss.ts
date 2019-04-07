@@ -14,16 +14,14 @@ export interface LossDescriptor {
  * the performance of a model. Inputs are:
  * predicted label (yHat) and actual label (y)
  */
-export class Loss {
+export abstract class Loss {
   protected params: LossParams;
 
   constructor(params: LossParams = {}) {
     this.params = params;
   }
 
-  public calculate(yHat: Vector, y: Vector): number {
-    throw new Error('Not implemented');
-  }
+  public abstract calculate(yHat: Vector, y: Vector): number;
 
 
   public getDescriptor(): LossDescriptor {

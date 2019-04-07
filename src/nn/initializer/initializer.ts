@@ -11,7 +11,7 @@ export interface InitializerDescriptor {
 }
 
 
-export class Initializer {
+export abstract class Initializer {
   protected params: InitializerParams;
 
   constructor(params: InitializerParams = {}) {
@@ -30,9 +30,7 @@ export class Initializer {
   }
 
 
-  public initialize(data: NDArray): NDArray {
-    throw new Error('Not implemented');
-  }
+  public abstract initialize(data: NDArray): NDArray;
 
 
   public getDescriptor(): InitializerDescriptor {

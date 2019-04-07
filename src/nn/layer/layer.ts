@@ -12,7 +12,7 @@ export interface LayerDescriptor {
 }
 
 
-export class Layer {
+export abstract class Layer {
   public params: LayerParams;
   public name: string;
 

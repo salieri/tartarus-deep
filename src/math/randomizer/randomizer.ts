@@ -4,7 +4,7 @@ import sha256 from 'fast-sha256';
 /**
  * Pseudo random number generator
  */
-export class Randomizer {
+export abstract class Randomizer {
   protected seed: string;
   protected seedHash: Uint8Array;
   protected seedPtr: number = 0;
@@ -46,9 +46,7 @@ export class Randomizer {
   /**
    * Return a random number between 0 (inclusive) and 1 (exclusive)
    */
-  public random(): number {
-    throw new Error('Not implemented');
-  }
+  public abstract random(): number;
 
 
   /**

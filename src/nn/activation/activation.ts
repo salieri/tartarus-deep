@@ -19,7 +19,7 @@ export interface ActivationDescriptor {
 }
 
 
-export class Activation {
+export abstract class Activation {
   protected params: ActivationParams;
 
 
@@ -28,9 +28,7 @@ export class Activation {
   }
 
 
-  public calculate(z: NDArray): NDArray {
-    throw new Error('Not implemented');
-  }
+  public abstract calculate(z: NDArray): NDArray;
 
 
   public getDescriptor(): ActivationDescriptor {
