@@ -5,7 +5,7 @@ import { Vector } from '../../math';
  * Cosine Proximity
  */
 export class CosineProximity extends Loss {
-  calculate(yHat: Vector, y: Vector): number {
+  public calculate(yHat: Vector, y: Vector): number {
     // -sum( y * yHat ) / ( sqrt( sum( y ^ 2 ) ) * sqrt( sum( yHat ^ 2 ) ) )
 
     const dividend  = y.mul(yHat).sum();

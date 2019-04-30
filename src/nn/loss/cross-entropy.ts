@@ -3,7 +3,7 @@ import { Vector } from '../../math';
 
 
 export class CrossEntropy extends Loss {
-  calculate(yHat: Vector, y: Vector): number {
+  public calculate(yHat: Vector, y: Vector): number {
     // -sum( y * log( yHat ) + ( 1 - y ) * log( 1 - yHat ) ) / y.size
 
     const oneMinusY     = y.clone().set(1).sub(y);

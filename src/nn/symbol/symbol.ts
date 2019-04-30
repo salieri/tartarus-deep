@@ -3,10 +3,11 @@ import { NDArray } from '../../math';
 
 export abstract class Symbol {
   protected name: string;
+
   protected data: NDArray;
 
 
-  constructor(name: string, data: NDArray) {
+  public constructor(name: string, data: NDArray) {
     this.name = name;
     this.data = data;
   }
@@ -20,7 +21,7 @@ export abstract class Symbol {
   }
 
 
-  public set(data: NDArray) {
+  public set(data: NDArray): void {
     this.data = data;
   }
 }

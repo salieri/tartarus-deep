@@ -1,10 +1,12 @@
 import { Vector } from '../../math';
 
 export interface LossParams {
+  /* eslint-disable-next-line */
   [key: string]: any;
 }
 
 export interface LossDescriptor {
+  /* eslint-disable-next-line */
   [key: string]: any;
 }
 
@@ -17,7 +19,7 @@ export interface LossDescriptor {
 export abstract class Loss {
   protected params: LossParams;
 
-  constructor(params: LossParams = {}) {
+  public constructor(params: LossParams = {}) {
     this.params = params;
   }
 

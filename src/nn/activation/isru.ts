@@ -1,6 +1,6 @@
+import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
 import { Activation, ActivationDescriptor } from './activation';
 import { NDArray } from '../../math';
-import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
 
 
 /**

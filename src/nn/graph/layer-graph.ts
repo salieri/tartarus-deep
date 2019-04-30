@@ -5,6 +5,7 @@ import { LayerGraphNode } from './layer-graph-node';
 
 export class LayerGraph {
   protected nodes: LayerGraphNode[] = [];
+
   protected compiled: boolean = false;
 
 
@@ -108,7 +109,7 @@ export class LayerGraph {
       (linkNode: LayerGraphNode): void => {
         callback(linkNode);
         this.traverse(linkNode, direction, callback);
-      }
+      },
     );
   }
 
@@ -143,7 +144,7 @@ export class LayerGraph {
       (e: LayerGraphNode) => {
         e.removeInput(node);
         e.removeOutput(node);
-      }
+      },
     );
 
     _.remove(this.nodes, (e: LayerGraphNode) => (e === node));
@@ -208,6 +209,5 @@ export class LayerGraph {
 
     this.compiled = true;
   }
-
 }
 

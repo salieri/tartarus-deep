@@ -10,12 +10,19 @@ import { NDArray } from '../../math';
  * a = g( z )
  */
 
+/* eslint-disable-next-line */
+type ActivationParamType = any;
+
+/* eslint-disable-next-line */
+type ActivationDescriptorType = any;
+
+
 export interface ActivationParams {
-  [key: string]: any;
+  [key: string]: ActivationParamType;
 }
 
 export interface ActivationDescriptor {
-  [key: string]: any;
+  [key: string]: ActivationDescriptorType;
 }
 
 

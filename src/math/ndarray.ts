@@ -170,6 +170,7 @@ export class NDArray {
    * Clone an NDArray
    */
   public clone(targetObj?: NDArray): NDArray {
+    /* eslint-disable-next-line */
     const target = (targetObj || new NDArray(...this.dimensions)) as any;
 
     _.each(

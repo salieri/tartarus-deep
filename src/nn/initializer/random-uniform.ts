@@ -7,7 +7,7 @@ import { Randomizer, Xoshiro128 } from '../../math/randomizer';
 export class RandomUniform extends Initializer {
   private randomizer: Randomizer;
 
-  constructor(params: InitializerParams) {
+  public constructor(params: InitializerParams) {
     super(params);
 
     this.randomizer = params.randomizer;
@@ -23,7 +23,7 @@ export class RandomUniform extends Initializer {
     return {
       min: JoiEx.number().default(0.0).description('Minimum random value'),
       max: JoiEx.number().default(1.0).description('Maximum random value'),
-      randomizer: JoiEx.random().description('Randomizer').default(new Xoshiro128())
+      randomizer: JoiEx.random().description('Randomizer').default(new Xoshiro128()),
     };
   }
 }

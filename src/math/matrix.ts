@@ -1,15 +1,15 @@
 import _ from 'lodash';
-import { NDArray } from './ndarray';
+import { NDArray, NDArrayConstructorType } from './ndarray';
 import { Vector } from './vector';
 
 
 export class Matrix extends NDArray {
-  public constructor(...dimensions: any[]) {
+  /* public constructor(...dimensions: any[]) {
     super(...dimensions);
-  }
+  } */
 
 
-  protected validateConstructor(dimensions: any[]): void {
+  protected validateConstructor(dimensions: NDArrayConstructorType): void {
     super.validateConstructor(dimensions);
 
     if (dimensions.length === 1) {
@@ -91,11 +91,11 @@ export class Matrix extends NDArray {
 
     const result: Matrix = new Matrix(aRows, bCols);
 
-    for (let y: number = 0; y < aRows; y += 1) {
-      for (let x: number = 0; x < bCols; x += 1) {
-        let val: number = 0;
+    for (let y = 0; y < aRows; y += 1) {
+      for (let x = 0; x < bCols; x += 1) {
+        let val = 0;
 
-        for (let i: number = 0; i < aCols; i += 1) {
+        for (let i = 0; i < aCols; i += 1) {
           val += this.getAt([y, i]) * b.getAt([i, x]);
         }
 
@@ -111,16 +111,16 @@ export class Matrix extends NDArray {
    * Multiply matrix by a vector
    */
   public vecmul(b: Vector): Vector {
-    const aCols: number = this.getCols();
+    // const aCols: number = this.getCols();
     const aRows: number = this.getRows();
     const bSize: number = b.getSize();
 
     const result: Vector = new Vector(aRows);
 
-    for (let y: number = 0; y < aRows; y += 1) {
-      let val: number = 0;
+    for (let y = 0; y < aRows; y += 1) {
+      let val = 0;
 
-      for (let x: number = 0; x < bSize; x += 1) {
+      for (let x = 0; x < bSize; x += 1) {
         val += this.getAt([y, x]) * b.getAt([x]);
       }
 

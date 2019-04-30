@@ -3,23 +3,23 @@ import { Activation } from '../activation';
 import { JoiEx } from '../../util';
 import { Vector, Matrix } from '../../math';
 
-/*import { Initializer } from '../initializer';
+/* import { Initializer } from '../initializer';
 import { Regularizer } from '../regularizer';
 import { Constraint } from '../constraint'; */
 
 
 export class Dense extends Layer {
-  units(units: number): Dense {
+  public units(units: number): Dense {
     return this.setParam('units', units) as Dense;
   }
 
 
-  activation(activation: string | Activation): Dense {
+  public activation(activation: string | Activation): Dense {
     return this.setParam('activation', activation) as Dense;
   }
 
 
-  bias(bias: boolean): Dense {
+  public bias(bias: boolean): Dense {
     return this.setParam('bias', bias) as Dense;
   }
 
@@ -54,12 +54,12 @@ export class Dense extends Layer {
   } */
 
 
-  getParameterDimensions() {
+  public getParameterDimensions() {
 
   }
 
 
-  calculate(input: Vector): Vector {
+  public calculate(input: Vector): Vector {
     const weight  = this.session.get('weight') as Matrix;
     const output  = weight.vecmul(input);
 
@@ -71,7 +71,7 @@ export class Dense extends Layer {
   }
 
 
-  compile() {
+  public compile() {
     this.session.register('weight', new Matrix(this.params.units, inputNodes));
 
     if (this.params.bias === true) {
@@ -80,7 +80,7 @@ export class Dense extends Layer {
   }
 
 
-  initialize() {
+  public initialize() {
     this.register('weight', this.params.weightInitializer.initialize(this.get('weight')));
 
     if (this.params.bias === true) {
@@ -89,7 +89,7 @@ export class Dense extends Layer {
   }
 
 
-  getDescriptor(): LayerDescriptor {
+  public getDescriptor(): LayerDescriptor {
     return {
       units: JoiEx.number().default(16).min(1).description('Number of outputs'),
       activation: JoiEx.activation().default('identity').description('Activation function'),

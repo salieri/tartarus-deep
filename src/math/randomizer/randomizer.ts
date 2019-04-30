@@ -6,10 +6,12 @@ import sha256 from 'fast-sha256';
  */
 export abstract class Randomizer {
   protected seed: string;
+
   protected seedHash: Uint8Array;
+
   protected seedPtr: number = 0;
 
-  constructor(seed?: string) {
+  public constructor(seed?: string) {
     const enc = new TextEncoder();
 
     this.seed = _.toString(seed || Randomizer.generateSeed());
@@ -27,10 +29,10 @@ export abstract class Randomizer {
   protected readIntFromSeed(): number {
     const ptrBase: number = this.seedPtr * 4;
 
-    const val: number = (this.seedHash[ptrBase] << 24) +
-      (this.seedHash[ptrBase] << 16) +
-      (this.seedHash[ptrBase] << 8) +
-      (this.seedHash[ptrBase]);
+    const val: number = (this.seedHash[ptrBase] << 24)
+      + (this.seedHash[ptrBase] << 16)
+      + (this.seedHash[ptrBase] << 8)
+      + (this.seedHash[ptrBase]);
 
     this.seedPtr += 1;
 

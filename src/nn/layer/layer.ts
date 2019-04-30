@@ -14,6 +14,7 @@ export interface LayerDescriptor {
 
 export abstract class Layer {
   public params: LayerParams;
+
   public name: string;
 
   protected compiled: boolean = false;
@@ -25,7 +26,7 @@ export abstract class Layer {
 
     Layer.layerCounter += 1;
 
-    this.name = name ? name : `${this.constructor.name}#${Layer.layerCounter}`;
+    this.name = name || `${this.constructor.name}#${Layer.layerCounter}`;
   }
 
 
@@ -71,25 +72,25 @@ export abstract class Layer {
   }
 
 
-  public getLayerVar(name: String): any {
+  public getLayerVar(name: string): any {
   }
 
 
-  public setLayerVar(name: String, symbol: Symbol) {
+  public setLayerVar(name: string, symbol: symbol) {
 
   }
 
-  public hasLayerVar(name: String) {
-
-  }
-
-
-  protected mustHaveVar(name: String): void {
+  public hasLayerVar(name: string) {
 
   }
 
 
-  public register(variableName: string, symbol: Symbol): void {
+  protected mustHaveVar(name: string): void {
+
+  }
+
+
+  public register(variableName: string, symbol: symbol): void {
     this.symbols.add(this.getLayerVarName(variableName), symbol);
   }
 

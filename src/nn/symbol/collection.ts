@@ -2,14 +2,14 @@ import _ from 'lodash';
 import { Symbol } from './symbol';
 
 export interface SymbolDescriptor {
-  [key: string]: Symbol;
+  [key: string]: symbol;
 }
 
 
 export class SymbolCollection {
   private symbols: SymbolDescriptor = {};
 
-  constructor(collection?: SymbolCollection) {
+  public constructor(collection?: SymbolCollection) {
     if (collection) {
       this.symbols = _.cloneDeep(collection.symbols);
     }
@@ -21,7 +21,7 @@ export class SymbolCollection {
   }
 
 
-  public add(key: string, value: Symbol): void {
+  public add(key: string, value: symbol): void {
     if (this.has(key) === true) {
       throw new Error(`Key '${key} already exists in this collection`);
     }
@@ -30,7 +30,7 @@ export class SymbolCollection {
   }
 
 
-  public set(key: string, value: Symbol): void {
+  public set(key: string, value: symbol): void {
     this.mustHave(key);
 
     this.symbols[key] = value;
@@ -43,13 +43,13 @@ export class SymbolCollection {
 
 
   protected mustHave(key: string): void {
-    if (this.has(key) === false) {
+    if (!this.has(key)) {
       throw new Error(`Unknown key '${key}'`);
     }
   }
 
 
-  public get(key: string): Symbol {
+  public get(key: string): symbol {
     this.mustHave(key);
 
     return this.symbols[key];

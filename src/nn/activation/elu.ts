@@ -1,6 +1,6 @@
+import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
 import { Activation, ActivationDescriptor } from './activation';
 import { NDArray } from '../../math';
-import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
 
 
 /**
@@ -14,7 +14,7 @@ export class ELU extends Activation {
 
   public getDescriptor(): ActivationDescriptor {
     return {
-      leak: Joi.number().optional().default(0.0).description('Leak multiplier')
+      leak: Joi.number().optional().default(0.0).description('Leak multiplier'),
     };
   }
 }

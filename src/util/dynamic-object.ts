@@ -31,17 +31,16 @@ export default {
                 throw result.error;
               }
 
+              /* eslint-disable-next-line */
               instance.params[key] = result.value;
 
               return instance;
-            }
-          }
+            },
+          },
         );
-      }
+      },
     );
-
-
-  }
+  },
 
 
 };

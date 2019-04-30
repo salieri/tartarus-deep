@@ -11,9 +11,10 @@ export interface InstanceParams {
 
 export class ClassManager {
   protected knownClasses: ClassModule;
+
   protected baseClass: any;
 
-  constructor(knownClasses: ClassModule, baseClass: any) {
+  public constructor(knownClasses: ClassModule, baseClass: any) {
     this.baseClass = baseClass;
     this.knownClasses = this.prepareClasses(knownClasses);
   }
@@ -28,7 +29,7 @@ export class ClassManager {
         if (cls.prototype instanceof this.baseClass) {
           filteredClasses[ClassManager.getSimplifiedName(key)] = cls;
         }
-      }
+      },
     );
 
     return filteredClasses;
@@ -70,6 +71,5 @@ export class ClassManager {
   public static getSimplifiedName(className: string): string {
     return className.toLowerCase().replace(/[^a-z0-9]/g, '');
   }
-
 }
 

@@ -5,11 +5,14 @@ import { Randomizer } from './randomizer';
  */
 export class Xoshiro128 extends Randomizer {
   protected a: number;
+
   protected b: number;
+
   protected c: number;
+
   protected d: number;
 
-  constructor(seed?: string) {
+  public constructor(seed?: string) {
     super(seed);
 
     this.a = this.readIntFromSeed();
@@ -26,7 +29,7 @@ export class Xoshiro128 extends Randomizer {
     const t: number = this.b << 9;
     let r: number = this.a * 5;
 
-    r = (r << 7 | r >>> 25) * 9;
+    r = ((r << 7) | (r >>> 25)) * 9;
 
     this.c ^= this.a;
     this.d ^= this.b;
@@ -35,10 +38,9 @@ export class Xoshiro128 extends Randomizer {
     this.a ^= this.d;
     this.c ^= t;
 
-    this.d = this.d << 11 | this.d >>> 21;
+    this.d = (this.d << 11) | (this.d >>> 21);
 
     return (r >>> 0) / 4294967296;
   }
-
 }
 

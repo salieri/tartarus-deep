@@ -4,9 +4,10 @@ import { Layer } from '../layer';
 
 export class LayerGraphFeed {
   public node: LayerGraphNode;
+
   public label: string;
 
-  constructor(node: LayerGraphNode, label: string) {
+  public constructor(node: LayerGraphNode, label: string) {
     this.node = node;
     this.label = label;
   }
@@ -14,34 +15,38 @@ export class LayerGraphFeed {
 
 
 export class LayerGraphNode {
-  layer: Layer;
-  inputs: LayerGraphFeed[] = [];
-  outputs: LayerGraphFeed[] = [];
-  connected: boolean = false;
-  level: number = 0;
+  private layer: Layer;
+
+  private inputs: LayerGraphFeed[] = [];
+
+  private outputs: LayerGraphFeed[] = [];
+
+  private connected: boolean = false;
+
+  private level: number = 0;
 
 
-  constructor(layer: Layer) {
+  public constructor(layer: Layer) {
     this.layer = layer;
   }
 
 
-  addOutput(node: LayerGraphNode) {
+  public addOutput(node: LayerGraphNode): void {
     this.outputs.push(node);
   }
 
 
-  addInput(node: LayerGraphNode) {
+  public addInput(node: LayerGraphNode): void {
     this.inputs.push(node);
   }
 
 
-  removeOutput(node: LayerGraphNode) {
+  public removeOutput(node: LayerGraphNode): void {
     _.remove(this.inputs, (input: LayerGraphNode) => (node === input));
   }
 
 
-  removeInput(node: LayerGraphNode) {
+  public removeInput(node: LayerGraphNode): void {
     _.remove(this.outputs, (output: LayerGraphNode) => (node === output));
   }
 }

@@ -1,6 +1,6 @@
-import { NDArray } from './ndarray';
-import { Matrix } from './matrix';
 import _ from 'lodash';
+import { NDArray, NDArrayConstructorType } from './ndarray';
+import { Matrix } from './matrix';
 
 export enum VectorDirection {
   Row,
@@ -9,12 +9,12 @@ export enum VectorDirection {
 
 
 export class Vector extends NDArray {
-  constructor(...dimensions: any[]) {
+  /* constructor(...dimensions: any[]) {
     super(...dimensions);
-  }
+  } */
 
 
-  protected validateConstructor(dimensions: any[]): void {
+  protected validateConstructor(dimensions: NDArrayConstructorType): void {
     super.validateConstructor(dimensions);
 
     if (dimensions.length === 1) {
@@ -65,20 +65,20 @@ export class Vector extends NDArray {
     const result: Matrix = new Matrix(rows, cols);
 
     if (
-      ((direction === VectorDirection.Row) && (rows !== this.getSize())) ||
-      ((direction === VectorDirection.Col) && (cols !== this.getSize()))
+      ((direction === VectorDirection.Row) && (rows !== this.getSize()))
+      || ((direction === VectorDirection.Col) && (cols !== this.getSize()))
     ) {
       throw new Error('Vector does not fit the shape of the matrix');
     }
 
-    let tPos: number = 0;
+    let tPos = 0;
 
-    for (let y: number = 0; y < rows; y += 1) {
+    for (let y = 0; y < rows; y += 1) {
       if (direction === VectorDirection.Row) {
         tPos = y;
       }
 
-      for (let x: number = 0; x < cols; x += 1) {
+      for (let x = 0; x < cols; x += 1) {
         if (direction === VectorDirection.Col) {
           tPos = x;
         }
@@ -96,14 +96,14 @@ export class Vector extends NDArray {
    * @param { Vector } b
    */
   public dot(b: Vector): number {
-    let total: number = 0;
+    let total = 0;
 
     this.traverse(
       (aVal: number, path: number[]) => {
         const bVal: number = b.getAt(path);
 
         total += aVal * bVal;
-      }
+      },
     );
 
     return total;
@@ -114,6 +114,6 @@ export class Vector extends NDArray {
    * Calculate Euclidean length of the vector
    */
   public length(): number {
-    return Math.sqrt(this.sum((val: number): number => Math.pow(val, 2)));
+    return Math.sqrt(this.sum((val: number): number => (val ** 2)));
   }
 }

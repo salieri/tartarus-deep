@@ -16,15 +16,15 @@ function createCMExtension(name: string, cm: ClassManager): Function {
       name,
       base: joi.any(),
       language: {
-        coerceFailure: 'Unexpected data type passed to the coerce function'
+        coerceFailure: 'Unexpected data type passed to the coerce function',
       },
       coerce(value: any, state: any, options: any): any {
         try {
           return cm.coerce(value || _.get(this, '_flags.default'));
         } catch (e) {
-          return (<any>this).createError(`${name}.coerceFailure`, {}, state, options);
+          return (this as any).createError(`${name}.coerceFailure`, {}, state, options);
         }
-      }
+      },
     }
   );
 }
@@ -39,10 +39,10 @@ const customJoi = Joi.extend(
     // createCMExtension( 'layer', new ClassManager( layers, layers.Layer ) ), // -- this will cause circular dependencies
 
     createCMExtension('loss', new ClassManager(losses, losses.Loss)),
-    createCMExtension('randomizer', new ClassManager(randomizers, randomizers.Randomizer))
+    createCMExtension('randomizer', new ClassManager(randomizers, randomizers.Randomizer)),
 
     // createCMExtension( 'regularizer', new ClassManager( regularizers, regularizers.Regularizer ) )
-  ]
+  ],
 );
 
 export { customJoi as JoiEx };

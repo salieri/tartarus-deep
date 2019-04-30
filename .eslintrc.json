@@ -31,6 +31,7 @@
     "max-len"                     : [2, 140],
     "class-methods-use-this"      : 0,
     "prefer-destructuring"        : 0,
+    "no-bitwise"                  : 0,
 
     "import/prefer-default-export": false,
 

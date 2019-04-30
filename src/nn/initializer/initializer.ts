@@ -1,12 +1,14 @@
-import { NDArray } from '../../math';
 import Joi from 'joi';
+import { NDArray } from '../../math';
 
 
 export interface InitializerParams {
+  /* eslint-disable-next-line */
   [key: string]: any;
 }
 
 export interface InitializerDescriptor {
+  /* eslint-disable-next-line */
   [key: string]: any;
 }
 
@@ -14,7 +16,7 @@ export interface InitializerDescriptor {
 export abstract class Initializer {
   protected params: InitializerParams;
 
-  constructor(params: InitializerParams = {}) {
+  public constructor(params: InitializerParams = {}) {
     this.params = this.getValidatedParams(params);
   }
 
@@ -36,6 +38,5 @@ export abstract class Initializer {
   public getDescriptor(): InitializerDescriptor {
     return {};
   }
-
 }
 
