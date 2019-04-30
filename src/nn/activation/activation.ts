@@ -23,7 +23,7 @@ export abstract class Activation {
   protected params: ActivationParams;
 
 
-  constructor(params: ActivationParams = {}) {
+  public constructor(params: ActivationParams = {}) {
     this.params = params;
   }
 

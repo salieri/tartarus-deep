@@ -1,0 +1,40 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+	"extends": [
+	  "plugin:@typescript-eslint/recommended",
+	  "prettier/@typescript-eslint",
+	  "eslint-config-airbnb"
+	],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".ts"]
+      }
+    }
+  },
+  "rules": {
+	  "trailing-comma"              : false,
+	  "import-name"                 : false,
+    "no-consecutive-blank-lines"  : [true, 2],
+    "no-multiple-empty-lines"     : [2, {"max": 2, "maxEOF": 2, "maxBOF": 1}],
+    "no-multi-spaces"             : 0,
+    "max-line-length"             : [true, 140],
+    "max-len"                     : [2, 140],
+    "class-methods-use-this"      : 0,
+    "prefer-destructuring"        : 0,
+
+    "import/prefer-default-export": false,
+
+    "@typescript-eslint/explicit-function-return-type": [2, {"allowExpressions": true, "allowTypedFunctionExpressions": true}]
+  }
+}
+

@@ -1,15 +1,17 @@
 import _ from 'lodash';
 
 export type NumberTreeElement = number[] | number;
+export type NDArrayConstructorType = NumberTreeElement[]|NDArray[]|number[];
 
 
 export class NDArray {
   private static idCounter: number = 0;
 
   protected id: number = 0;
-  protected dimensions: number[] = [];
-  protected data: NumberTreeElement[] = [];
 
+  protected dimensions: number[] = [];
+
+  protected data: NumberTreeElement[] = [];
 
   /**
    * new NDArray( 20, 30, 40 ) // create n-dimensional array the size of 20x30x40
@@ -21,7 +23,7 @@ export class NDArray {
    *  ]
    * )
    */
-  constructor(...dimensions: any[]) {
+  public constructor(...dimensions: NDArrayConstructorType) {
     this.validateConstructor(dimensions);
 
     if (dimensions.length === 1) {
@@ -36,12 +38,12 @@ export class NDArray {
         this.dimensions = NDArray.resolveDimensions(dimEl);
         this.data = NDArray.createDimArray(this.dimensions);
 
-        this.setData(dimEl);
+        this.setData(dimEl as NumberTreeElement[]);
         return;
       }
     }
 
-    this.dimensions = dimensions;
+    this.dimensions = dimensions as number[];
     this.data = NDArray.createDimArray(this.dimensions);
 
     NDArray.idCounter += 1;
@@ -50,7 +52,7 @@ export class NDArray {
   }
 
 
-  protected validateConstructor(dimensions: any[]): void {
+  protected validateConstructor(dimensions: NDArrayConstructorType): void {
     if ((!dimensions) || (dimensions.length === 0)) {
       throw new Error('Unspecified dimensions');
     }
@@ -109,8 +111,8 @@ export class NDArray {
     dataSource        : NumberTreeElement[],
     dimensions        : number[],
     elementCallback?  : Function,
-    arrayCallback?    : Function
-  ) {
+    arrayCallback?    : Function,
+  ): void {
     positionPath.push(0);
 
     const posIdx  = positionPath.length - 1;
@@ -119,6 +121,7 @@ export class NDArray {
     _.each(
       dsArray,
       (dataVal: NumberTreeElement, dataIdx: number) => {
+        /* eslint-disable-next-line */
         positionPath[posIdx] = dataIdx;
 
         if (depthIndex === dimensions.length - 1) {
@@ -134,9 +137,9 @@ export class NDArray {
             arrayCallback(dataVal, positionPath);
           }
 
-          NDArray.traverseNDArray(depthIndex + 1, positionPath, <number[]>dataVal, dimensions, elementCallback, arrayCallback);
+          NDArray.traverseNDArray(depthIndex + 1, positionPath, dataVal as number[], dimensions, elementCallback, arrayCallback);
         }
-      }
+      },
     );
 
     positionPath.pop();
@@ -167,11 +170,13 @@ export class NDArray {
    * Clone an NDArray
    */
   public clone(targetObj?: NDArray): NDArray {
-    const target = targetObj || new NDArray(...this.dimensions);
+    const target = (targetObj || new NDArray(...this.dimensions)) as any;
 
     _.each(
       this,
-      (v, k) => ((target as any)[k] = _.cloneDeep(v))
+      (v, k) => {
+        target[k] = _.cloneDeep(v);
+      },
     );
 
     NDArray.idCounter += 1;
@@ -187,9 +192,9 @@ export class NDArray {
    * @param [min=0.0] (inclusive)
    * @param [max=1.0] (exclusive)
    */
-  rand(min: number = 0.0, max: number = 1.0): NDArray {
+  public rand(min: number = 0.0, max: number = 1.0): NDArray {
     return this.apply(
-      (): number => (min + Math.random() * (max - min))
+      (): number => (min + Math.random() * (max - min)),
     );
   }
 
@@ -256,7 +261,7 @@ export class NDArray {
         if (a.length !== this.dimensions[positionPath.length]) {
           throw new Error('Inconsistent data size');
         }
-      }
+      },
     );
 
     this.traverse(
@@ -268,7 +273,7 @@ export class NDArray {
         }
 
         return newVal;
-      }
+      },
     );
   }
 
@@ -277,8 +282,7 @@ export class NDArray {
    * Validate position path
    */
   protected validatePosition(positionPath: number[]): void {
-    if (positionPath.length === 0) {
-    }
+    // if (positionPath.length === 0) {}
 
     if (positionPath.length !== this.dimensions.length) {
       throw new Error(`Invalid position path: expected ${this.dimensions.length} dimensions`);
@@ -289,10 +293,10 @@ export class NDArray {
       (posIdx, dimIdx) => {
         if ((posIdx < 0) || (posIdx > this.dimensions[dimIdx])) {
           throw new Error(
-            `Invalid position path: Dimension ${dimIdx} position should be 0-${this.dimensions[dimIdx]}, was ${posIdx}`
+            `Invalid position path: Dimension ${dimIdx} position should be 0-${this.dimensions[dimIdx]}, was ${posIdx}`,
           );
         }
-      }
+      },
     );
   }
 
@@ -320,7 +324,7 @@ export class NDArray {
     return _.reduce(
       this.dimensions,
       (dims, accumulator) => (dims * accumulator),
-      1
+      1,
     );
   }
 
@@ -351,9 +355,7 @@ export class NDArray {
     const clone = this.clone();
 
     clone.traverse(
-      (val: number, pos: number[]): number => {
-        return valCallback(val, pos);
-      }
+      (val: number, pos: number[]): number => valCallback(val, pos),
     );
 
     return clone;
@@ -370,9 +372,9 @@ export class NDArray {
    * @return { NDArray }
    * @protected
    */
-  elementwiseOp(b: NDArray | number, operationCb: Function, opName: string): NDArray {
+  protected elementwiseOp(b: NDArray | number, operationCb: Function, opName: string): NDArray {
     if (b instanceof NDArray) {
-      if (_.isEqual(this.getDims(), b.getDims()) === false) {
+      if (!_.isEqual(this.getDims(), b.getDims())) {
         throw new Error(`Cannot do elementwise ${opName} on NDArrays with differing dimensions`);
       }
     }
@@ -388,7 +390,7 @@ export class NDArray {
         }
 
         return operationCb(val, bVal);
-      }
+      },
     );
 
     return aClone;
@@ -403,7 +405,7 @@ export class NDArray {
     return this.elementwiseOp(
       subtrahend,
       (aVal: number, bVal: number): number => (aVal - bVal),
-      'subtraction'
+      'subtraction',
     );
   }
 
@@ -416,7 +418,7 @@ export class NDArray {
     return this.elementwiseOp(
       addend,
       (aVal: number, bVal: number): number => (aVal + bVal),
-      'addition'
+      'addition',
     );
   }
 
@@ -429,7 +431,7 @@ export class NDArray {
     return this.elementwiseOp(
       multiplicand,
       (aVal: number, bVal: number): number => (aVal * bVal),
-      'multiplication'
+      'multiplication',
     );
   }
 
@@ -442,7 +444,7 @@ export class NDArray {
     return this.elementwiseOp(
       divisor,
       (aVal: number, bVal: number): number => (aVal / bVal),
-      'division'
+      'division',
     );
   }
 
@@ -454,8 +456,8 @@ export class NDArray {
   public pow(exponent: NDArray | number): NDArray {
     return this.elementwiseOp(
       exponent,
-      (aVal: number, bVal: number): number => Math.pow(aVal, bVal),
-      'exponentation'
+      (aVal: number, bVal: number): number => (aVal ** bVal),
+      'exponentation',
     );
   }
 
@@ -553,7 +555,7 @@ export class NDArray {
    */
   public clamp(minVal: number, maxVal: number): NDArray {
     return this.apply(
-      (v: number): number => Math.min(Math.max(v, minVal), maxVal)
+      (v: number): number => Math.min(Math.max(v, minVal), maxVal),
     );
   }
 
@@ -564,7 +566,7 @@ export class NDArray {
    * function is used instead of the element value
    */
   public sum(summingCallback?: Function): number {
-    let total: number = 0;
+    let total = 0;
 
     this.traverse(
       (val: number) => {
@@ -573,7 +575,7 @@ export class NDArray {
         } else {
           total += val;
         }
-      }
+      },
     );
 
     return total;
@@ -584,7 +586,7 @@ export class NDArray {
    * Normalize elements
    */
   public normalize(): NDArray {
-    const expSum = Math.sqrt(this.sum((val: number): number => Math.pow(val, 2)));
+    const expSum = Math.sqrt(this.sum((val: number): number => (val ** 2)));
 
     return this.apply((val: number): number => (val / expSum));
   }
@@ -611,15 +613,14 @@ export class NDArray {
       (val: number, pos: number[]): number => {
         const vals: number[] = _.map(
           arrays,
-          (arr: NDArray) => (arr.getAt(pos))
+          (arr: NDArray) => (arr.getAt(pos)),
         );
 
         return callback(...vals, pos);
-      }
+      },
     );
 
     return clone;
   }
-
 }
 

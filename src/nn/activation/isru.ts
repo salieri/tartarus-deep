@@ -15,7 +15,10 @@ export class ISRU extends Activation {
 
   public getDescriptor(): ActivationDescriptor {
     return {
-      alpha: Joi.number().optional().default(0.0).description('Multiplier')
+      alpha: Joi.number()
+        .optional()
+        .default(0.0)
+        .description('Multiplier'),
     };
   }
 }

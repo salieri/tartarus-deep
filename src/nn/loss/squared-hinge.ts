@@ -1,6 +1,5 @@
 import { Loss, LossDescriptor } from './loss';
-import { Vector } from '../../math';
-import { NDArray } from '../../math';
+import { NDArray, Vector } from '../../math';
 import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
 
 

@@ -1,10 +1,10 @@
+import _ from 'lodash';
 import { NDArray } from './ndarray';
 import { Vector } from './vector';
-import _ from 'lodash';
 
 
 export class Matrix extends NDArray {
-  constructor(...dimensions: any[]) {
+  public constructor(...dimensions: any[]) {
     super(...dimensions);
   }
 
