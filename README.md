@@ -1,8 +1,14 @@
 # Tartarus Deep
 
-A **research only** deep learning implementation for TypeScript.
+A **research only** deep learning implementation for TypeScript. Not intended for production use.
 
-Not intended for production use.
+
+[![Travis CI](https://travis-ci.org/franksrevenge/tartarus-deep.svg?branch=master)](https://travis-ci.org/franksrevenge/tartarus-deep/)
+[![Coverage Status](https://coveralls.io/repos/github/franksrevenge/tartarus-deep/badge.svg?branch=master)](https://coveralls.io/github/franksrevenge/tartarus-deep?branch=master)
+[![Codacy](https://api.codacy.com/project/badge/Grade/8279d1926eed411cae160fc6c9156560)](https://www.codacy.com/app/franksrevenge/tartarus-deep?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=franksrevenge/tartarus-deep&amp;utm_campaign=Badge_Grade)
+[![David](https://david-dm.org/franksrevenge/tartarus-deep.svg)](https://david-dm.org/franksrevenge/tartarus-deep)
+[![David](https://david-dm.org/franksrevenge/tartarus-deep/dev-status.svg)](https://david-dm.org/franksrevenge/tartarus-deep?type=dev)
+
 
 Platform goals:
 * Runs on Node.js
@@ -40,6 +46,4 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 * https://mathinsight.org/matrix_vector_multiplication
 * https://stackoverflow.com/a/47593316/844771
 * http://www.numpy.org/
-
-
 
