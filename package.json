@@ -4,7 +4,8 @@
   "description": "Tartarus Deep",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha --timeout 6000 --reporter spec 'test/**/*.ts'"
+    "test": "mocha --timeout 6000 --reporter spec 'test/**/*.ts'",
+    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -23,36 +24,42 @@
   },
   "license": "SEE LICENSE IN license.md",
   "dependencies": {
-    "@babel/polyfill": "^7.0.0",
-    "@types/joi": "^13.6.0",
-    "@types/lodash": "^4.14.116",
-    "bluebird": "^3.5.1",
+    "@babel/polyfill": "^7.4.4",
+    "@types/joi": "^14.3.3",
+    "@types/lodash": "^4.14.123",
+    "bluebird": "^3.5.4",
     "fast-sha256": "^1.1.0",
-    "joi": "^13.7.0",
-    "lodash": "^4.17.10"
+    "joi": "^14.3.1",
+    "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.5",
-    "@babel/core": "^7.1.6",
-    "@babel/node": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-typescript": "^7.1.0",
-    "@babel/register": "^7.0.0",
-    "@types/chai": "^4.1.6",
-    "@types/mocha": "^5.2.5",
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/node": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-typescript": "^7.3.3",
+    "@babel/register": "^7.4.4",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^5.2.0",
-    "nyc": "^13.0.1",
-    "source-map-support": "^0.5.9",
-    "ts-node": "^7.0.1",
-    "tslint": "^5.11.0",
+    "coveralls": "^3.0.3",
+    "mocha": "^6.1.4",
+    "mocha-lcov-reporter": "^1.3.0",
+    "nyc": "^14.0.0",
+    "source-map-support": "^0.5.12",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.16.0",
     "tslint-config-airbnb": "^5.11.1",
-    "typescript": "^3.1.1",
-    "typescript-eslint-parser": "^19.0.2"
+    "typescript": "^3.4.5",
+    "typescript-eslint-parser": "^22.0.0"
   },
   "peerDependencies": {},
-  "bin": {}
+  "bin": {},
+  "nyc": {
+    "extension": [".ts"],
+    "include": ["src/**/*.ts"]
+  }
 }
