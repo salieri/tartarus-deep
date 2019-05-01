@@ -1,7 +1,7 @@
-import { Symbol } from './symbol';
+import { NDSymbol } from './nd-symbol';
 
 
-export class Variable extends Symbol {
+export class Variable extends NDSymbol {
   private frozen: boolean = false;
 
 

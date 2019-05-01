@@ -46,4 +46,12 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 * https://mathinsight.org/matrix_vector_multiplication
 * https://stackoverflow.com/a/47593316/844771
 * http://www.numpy.org/
+* https://www.coursera.org/specializations/deep-learning
+
+
+
+### Testing
+
+
+
 

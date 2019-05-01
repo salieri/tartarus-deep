@@ -60,7 +60,7 @@ export class ClassManager {
   public find(className: string): any {
     const simplifiedName = ClassManager.getSimplifiedName(className);
 
-    if (this.knownClasses.hasOwnProperty(simplifiedName) === false) {
+    if (!(simplifiedName in this.knownClasses)) {
       throw new Error('Unknown class: `className`');
     }
 

@@ -1,7 +1,7 @@
 import { NDArray } from '../../math';
 
 
-export abstract class Symbol {
+export abstract class NDSymbol {
   protected name: string;
 
   protected data: NDArray;

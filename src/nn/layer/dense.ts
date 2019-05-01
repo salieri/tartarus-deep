@@ -72,15 +72,18 @@ export class Dense extends Layer {
 
 
   public compile() {
-    this.session.register('weight', new Matrix(this.params.units, inputNodes));
+    const units       = this.getParam('units');
+    const inputNodes  = ;; // how do you calculate this for CNNs and RNNs?
+
+    this.session.register('weight', new Matrix(units, inputNodes));
 
     if (this.params.bias === true) {
-      this.session.register('bias', new Vector(this.params.units));
+      this.session.register('bias', new Vector(units));
     }
   }
 
 
-  public initialize() {
+  public initialize(): void {
     this.register('weight', this.params.weightInitializer.initialize(this.get('weight')));
 
     if (this.params.bias === true) {

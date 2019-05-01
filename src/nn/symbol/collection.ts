@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import { Symbol } from './symbol';
+import { NDSymbol } from './nd-symbol';
 
 export interface SymbolDescriptor {
-  [key: string]: symbol;
+  [key: string]: NDSymbol;
 }
 
 
@@ -21,8 +21,8 @@ export class SymbolCollection {
   }
 
 
-  public add(key: string, value: symbol): void {
-    if (this.has(key) === true) {
+  public add(key: string, value: NDSymbol): void {
+    if (this.has(key)) {
       throw new Error(`Key '${key} already exists in this collection`);
     }
 
@@ -30,7 +30,7 @@ export class SymbolCollection {
   }
 
 
-  public set(key: string, value: symbol): void {
+  public set(key: string, value: NDSymbol): void {
     this.mustHave(key);
 
     this.symbols[key] = value;
@@ -38,7 +38,7 @@ export class SymbolCollection {
 
 
   public has(key: string): boolean {
-    return this.symbols.hasOwnProperty(key);
+    return (key in this.symbols);
   }
 
 
@@ -49,7 +49,7 @@ export class SymbolCollection {
   }
 
 
-  public get(key: string): symbol {
+  public get(key: string): NDSymbol {
     this.mustHave(key);
 
     return this.symbols[key];

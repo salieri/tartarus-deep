@@ -2,7 +2,7 @@ import { LayerGraph } from '../graph';
 import { Layer } from '../layer';
 
 
-class Model {
+export class Model {
   protected graph: LayerGraph = new LayerGraph();
 
 

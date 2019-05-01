@@ -1,6 +1,6 @@
 import { NDArray } from '../../math';
 import { JoiEx } from '../../util';
-import { Symbol, SymbolCollection } from '../symbol';
+import { NDSymbol, SymbolCollection } from '../symbol';
 
 
 export interface LayerParams {
@@ -21,7 +21,8 @@ export abstract class Layer {
 
   private static layerCounter: number = 0;
 
-  constructor(params: LayerParams = {}, name?: string) {
+
+  public constructor(params: LayerParams = {}, name?: string) {
     this.params = this.validateParams(params);
 
     Layer.layerCounter += 1;
@@ -72,35 +73,35 @@ export abstract class Layer {
   }
 
 
-  public getLayerVar(name: string): any {
+  public getSymbol(name: string): any {
   }
 
 
-  public setLayerVar(name: string, symbol: symbol) {
+  public setSymbol(name: string, symbol: Symbol) {
 
   }
 
-  public hasLayerVar(name: string) {
-
-  }
-
-
-  protected mustHaveVar(name: string): void {
+  public hasSymbol(name: string) {
 
   }
 
 
-  public register(variableName: string, symbol: symbol): void {
-    this.symbols.add(this.getLayerVarName(variableName), symbol);
+  protected mustHaveSymbol(name: string): void {
+
   }
 
 
-  public getLayerVarName(variableName: string): string {
+  public register(variableName: string, symbol: NDSymbol): void {
+    this.symbols.add(this.getSymbolName(variableName), symbol);
+  }
+
+
+  public getSymbolName(variableName: string): string {
     return `${this.getLayerName()}-${variableName}`;
   }
 
 
-  public getLayerName() {
+  public getLayerName(): string {
     return this.name;
   }
 

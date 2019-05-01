@@ -33,12 +33,12 @@ export class LayerGraph {
   public add(layer: Layer, parentLayer?: Layer): LayerGraphNode {
     this.canModify();
 
-    if (this.exists(layer) === true) {
+    if (this.exists(layer)) {
       throw new Error(`Layer '${layer.name}' already exists in this graph`);
     }
 
     if (parentLayer) {
-      if (this.exists(parentLayer) === false) {
+      if (this.exists(parentLayer)) {
         throw new Error(`Parent layer '${layer.name}' does not exist in this graph`);
       }
 
@@ -87,7 +87,7 @@ export class LayerGraph {
    * @param targetNode
    */
   private checkForCircularLinks(node: LayerGraphNode, direction: string, targetNode: LayerGraphNode): void {
-    const linkTestFn = (linkNode: LayerGraphNode) => {
+    const linkTestFn = (linkNode: LayerGraphNode): void => {
       if (linkNode === targetNode) {
         throw new Error('Circular graph of nodes detected');
       }
@@ -178,7 +178,13 @@ export class LayerGraph {
    */
   public find(layer: Layer | string | number): LayerGraphNode {
     if (_.isNumber(layer) === true) {
-      return this.nodes[layer as number];
+      const nLayer = layer as number;
+
+      if ((nLayer < 0) || (nLayer >= this.nodes.length)) {
+        throw new Error(`Unknown layer index: ${nLayer}`);
+      }
+
+      return this.nodes[nLayer];
     }
 
     let node;
