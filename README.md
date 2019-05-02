@@ -10,12 +10,12 @@ A **research only** deep learning implementation for TypeScript. Not intended fo
 [![David](https://david-dm.org/franksrevenge/tartarus-deep/dev-status.svg)](https://david-dm.org/franksrevenge/tartarus-deep?type=dev)
 
 
-Platform goals:
+## Platform Goals
 * Runs on Node.js
 * Runs on modern browsers
 
 
-Provides from-the-ground-up implementation for:
+## Provide From-The-Ground-Up Implementation For
 
 * Vector operations
 * Matrix operations
@@ -31,6 +31,22 @@ Provides from-the-ground-up implementation for:
 * Graph networks
 
 Decidedly unoptimized -- written for convenience, not for speed.
+
+
+## Glossary
+
+| Term                 | Description                                            |
+| :------------------- | :------------------------------------------------------|
+| `a` | Activation |
+| `b` | Bias |
+| `c` |  |
+| `w` | Weight |
+| `x` | Input |
+| `yHat` | Predicted output
+| `<t>` | Time _t_ denotation |
+| `[l]` | Layer _l_ denotation |
+
+
 
 
 

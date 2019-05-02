@@ -5,9 +5,9 @@ import { RNNLayer, SoftmaxLayer } from '../../../index';
 
 export interface BRNNModelFactoryOpts extends ModelFactoryOpts {
   depth           : number;
+  rnnLayer        : RNNLayer,
   c0Initializer?  : Initializer,
   a0Initializer?  : Initializer,
-  rnnLayer?       : RNNLayer,
   outputLayer?    : Layer
 }
 
@@ -22,9 +22,10 @@ export class BRNNFactory extends ModelFactory {
     const rnnLayer  = opts.rnnLayer;
     const c0Init    = opts.c0Initializer || new initializer.Zero();
     const a0Init    = opts.a0Initializer || new initializer.Zero();
-    const x         = new SerialInput(opts.depth);
+    const x         = new SerialInput(opts.depth, rnnLayer.getDimensions());
+    const outputs   = [];
 
-    model.input('x', x);
+    model.input(x);
 
     _.times(
       opts.depth,
@@ -39,45 +40,40 @@ export class BRNNFactory extends ModelFactory {
         let leftPrevious: RNNLayer;
         let rightPrevious: RNNLayer;
 
-        leftBoundLayer.input('x<t>', x.at(t));
-        rightBoundLayer.input('x<t>', x.at(t));
+        leftBoundLayer.input.set(x.at(t));
+        rightBoundLayer.input.set(x.at(t));
 
         if (opts.outputLayer) {
           const outputLayer = new SoftmaxLayer(`output<${t}>`);
 
+          outputLayer.input.set(Merge(leftBoundLayer.output(), rightBoundLayer.output()));
+
           model.register(outputLayer);
 
-          /* Should be equivalent to:
-           * const c = new CombiningLayer(`combine<${t}>`);
-           * c.input('a1', leftBoundLayer.output('a<t>');
-           * c.input('a2', rightBoundLayer.output('a<t>');
-           *
-           * outputLayer.input('a', c.output('a'));
-           */
-          outputLayer.input('a', leftBoundLayer.output('a<t>'), rightBoundLayer.output('a<t>'));
-
-          model.output(`yHat<${t}>`, outputLayer.output('c'));
+          outputs.push(outputLayer.output());
         }
 
         if (i === 0) {
           // first entry
-          leftBoundLayer.input('c<t-1>', c0Init.initialize(new NDArray(rnnLayer.getDimensions())));
-          leftBoundLayer.input('a<t-1>', a0Init.initialize(new NDArray(rnnLayer.getDimensions())));
+          leftBoundLayer.cache.set('c<t-1>', c0Init.initialize(new NDArray(rnnLayer.getDimensions())));
+          leftBoundLayer.cache.set('a<t-1>', a0Init.initialize(new NDArray(rnnLayer.getDimensions())));
 
-          rightBoundLayer.input('c<t-1>', c0Init.initialize(new NDArray(rnnLayer.getDimensions())));
-          rightBoundLayer.input('a<t-1>', a0Init.initialize(new NDArray(rnnLayer.getDimensions())));
+          rightBoundLayer.cache.set('c<t-1>', c0Init.initialize(new NDArray(rnnLayer.getDimensions())));
+          rightBoundLayer.cache.set('a<t-1>', a0Init.initialize(new NDArray(rnnLayer.getDimensions())));
         } else {
-          leftBoundLayer.input('c<t-1>', leftPrevious.output('c<t>'));
-          leftBoundLayer.input('a<t-1>', leftPrevious.output('a<t>'));
+          leftBoundLayer.cache.set('c<t-1>', leftPrevious.cache.get('c<t>'));
+          leftBoundLayer.cache.set('a<t-1>', leftPrevious.cache.get('a<t>'));
 
-          rightBoundLayer.input('c<t-1>', rightPrevious.output('c<t>'));
-          rightBoundLayer.input('a<t-1>', rightPrevious.output('a<t>'));
+          rightBoundLayer.cache.set('c<t-1>', rightPrevious.cache.get('c<t>'));
+          rightBoundLayer.cache.set('a<t-1>', rightPrevious.cache.get('a<t>'));
         }
 
         leftPrevious  = leftBoundLayer;
         rightPrevious = rightBoundLayer;
       },
     );
+
+    model.output.set(Eventually(outputs));
 
     return model;
   }

@@ -13,4 +13,10 @@ const depth = 10;
 
 
 
-
+const brnn = model.factory.BRNNFactory.factory(
+  {
+    depth       : 10,
+    rnnLayer    : new LstmLayer(),
+    outputLayer : new SoftmaxLayer()
+  }
+);

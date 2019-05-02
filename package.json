@@ -25,6 +25,7 @@
   "license": "SEE LICENSE IN license.md",
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
+    "@types/bluebird": "^3.5.26",
     "@types/joi": "^14.3.3",
     "@types/lodash": "^4.14.123",
     "@typescript-eslint/eslint-plugin": "^1.7.0",

@@ -9,18 +9,31 @@ import { Constraint } from '../constraint'; */
 
 
 export class Dense extends Layer {
+
+
+
+
+
+
+
+
+
+
+
+
+
   public units(units: number): Dense {
-    return this.setParam('units', units) as Dense;
+    return this.params.set('units', units) as Dense;
   }
 
 
   public activation(activation: string | Activation): Dense {
-    return this.setParam('activation', activation) as Dense;
+    return this.params.set('activation', activation) as Dense;
   }
 
 
   public bias(bias: boolean): Dense {
-    return this.setParam('bias', bias) as Dense;
+    return this.params.set('bias', bias) as Dense;
   }
 
 
@@ -56,38 +69,41 @@ export class Dense extends Layer {
 
   public getParameterDimensions() {
 
+
+
   }
 
 
   public calculate(input: Vector): Vector {
-    const weight  = this.session.get('weight') as Matrix;
+    const weight  = this.optimizer.get('weight') as Matrix;
     const output  = weight.vecmul(input);
 
     if (this.params.bias) {
-      return output.add(this.session.get('bias') as Vector) as Vector;
+      return output.add(this.optimizer.get('bias') as Vector) as Vector;
     }
 
     return output;
   }
 
 
-  public compile() {
-    const units       = this.getParam('units');
-    const inputNodes  = ;; // how do you calculate this for CNNs and RNNs?
+  public compile(): void {
+    const inputUnits = this.input.size();
+    const units = this.params.get('units');
 
-    this.session.register('weight', new Matrix(units, inputNodes));
+    this.optimizer.declare('weight', [units, inputUnits]);
+    this.output.declare([units, 1]);
 
-    if (this.params.bias === true) {
-      this.session.register('bias', new Vector(units));
+    if (this.params.get('bias') === true) {
+      this.optimizer.declare('bias', [units, 1]);
     }
   }
 
 
   public initialize(): void {
-    this.register('weight', this.params.weightInitializer.initialize(this.get('weight')));
+    this.optimizer.set('weight', this.params.weightInitializer.initialize(this.optimizer.get('weight')));
 
-    if (this.params.bias === true) {
-      this.register('bias', this.params.biasInitializer.initialize(this.get('bias')));
+    if (this.params.get('bias') === true) {
+      this.optimizer.set('bias', this.params.biasInitializer.initialize(this.optimizer.get('bias')));
     }
   }
 
