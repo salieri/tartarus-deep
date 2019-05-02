@@ -15,7 +15,7 @@ export interface LayerDescriptor {
 }
 
 
-export type DeferredValueType = NDArray|Promise<NDArray>;
+export type DeferredValueType = NDArray;
 
 export class DeferredValue {
   private value: DeferredValueType|null = null;
@@ -87,31 +87,10 @@ export interface DeferredValueCollectionInf {
   [key: string]: DeferredValue;
 }
 
-export interface NDArrayCollectionInf {
-  [key: string]: NDArray;
-}
 
 
 export class DeferredCollection {
   private collection: DeferredValueCollectionInf = {};
-
-  public async resolve(key: string): Promise<NDArray> {
-    if (!(key in this.collection)) {
-      throw new Error(`Unknown key: '${key}'`);
-    }
-
-    return this.collection[key].resolve();
-  }
-
-
-  public async resolveAll(): Promise<NDArrayCollectionInf> {
-    return Promise.props(
-      _.mapValues(
-        this.collection,
-        async p => (p.resolve()),
-      ),
-    );
-  }
 
 
   public declare(key: string, dimensions:number[]|number): void {
@@ -119,9 +98,7 @@ export class DeferredCollection {
       throw new Error(`Key '${key}' has already been declared`);
     }
 
-    const dv = new DeferredValue(dimensions);
-
-    this.collection[key] = dv;
+    this.collection[key] = new DeferredValue(dimensions);
   }
 
 
@@ -134,8 +111,17 @@ export class DeferredCollection {
   }
 
 
-  public set(key: string, value: DeferredValue): void {
-    this.collection[key] = value;
+  public getValue(key: string): DeferredValueType {
+    if (!(key in this.collection)) {
+      throw new Error(`Unknown key: '${key}'`);
+    }
+
+    return this.collection[key].get();
+  }
+
+
+  public setValue(key: string, value: DeferredValueType): void {
+    this.collection[key].set(value);
   }
 }
 

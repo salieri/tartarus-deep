@@ -1,7 +1,8 @@
 import { Layer, LayerDescriptor } from './layer';
 import { Activation } from '../activation';
 import { JoiEx } from '../../util';
-import { Vector, Matrix } from '../../math';
+import { Vector, Matrix, NDArray } from '../../math';
+import { Initializer } from '../initializer';
 
 /* import { Initializer } from '../initializer';
 import { Regularizer } from '../regularizer';
@@ -74,15 +75,16 @@ export class Dense extends Layer {
   }
 
 
-  public calculate(input: Vector): Vector {
-    const weight  = this.optimizer.get('weight') as Matrix;
-    const output  = weight.vecmul(input);
+  public calculate() {
+    const input   = this.input.get();
+    const weight  = this.optimizer.getValue('weight') as Matrix;
+    const output  = weight.vecmul(new Vector(input.flatten()));
 
     if (this.params.bias) {
-      return output.add(this.optimizer.get('bias') as Vector) as Vector;
+      return output.add(this.optimizer.getValue('bias') as Vector) as Vector;
     }
 
-    return output;
+    this.output.set(output);
   }
 
 
@@ -100,10 +102,16 @@ export class Dense extends Layer {
 
 
   public initialize(): void {
-    this.optimizer.set('weight', this.params.weightInitializer.initialize(this.optimizer.get('weight')));
+    const wInit = this.params.get('weightInitializer') as Initializer;
+    const weight = this.optimizer.get('weight');
+
+    weight.set(wInit.initialize(new NDArray(...weight.getDims())));
 
     if (this.params.get('bias') === true) {
-      this.optimizer.set('bias', this.params.biasInitializer.initialize(this.optimizer.get('bias')));
+      const bInit = this.params.get('biasInitializer') as Initializer;
+      const bias  = this.optimizer.get('bias');
+
+      bias.set(bInit.initialize(new NDArray(...bias.getDims())));
     }
   }
 

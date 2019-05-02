@@ -602,6 +602,18 @@ export class NDArray {
 
 
   /**
+   * Flatten into one-dimensional NDArray
+   */
+  public flatten(): NDArray {
+    const nd = new NDArray(this.countElements());
+
+    nd.setData(_.flatten(this.data));
+
+    return nd;
+  }
+
+
+  /**
    * Iterate multiple NDArrays of the same shape and provide the element value from each NDArray to the callback.
    * Returns a new NDArray of the same shape with its values set to the return values of the callback
    * @param {Function( ...elementValues : number, pos : number[] ) : number} callback
