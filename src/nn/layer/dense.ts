@@ -11,18 +11,6 @@ import { Constraint } from '../constraint'; */
 
 export class Dense extends Layer {
 
-
-
-
-
-
-
-
-
-
-
-
-
   public units(units: number): Dense {
     return this.params.set('units', units) as Dense;
   }
@@ -68,20 +56,14 @@ export class Dense extends Layer {
   } */
 
 
-  public getParameterDimensions() {
+  public calculate(): void {
+    const input  = this.input.get();
+    const weight = this.optimizer.getValue('weight') as Matrix;
 
-
-
-  }
-
-
-  public calculate() {
-    const input   = this.input.get();
-    const weight  = this.optimizer.getValue('weight') as Matrix;
-    const output  = weight.vecmul(new Vector(input.flatten()));
+    let output = weight.vecmul(new Vector(input.flatten()));
 
     if (this.params.bias) {
-      return output.add(this.optimizer.getValue('bias') as Vector) as Vector;
+      output = output.add(this.optimizer.getValue('bias') as Vector) as Vector;
     }
 
     this.output.set(output);
@@ -109,7 +91,7 @@ export class Dense extends Layer {
 
     if (this.params.get('bias') === true) {
       const bInit = this.params.get('biasInitializer') as Initializer;
-      const bias  = this.optimizer.get('bias');
+      const bias = this.optimizer.get('bias');
 
       bias.set(bInit.initialize(new NDArray(...bias.getDims())));
     }
@@ -124,15 +106,15 @@ export class Dense extends Layer {
       bias: JoiEx.boolean().default(true).description('Apply bias'),
       biasInitializer: JoiEx.initializer().default('zero').description('Bias initializer'),
 
-      // biasRegularizer		: JoiEx.regularizer().default( null ).description( 'Bias regularizer' ),
-      // biasConstraint		: JoiEx.constraint().default( null ).description( 'Bias constraint' ),
+      // biasRegularizer : JoiEx.regularizer().default( null ).description( 'Bias regularizer' ),
+      // biasConstraint : JoiEx.constraint().default( null ).description( 'Bias constraint' ),
 
       weightInitializer: JoiEx.initializer().default('random-uniform').description('Weight initializer'),
 
-      // kernelRegularizer	: JoiEx.regularizer().default( 'l2' ).description( 'Kernel regularizer' ),
-      // kernelConstraint	: JoiEx.constraint().default( 'max-norm' ).description( 'Kernel constraint' ),
+      // kernelRegularizer : JoiEx.regularizer().default( 'l2' ).description( 'Kernel regularizer' ),
+      // kernelConstraint : JoiEx.constraint().default( 'max-norm' ).description( 'Kernel constraint' ),
 
-      // activityRegularizer	: JoiEx.regularizer().default( 'l1' ).description( 'Activity regularizer' )
+      // activityRegularizer : JoiEx.regularizer().default( 'l1' ).description( 'Activity regularizer' )
     };
   }
 }

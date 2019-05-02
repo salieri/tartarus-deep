@@ -1,6 +1,8 @@
 
-digraph G {
 
+digraph G {
+  /* https://en.wikipedia.org/wiki/DOT_(graph_description_language) */
+  /* http://www.gravizo.com/ */
 
   LayerGraph -> LayerGraphNode -> Layer -> SymbolCollection;
 

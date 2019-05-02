@@ -1,4 +1,5 @@
 import { NDArray } from '../../math';
+import * as ActivationCtors from './index';
 
 
 /**
@@ -11,7 +12,7 @@ import { NDArray } from '../../math';
  */
 
 /* eslint-disable-next-line */
-type ActivationParamType = any;
+type ActivationParamType = number|string|boolean;
 
 /* eslint-disable-next-line */
 type ActivationDescriptorType = any;
