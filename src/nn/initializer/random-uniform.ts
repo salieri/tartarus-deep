@@ -1,21 +1,19 @@
 import { Initializer, InitializerDescriptor, InitializerParams } from './initializer';
 import { NDArray } from '../../math';
 import { JoiEx } from '../../util';
-import { Randomizer, Xoshiro128 } from '../../math/randomizer';
+import { Randomizer } from '../../math/randomizer';
 
 
 export class RandomUniform extends Initializer {
-  private randomizer: Randomizer;
-
-  public constructor(params: InitializerParams) {
+  public constructor(params: InitializerParams = {}) {
     super(params);
-
-    this.randomizer = params.randomizer;
   }
 
 
   public initialize(data: NDArray): NDArray {
-    return data.apply((): number => (this.randomizer.floatBetween(this.params.min, this.params.max)));
+    const randomizer: Randomizer = this.params.randomizer || this.layer.getRandomizer();
+
+    return data.apply((): number => (randomizer.floatBetween(this.params.min, this.params.max)));
   }
 
 
@@ -23,7 +21,7 @@ export class RandomUniform extends Initializer {
     return {
       min: JoiEx.number().default(0.0).description('Minimum random value'),
       max: JoiEx.number().default(1.0).description('Maximum random value'),
-      randomizer: JoiEx.random().description('Randomizer').default(new Xoshiro128()),
+      randomizer: JoiEx.random().description('Randomizer').default(null),
     };
   }
 }

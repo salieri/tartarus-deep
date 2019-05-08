@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Layer } from '../nn/layer';
 
 export interface ClassModule {
   [key: string]: any;
@@ -36,7 +37,7 @@ export class ClassManager {
   }
 
 
-  public coerce(instanceDefinition: string | object, params?: InstanceParams) {
+  public coerce(instanceDefinition: string | object, layer: Layer, params?: InstanceParams) {
     if (instanceDefinition instanceof this.baseClass) {
       return instanceDefinition;
     }
@@ -45,15 +46,15 @@ export class ClassManager {
       throw new Error('Cannot coerce: Invalid data');
     }
 
-    return this.factory(instanceDefinition as string, params);
+    return this.factory(instanceDefinition as string, layer, params);
   }
 
 
-  public factory(className: string, params?: InstanceParams): any {
+  public factory(className: string, layer: Layer, params?: InstanceParams): any {
     // tslint:disable-next-line
     const ClassSpec = this.find(className);
 
-    return new ClassSpec(params);
+    return new ClassSpec(params, layer);
   }
 
 

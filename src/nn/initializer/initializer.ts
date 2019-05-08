@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import { NDArray } from '../../math';
+import { Layer } from '../layer';
 
 
 export interface InitializerParams {
@@ -16,6 +17,9 @@ export interface InitializerDescriptor {
 export abstract class Initializer {
   protected params: InitializerParams;
 
+  protected layer?: Layer;
+
+
   public constructor(params: InitializerParams = {}) {
     this.params = this.getValidatedParams(params);
   }
@@ -29,6 +33,15 @@ export abstract class Initializer {
     }
 
     return result.value;
+  }
+
+
+  public attach(layer: Layer): void {
+    if (this.layer) {
+      throw new Error(`Initializer is already attached to layer '${layer.getLayerName()}'`);
+    }
+
+    this.layer = layer;
   }
 
 

@@ -8,6 +8,7 @@ import * as activations from '../nn/activation';
 import * as losses from '../nn/loss';
 import * as initializers from '../nn/initializer';
 import * as randomizers from '../math/randomizer';
+import { Layer } from '../nn/layer';
 
 
 function createCMExtension(name: string, cm: ClassManager): Function {
@@ -20,11 +21,29 @@ function createCMExtension(name: string, cm: ClassManager): Function {
       },
       coerce(value: any, state: any, options: any): any {
         try {
-          return cm.coerce(value || _.get(this, '_flags.default'));
+          return cm.coerce(value || _.get(this, '_flags.default'), _.get(this, '_flags.layer'));
         } catch (e) {
           return (this as any).createError(`${name}.coerceFailure`, {}, state, options);
         }
       },
+      rules: [
+        {
+          name: 'layer',
+          setup(params: any) {
+            (this as any)._flags.layer = params.layer;
+          },
+          params: {
+            layer: joi.any().required(),
+          },
+          validate(params: any, value: any, state: any, options: any) {
+            if (!(value instanceof Layer)) {
+              return (this as any).createError('`{name}`.layerMissing', {}, state, options);
+            }
+
+            return value;
+          },
+        },
+      ],
     }
   );
 }

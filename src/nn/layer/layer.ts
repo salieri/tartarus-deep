@@ -1,148 +1,54 @@
 import { Promise } from 'bluebird';
-import _ from 'lodash';
-import { NDArray } from '../../math';
+import { DeferredCollection, DeferredValue } from '../symbol';
 import { JoiEx } from '../../util';
 
-import { NDSymbol, SymbolCollection } from '../symbol';
+export enum LayerState {
+  Created,
+  Compiled,
+  Initialized,
+}
 
 
 export interface LayerParams {
   [key: string]: any;
 }
 
+
 export interface LayerDescriptor {
   [key: string]: any;
 }
 
 
-export type DeferredValueType = NDArray;
-
-export class DeferredValue {
-  private value: DeferredValueType|null = null;
-
-  private dimensions: number[]|null = null;
-
-
-  public constructor(dimensions?: number[]|number) {
-    if (typeof dimensions !== 'undefined') {
-      this.declare(dimensions);
-    }
-  }
-
-
-  public declare(dimensions: number[]|number): void {
-    this.dimensions = _.castArray(dimensions);
-  }
-
-
-  public set(value: NDArray): void {
-    this.mustBeDeclared();
-
-    if (_.isEqual(this.dimensions, value.getDims())) {
-      throw new Error('Value does not match expected dimensions');
-    }
-
-    this.value = value;
-  }
-
-
-  public size(): number {
-    this.mustBeDeclared();
-
-    return _.reduce(
-      this.dimensions,
-      (total, dimensionSize) => (total * dimensionSize),
-      0,
-    );
-  }
-
-
-  public getDims(): number[] {
-    this.mustBeDeclared();
-
-    return _.cloneDeep(this.dimensions as number[]);
-  }
-
-
-  public get(): DeferredValueType {
-    this.mustBeDeclared();
-
-    if (!this.value) {
-      throw new Error('Value has not been set');
-    }
-
-    return this.value;
-  }
-
-
-  private mustBeDeclared(): void {
-    if (this.dimensions === null) {
-      throw new Error('Value has not been declared yet');
-    }
-  }
-}
-
-
-export interface DeferredValueCollectionInf {
-  [key: string]: DeferredValue;
-}
-
-
-
-export class DeferredCollection {
-  private collection: DeferredValueCollectionInf = {};
-
-
-  public declare(key: string, dimensions:number[]|number): void {
-    if (key in this.collection) {
-      throw new Error(`Key '${key}' has already been declared`);
-    }
-
-    this.collection[key] = new DeferredValue(dimensions);
-  }
-
-
-  public get(key: string): DeferredValue {
-    if (!(key in this.collection)) {
-      throw new Error(`Unknown key: '${key}'`);
-    }
-
-    return this.collection[key];
-  }
-
-
-  public getValue(key: string): DeferredValueType {
-    if (!(key in this.collection)) {
-      throw new Error(`Unknown key: '${key}'`);
-    }
-
-    return this.collection[key].get();
-  }
-
-
-  public setValue(key: string, value: DeferredValueType): void {
-    this.collection[key].set(value);
-  }
-}
-
-
+/**
+ * ```js
+ * const l = new Layer();
+ *
+ * await l.compile();
+ * await l.initialize();
+ *
+ * ...
+ *
+ * await l.forward();
+ * await l.backward();
+ *
+ * ```
+ */
 export abstract class Layer {
-  public params = new LayerParams();
+  public readonly params: LayerParams = {};
 
-  public cache = new LayerCache();
+  public readonly cache = new DeferredCollection();
 
-  public input = new DeferredValue();
+  public readonly input = new DeferredValue();
 
-  public output = new DeferredValue();
+  public readonly output = new DeferredValue();
 
-  public optimizer = new DeferredCollection();
+  public readonly optimizer = new DeferredCollection();
 
-  public name: string;
-
-  protected compiled: boolean = false;
+  protected readonly name: string;
 
   private static layerCounter: number = 0;
 
+  protected state: LayerState = LayerState.Created;
 
 
   public constructor(params: LayerParams = {}, name?: string) {
@@ -183,19 +89,55 @@ export abstract class Layer {
   }
 
 
-  public calculate(x: NDArray): NDArray {
-    return x;
+  protected abstract async backwardExec(): Promise<void>;
+
+  public async backward(): Promise<void> {
+    if (this.state !== LayerState.Initialized) {
+      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
+    }
+
+    await this.backwardExec();
   }
 
 
-  public forward(input: NDArray) {
+  protected abstract async forwardExec(): Promise<void>;
+
+  public async forward(): Promise<void> {
+    if (this.state !== LayerState.Initialized) {
+      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
+    }
+
+    await this.forwardExec();
   }
 
 
-  public backward(output: NDArray) {
+  protected abstract async compileExec(): Promise<void>;
+
+  public async compile(): Promise<void> {
+    if (this.state !== LayerState.Created) {
+      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
+    }
+
+    await this.compileExec();
+
+    this.state = LayerState.Compiled;
   }
 
 
+  protected abstract async initializeExec(): Promise<void>;
+
+  public async initialize(): Promise<void> {
+    if (this.state !== LayerState.Compiled) {
+      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
+    }
+
+    await this.initializeExec();
+
+    this.state = LayerState.Initialized;
+  }
+
+
+  /*
   public getSymbol(name: string): any {
   }
 
@@ -222,24 +164,11 @@ export abstract class Layer {
   public getSymbolName(variableName: string): string {
     return `${this.getLayerName()}-${variableName}`;
   }
+  */
 
 
   public getLayerName(): string {
     return this.name;
-  }
-
-
-  protected canModify(): void {
-    if (this.compiled) {
-      throw new Error('Layer cannot be modified after compilation');
-    }
-  }
-
-
-  public compile(): void {
-    this.canModify();
-
-    this.compiled = true;
   }
 }
 

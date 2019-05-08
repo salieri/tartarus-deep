@@ -12,5 +12,10 @@ export class Session {
   public random(): number {
     return this.randomizer.random();
   }
+
+
+  public getRandomizer(): Randomizer {
+    return this.randomizer;
+  }
 }
 

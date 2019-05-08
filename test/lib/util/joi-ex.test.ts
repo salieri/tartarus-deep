@@ -10,11 +10,11 @@ import { expect } from 'chai';
 describe(
   'JoiEx',
   () => {
-    it(
+    it.only(
       'should pass instantiated objects through coercing validators',
       () => {
         const cm          = new ClassManager(activations, Activation);
-        const schema      = JoiEx.activation();
+        const schema      = JoiEx.activation().layer(1234);
         const activation  = cm.factory('sigmoid');
         const result      = JoiEx.validate(activation, schema);
 

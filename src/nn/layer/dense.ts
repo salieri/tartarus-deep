@@ -1,7 +1,7 @@
-import { Layer, LayerDescriptor } from './layer';
+import { Layer, LayerDescriptor, LayerState } from './layer';
 import { Activation } from '../activation';
 import { JoiEx } from '../../util';
-import { Vector, Matrix, NDArray } from '../../math';
+import { Matrix, NDArray, Vector } from '../../math';
 import { Initializer } from '../initializer';
 
 /* import { Initializer } from '../initializer';
@@ -10,8 +10,12 @@ import { Constraint } from '../constraint'; */
 
 
 export class Dense extends Layer {
+  private weightInitializer?: Initializer;
 
-  public units(units: number): Dense {
+  private biasInitializer?: Initializer;
+
+
+  /* public units(units: number): Dense {
     return this.params.set('units', units) as Dense;
   }
 
@@ -23,7 +27,7 @@ export class Dense extends Layer {
 
   public bias(bias: boolean): Dense {
     return this.params.set('bias', bias) as Dense;
-  }
+  } */
 
 
   /* NbiasInitializer(biasInitializer: Initializer | string | null): Dense {
@@ -56,8 +60,23 @@ export class Dense extends Layer {
   } */
 
 
-  public calculate(): void {
-    const input  = this.input.get();
+
+  protected async forwardExec(): Promise<void> {
+    const linearOutput    = this.calculate(this.input.get());
+    const activatedOutput = this.activate(linearOutput);
+
+    this.cache.set('linearOutput', linearOutput);
+    this.cache.set('activatedOutput', activatedOutput);
+
+    this.output.set(activatedOutput);
+  }
+
+
+  /**
+   * Z = A_prev * W + b
+   */
+  protected calculate(input: NDArray): NDArray {
+    // const input  = this.input.get();
     const weight = this.optimizer.getValue('weight') as Matrix;
 
     let output = weight.vecmul(new Vector(input.flatten()));
@@ -66,11 +85,22 @@ export class Dense extends Layer {
       output = output.add(this.optimizer.getValue('bias') as Vector) as Vector;
     }
 
-    this.output.set(output);
+    // this.output.set(output);
+    return output;
   }
 
 
-  public compile(): void {
+  /**
+   * A = g(Z)
+   */
+  protected activate(linearOutput: NDArray): NDArray {
+    const activation = this.params.activation as Activation;
+
+    return activation.calculate(linearOutput);
+  }
+
+
+  public async compileExec(): Promise<void> {
     const inputUnits = this.input.size();
     const units = this.params.get('units');
 
@@ -83,7 +113,7 @@ export class Dense extends Layer {
   }
 
 
-  public initialize(): void {
+  protected async initializeExec(): Promise<void> {
     const wInit = this.params.get('weightInitializer') as Initializer;
     const weight = this.optimizer.get('weight');
 
