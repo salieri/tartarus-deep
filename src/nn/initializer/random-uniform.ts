@@ -10,8 +10,21 @@ export class RandomUniform extends Initializer {
   }
 
 
+  private getRandomizer(): Randomizer {
+    if (this.params.randomizer) {
+      return this.params.randomizer as Randomizer;
+    }
+
+    if (!this.layer) {
+      throw new Error('This initializer is not attached to a layer; randomizer must be passed in constructor');
+    }
+
+    return this.layer.getSession().getRandomizer();
+  }
+
+
   public initialize(data: NDArray): NDArray {
-    const randomizer: Randomizer = this.params.randomizer || this.layer.getRandomizer();
+    const randomizer: Randomizer = this.getRandomizer();
 
     return data.apply((): number => (randomizer.floatBetween(this.params.min, this.params.max)));
   }

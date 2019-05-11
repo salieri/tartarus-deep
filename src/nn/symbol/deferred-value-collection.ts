@@ -37,6 +37,10 @@ export class DeferredCollection {
 
 
   public setValue(key: string, value: DeferredValueType): void {
+    if (!(key in this.collection)) {
+      throw new Error(`Unknown key: '${key}'`);
+    }
+
     this.collection[key].set(value);
   }
 }

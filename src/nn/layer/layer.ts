@@ -1,6 +1,7 @@
 import { Promise } from 'bluebird';
 import { DeferredCollection, DeferredValue } from '../symbol';
 import { JoiEx } from '../../util';
+import { Session } from '../session';
 
 export enum LayerState {
   Created,
@@ -49,6 +50,8 @@ export abstract class Layer {
   private static layerCounter: number = 0;
 
   protected state: LayerState = LayerState.Created;
+
+  protected model: Model;
 
 
   public constructor(params: LayerParams = {}, name?: string) {
@@ -134,6 +137,15 @@ export abstract class Layer {
     await this.initializeExec();
 
     this.state = LayerState.Initialized;
+  }
+
+
+  public getSession(): Session {
+    if (!this.model) {
+      throw new Error(`Cannot resolve session: Layer ${this.name} is not attached to a model`);
+    }
+
+    return this.model.getSession();
   }
 
 
