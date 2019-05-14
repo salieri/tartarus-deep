@@ -45,7 +45,7 @@ export abstract class Initializer {
   }
 
 
-  public abstract initialize(data: NDArray): NDArray;
+  public abstract async initialize(data: NDArray): Promise<NDArray>;
 
 
   public getDescriptor(): InitializerDescriptor {

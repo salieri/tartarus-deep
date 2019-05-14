@@ -23,7 +23,7 @@ export class RandomUniform extends Initializer {
   }
 
 
-  public initialize(data: NDArray): NDArray {
+  public async initialize(data: NDArray): Promise<NDArray> {
     const randomizer: Randomizer = this.getRandomizer();
 
     return data.apply((): number => (randomizer.floatBetween(this.params.min, this.params.max)));

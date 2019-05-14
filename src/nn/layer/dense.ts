@@ -51,7 +51,7 @@ export class Dense extends Layer {
   }
 
 
-  public async compileExec(): Promise<void> {
+  protected async compileExec(): Promise<void> {
     const inputUnits = this.input.size();
     const units = this.params.get('units');
 
@@ -71,13 +71,13 @@ export class Dense extends Layer {
     const wInit = this.params.get('weightInitializer') as Initializer;
     const weight = this.optimizer.get('weight');
 
-    weight.set(wInit.initialize(new NDArray(...weight.getDims())));
+    weight.set(await wInit.initialize(new NDArray(...weight.getDims())));
 
     if (this.params.get('bias') === true) {
       const bInit = this.params.get('biasInitializer') as Initializer;
       const bias = this.optimizer.get('bias');
 
-      bias.set(bInit.initialize(new NDArray(...bias.getDims())));
+      bias.set(await bInit.initialize(new NDArray(...bias.getDims())));
     }
   }
 
