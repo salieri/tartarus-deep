@@ -1,2 +1,2 @@
-export * from './layer-graph';
-export * from './layer-graph-node';
+export * from './graph';
+export * from './graph-node';

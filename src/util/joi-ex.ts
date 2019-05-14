@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { ClassManager } from './class-manager';
 
 import * as activations from '../nn/activation';
+import * as costs from '../nn/cost';
 // import * as layers from '../nn/layer'; // -- this will cause circular dependencies
 import * as losses from '../nn/loss';
 import * as initializers from '../nn/initializer';
@@ -52,6 +53,7 @@ function createCMExtension(name: string, cm: ClassManager): Function {
 const customJoi = Joi.extend(
   [
     createCMExtension('activation', new ClassManager(activations, activations.Activation)),
+    createCMExtension('cost', new ClassManager(costs, costs.Cost)),
     // createCMExtension( 'constraint', new ClassManager( constraints, constraints.Constraint ) ),
     createCMExtension('initializer', new ClassManager(initializers, initializers.Initializer)),
 

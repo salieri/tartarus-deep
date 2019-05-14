@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { LayerGraph } from '../graph';
+import { Graph, GraphNode } from '../graph';
 import { Layer } from '../layer';
 import { Session } from '../session';
 import { Randomizer } from '../../math';
@@ -15,7 +15,7 @@ export interface ModelDescriptor {
 
 
 export class Model {
-  protected graph: LayerGraph = new LayerGraph();
+  protected graph: Graph = new Graph();
 
   protected params: ModelParams;
 
@@ -61,7 +61,16 @@ export class Model {
   }
 
 
-  public compile() {
+  public async compile(): Promise<void> {
+    if (this.state !== ModelState.Created) {
+      throw new Error('Model has already been compiled');
+    }
+
+    this.state = ModelState.Compiling;
+
+    await this.graph.compile();
+
+    this.state = ModelState.Compiled;
   }
 
 
