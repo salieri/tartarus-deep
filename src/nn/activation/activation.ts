@@ -15,9 +15,9 @@ import { Parameterized, Parameters } from '../../util';
 export type ActivationParams = Parameters;
 
 
-export abstract class Activation<T extends ActivationParams = ActivationParams> extends Parameterized<T> {
+export abstract class Activation
+  <TInput extends ActivationParams = ActivationParams, TCoerced extends TInput = TInput> extends Parameterized<TInput, TCoerced> {
   public abstract calculate(z: NDArray): NDArray;
-
 
   public getParamSchema(): Joi.Schema {
     return Joi.object();

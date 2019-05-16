@@ -35,7 +35,8 @@ export type LayerParams = Parameters;
  *
  * ```
  */
-export abstract class Layer<TInput extends LayerParams = LayerParams, TCoerced extends LayerParams = TInput> extends Parameterized<TInput, TCoerced> {
+export abstract class Layer
+  <TInput extends LayerParams = LayerParams, TCoerced extends TInput = TInput> extends Parameterized<TInput, TCoerced> {
   public readonly cache = new DeferredCollection();
 
   public readonly input = new DeferredValue();

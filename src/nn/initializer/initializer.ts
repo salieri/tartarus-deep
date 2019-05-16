@@ -7,7 +7,8 @@ import { Parameterized, Parameters } from '../../util';
 export type InitializerParams = Parameters;
 
 
-export abstract class Initializer<T extends InitializerParams = InitializerParams> extends Parameterized<T> {
+export abstract class Initializer
+  <TInput extends InitializerParams = InitializerParams, TCoerced extends TInput = TInput> extends Parameterized<TInput, TCoerced> {
   protected layer?: Layer;
 
   public attach(layer: Layer): void {

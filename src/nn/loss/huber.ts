@@ -9,18 +9,8 @@ export interface HuberParams extends LossParams {
 
 
 export class Huber extends Loss<HuberParams> {
-  protected readonly delta: number;
-
-
-  public constructor(params: HuberParams = {}) {
-    super(params);
-
-    this.delta = this.params.delta || 1.0;
-  }
-
-
   public calculate(yHat: Vector, y: Vector): number {
-    const delta = this.delta;
+    const delta = this.params.delta;
 
     return yHat.apply(
       (yHatVal: number, pos: number[]): number => {

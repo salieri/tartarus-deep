@@ -13,10 +13,8 @@ export interface DenseParamsInput extends LayerParams {
   weightInitializer?: Initializer|string;
 }
 
-export interface DenseParamsCoerced extends LayerParams {
-  units: number;
+export interface DenseParamsCoerced extends DenseParamsInput {
   activation: Activation;
-  bias: boolean;
   biasInitializer: Initializer;
   weightInitializer: Initializer;
 }

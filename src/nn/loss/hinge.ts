@@ -9,19 +9,9 @@ export interface HingeParams extends LossParams {
 
 
 export class Hinge extends Loss<HingeParams> {
-  protected readonly margin: number;
-
-
-  public constructor(params: HingeParams = {}) {
-    super(params);
-
-    this.margin = this.params.margin || 1.0;
-  }
-
-
   public calculate(yHat: Vector, y: Vector): number {
     return NDArray.iterate(
-      (yHatVal: number, yVal: number): number => Math.max(0, this.margin - yVal * yHatVal),
+      (yHatVal: number, yVal: number): number => Math.max(0, this.params.margin - yVal * yHatVal),
       yHat,
       y,
     ).mean();

@@ -8,19 +8,9 @@ export interface SquaredHingeParams extends LossParams {
 
 
 export class SquaredHinge extends Loss<SquaredHingeParams> {
-  protected readonly margin: number;
-
-
-  public constructor(params: SquaredHingeParams = {}) {
-    super(params);
-
-    this.margin = params.margin || 1.0;
-  }
-
-
   public calculate(yHat: Vector, y: Vector): number {
     return NDArray.iterate(
-      (yHatVal: number, yVal: number): number => Math.max(0, this.margin - yVal * yHatVal) ** 2,
+      (yHatVal: number, yVal: number): number => Math.max(0, this.params.margin - yVal * yHatVal) ** 2,
       yHat,
       y,
     ).mean();

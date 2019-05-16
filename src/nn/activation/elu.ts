@@ -3,25 +3,21 @@ import { Activation, ActivationParams } from './activation';
 import { NDArray } from '../../math';
 
 
-export interface ELUParams extends ActivationParams {
+export interface ELUParamsInput extends ActivationParams {
   leak?: number;
 }
+
+export interface ELUParamsCoerced extends ActivationParams {
+  leak: number;
+}
+
 
 /**
  * Exponential linear unit
  */
-export class ELU extends Activation<ELUParams> {
-  private readonly leak: number;
-
-  public constructor(params: ELUParams = {}) {
-    super(params);
-
-    this.leak = params.leak || 0;
-  }
-
-
+export class ELU extends Activation<ELUParamsInput, ELUParamsCoerced> {
   public calculate(z: NDArray): NDArray {
-    return z.apply((val: number): number => (val < 0 ? this.leak * (Math.exp(val) - 1) : val));
+    return z.apply((val: number): number => (val < 0 ? this.params.leak * (Math.exp(val) - 1) : val));
   }
 
 

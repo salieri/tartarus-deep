@@ -12,18 +12,9 @@ export interface ISRUParams extends ActivationParams {
  * Inverse square root unit
  */
 export class ISRU extends Activation<ISRUParams> {
-  protected readonly alpha: number;
-
-  public constructor(params: ISRUParams = {}) {
-    super(params);
-
-    this.alpha = params.alpha || 0;
-  }
-
-
   public calculate(z: NDArray): NDArray {
     // z / ( sqrt( 1 + alpha * z^2 )
-    return z.div(z.pow(2).mul(this.alpha).add(1).sqrt());
+    return z.div(z.pow(2).mul(this.params.alpha).add(1).sqrt());
   }
 
 

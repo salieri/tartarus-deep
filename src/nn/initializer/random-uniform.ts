@@ -4,19 +4,24 @@ import { JoiEx, JoiExSchema } from '../../util';
 import { Randomizer } from '../../math/randomizer';
 
 
-export interface RandomUniformParams extends InitializerParams {
+export interface RandomUniformParamsInput extends InitializerParams {
   min?: number;
   max?: number;
   randomizer?: Randomizer|null;
 }
 
-export class RandomUniform extends Initializer<RandomUniformParams> {
+export interface RandomUniformParamsCoerced extends RandomUniformParamsInput {
+  randomizer: Randomizer;
+}
+
+
+export class RandomUniform extends Initializer<RandomUniformParamsInput, RandomUniformParamsCoerced> {
   protected readonly min: number;
 
   protected readonly max: number;
 
 
-  public constructor(params: RandomUniformParams = {}) {
+  public constructor(params: RandomUniformParamsInput = {}) {
     super(params);
 
     this.min = this.params.min || 0.0;
@@ -49,7 +54,7 @@ export class RandomUniform extends Initializer<RandomUniformParams> {
       {
         min: JoiEx.number().default(0.0).description('Minimum random value'),
         max: JoiEx.number().default(1.0).description('Maximum random value'),
-        randomizer: JoiEx.random().description('Randomizer').default(null),
+        randomizer: JoiEx.randomizer().description('Randomizer').default(null),
       },
     );
   }

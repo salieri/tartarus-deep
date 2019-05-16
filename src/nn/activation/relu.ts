@@ -12,17 +12,8 @@ export interface ReLUParams extends ActivationParams {
  * Rectified linear unit / leaky rectified linear unit / parameteric rectified linear unit
  */
 export class ReLU extends Activation<ReLUParams> {
-  private readonly leak: number;
-
-  public constructor(params: ReLUParams = {}) {
-    super(params);
-
-    this.leak = params.leak || 0;
-  }
-
-
   public calculate(z: NDArray): NDArray {
-    return z.apply((val: number): number => (val < 0 ? this.leak * val : val));
+    return z.apply((val: number): number => (val < 0 ? this.params.leak * val : val));
   }
 
 

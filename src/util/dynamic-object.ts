@@ -8,9 +8,9 @@ export interface DynamicObject {
 
 export default {
 
-  attachParamSettersGetters(instance: DynamicObject, descriptor: object): void {
+  attachParamSettersGetters(instance: DynamicObject, schema: object): void {
     _.each(
-      descriptor,
+      schema,
       (validator: any, key: string) => {
         if (typeof (instance as any)[key] !== 'undefined') {
           throw new Error(`${instance.constructor.name} tries to overwrite existing method or property '${key}'`);
