@@ -1,28 +1,16 @@
+import Joi from 'joi';
 import { NDArray } from '../../math';
+import { Parameterized, Parameters } from '../../util';
 
-export interface CostParams {
-  [key: string]: any;
-}
-
-
-export interface CostDescriptor {
-  [key: string]: any;
-}
+export type CostParams = Parameters;
 
 
-export abstract class Cost {
-  protected params: CostParams;
-
-  public constructor(params: CostParams) {
-    this.params = params;
-  }
-
-
+export abstract class Cost<T extends CostParams = CostParams> extends Parameterized<T> {
   public abstract calculate(lossScores: NDArray): number;
 
 
-  public getDescriptor(): CostDescriptor {
-    return {};
+  public getParamSchema(): Joi.Schema {
+    return Joi.object();
   }
 }
 

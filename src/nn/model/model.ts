@@ -1,48 +1,43 @@
 import Joi from 'joi';
-import { Graph, GraphNode } from '../graph';
-import { Layer } from '../layer';
+import { Graph, GraphEntity, GraphNode } from '../graph';
 import { Session } from '../session';
 import { Randomizer } from '../../math';
+import { Parameterized } from '../../util';
+
+export enum ModelState {
+  Created,
+  Compiling,
+  Compiled,
+  Initialized,
+}
 
 
 export interface ModelParams {
   seed?: string;
 }
 
-export interface ModelDescriptor {
-  [key: string]: any;
-}
 
+export class Model extends Parameterized<ModelParams> {
+  protected state: ModelState = ModelState.Created;
 
-export class Model {
   protected graph: Graph = new Graph();
-
-  protected params: ModelParams;
 
   protected session: Session;
 
 
   public constructor(params: ModelParams = {}) {
-    this.params   = this.getValidatedParams(params);
+    super(params);
+
     this.session  = new Session(this.params.seed);
   }
 
 
-  protected getValidatedParams(params: ModelParams): ModelParams {
-    const result = Joi.validate(params, this.getDescriptor());
-
-    if (result.error) {
-      throw result.error;
-    }
-
-    return result.value;
-  }
-
-
-  public getDescriptor(): ModelDescriptor {
-    return {
-      seed: Joi.string().optional().default('hello-world').min(2),
-    };
+  public getParamSchema(): Joi.Schema {
+    return Joi.object().keys(
+      {
+        seed: Joi.string().optional().default('hello-world').min(2),
+      },
+    );
   }
 
 
@@ -51,13 +46,13 @@ export class Model {
   }
 
 
-  public add(layer: Layer, parentLayer?: Layer) {
-    return this.graph.add(layer, parentLayer);
+  public add(entity: GraphEntity, parentEntity?: GraphEntity): GraphNode {
+    return this.graph.add(entity, parentEntity);
   }
 
 
-  public push(layer: Layer) {
-    return this.graph.push(layer);
+  public push(entity: GraphEntity): GraphNode {
+    return this.graph.push(entity);
   }
 
 

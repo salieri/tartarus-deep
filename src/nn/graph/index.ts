@@ -1,2 +1,3 @@
+export * from './entity';
 export * from './graph';
-export * from './graph-node';
+export * from './node';

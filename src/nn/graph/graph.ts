@@ -232,8 +232,34 @@ export class Graph {
       ),
     );
 
+    this.verifyLinks();
+
     this.state = GraphState.Compiled;
   }
+
+
+  public async verifyLinks(): Promise<void> {
+    const modelInputNodes   = [];
+    const modelOutputNodes  = [];
+
+    _.each(
+      this.nodes,
+      (node: GraphNode) => {
+        if ((node.countInputs() === 0) && (node.countOutputs() === 0)) {
+          throw new Error(`Node '${node.getEntity().getName()}' is not connected with any other node`);
+        }
+
+        if ((node.countInputs() === 0) && (node.getEntity().input.count() > 0)) {
+          modelInputNodes.push(node);
+        }
+
+        if ((node.countOutputs() === 0) && (node.getEntity().output.count() > 0)) {
+          modelOutputNodes.push(node);
+        }
+      },
+    );
+  }
+
 
 
   /**

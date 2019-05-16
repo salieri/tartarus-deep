@@ -1,28 +1,47 @@
 import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
-import { Loss, LossDescriptor } from './loss';
+import { Loss, LossParams } from './loss';
 import { Vector } from '../../math';
 
 
-export class Huber extends Loss {
+export interface HuberParams extends LossParams {
+  delta?: number;
+}
+
+
+export class Huber extends Loss<HuberParams> {
+  protected readonly delta: number;
+
+
+  public constructor(params: HuberParams = {}) {
+    super(params);
+
+    this.delta = this.params.delta || 1.0;
+  }
+
+
   public calculate(yHat: Vector, y: Vector): number {
+    const delta = this.delta;
+
     return yHat.apply(
       (yHatVal: number, pos: number[]): number => {
         const yVal = y.getAt(pos);
 
-        if (yVal - yHatVal < this.params.delta) {
+        if (yVal - yHatVal < delta) {
           return 0.5 * ((yVal - yHatVal) ** 2);
         }
 
-        return this.params.delta * (yVal - yHatVal) - 0.5 * this.params.delta;
+        return delta * (yVal - yHatVal) - 0.5 * delta;
       },
     ).mean();
   }
 
 
-  public getDescriptor(): LossDescriptor {
-    return {
-      delta: Joi.number().optional().default(1.0),
-    };
+  public getParamSchema(): Joi.Schema {
+    return Joi.object().keys(
+      {
+        delta: Joi.number().optional().default(1.0),
+      },
+    );
   }
 }
 
