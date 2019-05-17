@@ -24,9 +24,9 @@ export abstract class SampleGenerator extends Parameterized<SampleGeneratorParam
     super(params);
   }
 
-  public abstract async model(): Promise<Model>;
+  public abstract model(): Model;
 
-  public abstract async samples(count: number): Promise<SampleData[]>;
+  public abstract samples(count: number): SampleData[];
 
 
   public getParamSchema(): JoiExSchema {

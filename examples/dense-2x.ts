@@ -17,19 +17,18 @@ import { SampleData, SampleGenerator } from './sample-generator';
 
 
 export class Dense2x extends SampleGenerator {
-  public async model(): Promise<Model> {
+  public model(): Model {
     const model = new Model({ seed: this.params.seed });
 
-    model.add(new Dense({ units: 4, activation: 'relu' }));
-    model.add(new Dense({ units: 4, activation: 'relu' }));
-    model.add(new Dense({ units: 1, activation: 'sigmoid' }));
-
-    await model.compile();
+    model
+      .add(new Dense({ units: 4, activation: 'relu' }))
+      .add(new Dense({ units: 4, activation: 'relu' }))
+      .add(new Dense({ units: 1, activation: 'sigmoid' }));
 
     return model;
   }
 
-  public async samples(count: number): Promise<SampleData[]> {
+  public samples(count: number): SampleData[] {
     return _.times(count, n => ({ x: new NDArray([n]), y: new NDArray([n * 2]) }));
   }
 }

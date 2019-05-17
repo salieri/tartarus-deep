@@ -17,18 +17,26 @@ export interface ModelParams {
 }
 
 
-export class Model extends Parameterized<ModelParams> {
+export class Model extends Parameterized<ModelParams> implements GraphEntity {
+  private static modelCounter: number = 0;
+
   protected state: ModelState = ModelState.Created;
 
   protected graph: Graph = new Graph();
 
   protected session: Session;
 
+  protected readonly name: string;
 
-  public constructor(params: ModelParams = {}) {
+
+  public constructor(params: ModelParams = {}, name?: string) {
     super(params);
 
     this.session  = new Session(this.params.seed);
+
+    Model.modelCounter += 1;
+
+    this.name = name || `${this.constructor.name}#${Model.modelCounter}`;
   }
 
 
@@ -46,8 +54,15 @@ export class Model extends Parameterized<ModelParams> {
   }
 
 
-  public add(entity: GraphEntity, parentEntity?: GraphEntity): GraphNode {
-    return this.graph.add(entity, parentEntity);
+  public getName(): string {
+    return this.name;
+  }
+
+
+  public add(entity: GraphEntity, parentEntity?: GraphEntity): Model {
+    this.graph.add(entity, parentEntity);
+
+    return this;
   }
 
 

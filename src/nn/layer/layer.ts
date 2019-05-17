@@ -9,6 +9,7 @@ import {
 } from '../../util';
 
 import { Session } from '../session';
+import { GraphEntity } from '../graph';
 
 
 export enum LayerState {
@@ -35,8 +36,9 @@ export type LayerParams = Parameters;
  *
  * ```
  */
-export abstract class Layer
-  <TInput extends LayerParams = LayerParams, TCoerced extends TInput = TInput> extends Parameterized<TInput, TCoerced> {
+export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced extends TInput = TInput>
+  extends Parameterized<TInput, TCoerced>
+  implements GraphEntity {
   public readonly cache = new DeferredCollection();
 
   public readonly input = new DeferredValue();
@@ -80,6 +82,10 @@ export abstract class Layer
     return JoiEx.object();
   }
 
+
+  public getName(): string {
+    return this.name;
+  }
 
   protected abstract async backwardExec(): Promise<void>;
 
