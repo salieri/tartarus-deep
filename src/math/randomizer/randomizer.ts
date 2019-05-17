@@ -22,7 +22,7 @@ export abstract class Randomizer {
   private static generateSeed(): string {
     const d = new Date();
 
-    return `Moo#${d.getTime()}#${Math.random()}`;
+    return `Tartarus#${d.getTime()}#${Math.random()}`;
   }
 
 

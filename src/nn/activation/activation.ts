@@ -1,5 +1,6 @@
+import Joi from 'joi';
 import { NDArray } from '../../math';
-import * as ActivationCtors from './index';
+import { Parameterized, Parameters } from '../../util';
 
 
 /**
@@ -11,35 +12,14 @@ import * as ActivationCtors from './index';
  * a = g( z )
  */
 
-/* eslint-disable-next-line */
-type ActivationParamType = number|string|boolean;
-
-/* eslint-disable-next-line */
-type ActivationDescriptorType = any;
+export type ActivationParams = Parameters;
 
 
-export interface ActivationParams {
-  [key: string]: ActivationParamType;
-}
-
-export interface ActivationDescriptor {
-  [key: string]: ActivationDescriptorType;
-}
-
-
-export abstract class Activation {
-  protected params: ActivationParams;
-
-
-  public constructor(params: ActivationParams = {}) {
-    this.params = params;
-  }
-
-
+export abstract class Activation
+  <TInput extends ActivationParams = ActivationParams, TCoerced extends TInput = TInput> extends Parameterized<TInput, TCoerced> {
   public abstract calculate(z: NDArray): NDArray;
 
-
-  public getDescriptor(): ActivationDescriptor {
-    return {};
+  public getParamSchema(): Joi.Schema {
+    return Joi.object();
   }
 }

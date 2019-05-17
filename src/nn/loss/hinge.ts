@@ -1,9 +1,14 @@
 import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
-import { Loss, LossDescriptor } from './loss';
+import { Loss, LossParams } from './loss';
 import { Vector, NDArray } from '../../math';
 
 
-export class Hinge extends Loss {
+export interface HingeParams extends LossParams {
+  margin?: number;
+}
+
+
+export class Hinge extends Loss<HingeParams> {
   public calculate(yHat: Vector, y: Vector): number {
     return NDArray.iterate(
       (yHatVal: number, yVal: number): number => Math.max(0, this.params.margin - yVal * yHatVal),
@@ -13,9 +18,11 @@ export class Hinge extends Loss {
   }
 
 
-  public getDescriptor(): LossDescriptor {
-    return {
-      margin: Joi.number().optional().default(1.0),
-    };
+  public getParamSchema(): Joi.Schema {
+    return Joi.object().keys(
+      {
+        margin: Joi.number().optional().default(1.0),
+      },
+    );
   }
 }

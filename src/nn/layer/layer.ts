@@ -1,7 +1,16 @@
 import { Promise } from 'bluebird';
 import { DeferredCollection, DeferredValue } from '../symbol';
-import { JoiEx } from '../../util';
+
+import {
+  JoiEx,
+  JoiExSchema,
+  Parameterized,
+  Parameters,
+} from '../../util';
+
 import { Session } from '../session';
+import { GraphEntity } from '../graph';
+
 
 export enum LayerState {
   Created,
@@ -10,14 +19,7 @@ export enum LayerState {
 }
 
 
-export interface LayerParams {
-  [key: string]: any;
-}
-
-
-export interface LayerDescriptor {
-  [key: string]: any;
-}
+export type LayerParams = Parameters;
 
 
 /**
@@ -34,9 +36,9 @@ export interface LayerDescriptor {
  *
  * ```
  */
-export abstract class Layer {
-  public readonly params: LayerParams = {};
-
+export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced extends TInput = TInput>
+  extends Parameterized<TInput, TCoerced>
+  implements GraphEntity {
   public readonly cache = new DeferredCollection();
 
   public readonly input = new DeferredValue();
@@ -54,8 +56,8 @@ export abstract class Layer {
   protected model: Model;
 
 
-  public constructor(params: LayerParams = {}, name?: string) {
-    this.params = this.validateParams(params);
+  public constructor(params: TInput = {} as any, name?: string) {
+    super(params);
 
     Layer.layerCounter += 1;
 
@@ -63,34 +65,27 @@ export abstract class Layer {
   }
 
 
-  private validateParams(params: LayerParams): LayerParams {
-    const result = JoiEx.validate(params, this.getDescriptor());
+  // public setParam(paramName: string, value: any): Layer {
+  //   const result = JoiEx.validate(this.params[paramName], value);
+  //
+  //   if (result.error) {
+  //     throw result.error;
+  //   }
+  //
+  //   this.params[paramName] = result.value;
+  //
+  //   return this;
+  // }
 
-    if (result.error) {
-      throw result.error;
-    }
 
-    return result.value;
+  public getParamSchema(): JoiExSchema {
+    return JoiEx.object();
   }
 
 
-  public setParam(paramName: string, value: any): Layer {
-    const result = JoiEx.validate(this.params[paramName], value);
-
-    if (result.error) {
-      throw result.error;
-    }
-
-    this.params[paramName] = result.value;
-
-    return this;
+  public getName(): string {
+    return this.name;
   }
-
-
-  public getDescriptor(): LayerDescriptor {
-    return {};
-  }
-
 
   protected abstract async backwardExec(): Promise<void>;
 
