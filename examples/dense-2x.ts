@@ -21,9 +21,16 @@ export class Dense2x extends SampleGenerator {
     const model = new Model({ seed: this.params.seed });
 
     model
-      .add(new Dense({ units: 4, activation: 'relu' }))
-      .add(new Dense({ units: 4, activation: 'relu' }))
-      .add(new Dense({ units: 1, activation: 'sigmoid' }));
+      .input(1)
+      .push(new Dense({ units: 4, activation: 'relu' }, 'dense-1'))
+      .push(new Dense({ units: 4, activation: 'relu' }, 'dense-2'))
+      .push(new Dense({ units: 1, activation: 'sigmoid' }, 'result'))
+      .output('result');
+
+
+    model
+      .add(new Concat('moo'), ['dense-1', 'dense-2'])
+      .add(new Dense(), ['moo']);
 
     return model;
   }
