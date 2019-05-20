@@ -3,6 +3,7 @@ import { Activation } from '../activation';
 import { JoiEx, JoiExSchema } from '../../util';
 import { Matrix, NDArray, Vector } from '../../math';
 import { Initializer } from '../initializer';
+import { DeferredReadonlyCollection } from '../symbol';
 
 
 export interface DenseParamsInput extends LayerParams {
@@ -21,6 +22,17 @@ export interface DenseParamsCoerced extends DenseParamsInput {
 
 
 export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
+  protected static readonly WEIGHT_MATRIX = 'weight';
+
+  protected static readonly BIAS_MATRIX = 'bias';
+
+  protected static readonly LINEAR_OUTPUT = 'linear';
+
+  protected static readonly ACTIVATED_OUTPUT = 'activated';
+
+  protected readonly input: DeferredReadonlyCollection = new DeferredReadonlyCollection();
+
+
   /**
    * dW[L] =
    */
@@ -30,13 +42,11 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected async forwardExec(): Promise<void> {
-    const linearOutput    = this.calculate(this.input.get());
+    const linearOutput    = this.calculate(this.input.getDefault().get());
     const activatedOutput = this.activate(linearOutput);
 
-    this.cache.setValue('linear', linearOutput);
-    this.cache.setValue('activated', activatedOutput);
-
-    this.output.set(activatedOutput);
+    this.output.setValue(Dense.LINEAR_OUTPUT, linearOutput);
+    this.output.setValue(Dense.ACTIVATED_OUTPUT, activatedOutput);
   }
 
 
@@ -44,12 +54,12 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * Z = A_prev * W + b
    */
   protected calculate(input: NDArray): NDArray {
-    const weight = this.optimizer.getValue('weight') as Matrix;
+    const weight = this.optimizer.getValue(Dense.WEIGHT_MATRIX) as Matrix;
 
     let output = weight.vecmul(new Vector(input.flatten()));
 
     if (this.params.bias) {
-      output = output.add(this.optimizer.getValue('bias') as Vector) as Vector;
+      output = output.add(this.optimizer.getValue(Dense.BIAS_MATRIX) as Vector) as Vector;
     }
 
     return output;
@@ -66,34 +76,57 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   }
 
 
-  protected async compileExec(): Promise<void> {
-    const inputUnits = this.input.size();
-    const units = this.params.units;
-
-    this.optimizer.declare('weight', [units, inputUnits]);
-    this.output.declare([units, 1]);
-
-    if (this.params.bias) {
-      this.optimizer.declare('bias', [units, 1]);
+  protected resolveInput(): void {
+    if (this.rawInputs.length < 1) {
+      throw new Error(`Missing input for dense layer '${this.getName()}'`);
     }
 
-    this.cache.declare('linear', [units, 1]);
-    this.cache.declare('activated', [units, 1]);
+    if (this.rawInputs.length > 1) {
+      throw new Error(`Too many inputs for a dense layer '${this.getName()}'`);
+    }
+
+    this.input.setCollection(this.rawInputs[0]);
+  }
+
+
+  protected async compileExec(): Promise<void> {
+    this.resolveInput();
+
+    this.input.requireDefault();
+
+    const inputUnits = this.input.getDefault().size();
+    const units = this.params.units;
+
+    this.optimizer.declare(Dense.WEIGHT_MATRIX, [units, inputUnits]);
+
+    if (this.params.bias) {
+      this.optimizer.declare(Dense.BIAS_MATRIX, [units]);
+    }
+
+    this.output.declare(Dense.LINEAR_OUTPUT, [units]);
+    this.output.declare(Dense.ACTIVATED_OUTPUT, [units]);
+
+    this.output.setDefaultKey(Dense.ACTIVATED_OUTPUT);
   }
 
 
   protected async initializeExec(): Promise<void> {
     const wInit = this.params.weightInitializer;
-    const weight = this.optimizer.get('weight');
+    const weight = this.optimizer.get(Dense.WEIGHT_MATRIX);
 
     weight.set(await wInit.initialize(new NDArray(...weight.getDims())));
 
     if (this.params.bias) {
       const bInit = this.params.biasInitializer;
-      const bias = this.optimizer.get('bias');
+      const bias = this.optimizer.get(Dense.BIAS_MATRIX);
 
       bias.set(await bInit.initialize(new NDArray(...bias.getDims())));
     }
+  }
+
+
+  public hasInputs(): boolean {
+    return (this.input.getRequiredFields().length > 0);
   }
 
 

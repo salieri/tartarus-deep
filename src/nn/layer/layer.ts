@@ -1,5 +1,6 @@
 import { Promise } from 'bluebird';
-import { DeferredCollection, DeferredValue } from '../symbol';
+import { DeferredCollection, DeferredReadonlyCollection } from '../symbol';
+import { Model } from '../model';
 
 import {
   JoiEx,
@@ -39,11 +40,7 @@ export type LayerParams = Parameters;
 export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced extends TInput = TInput>
   extends Parameterized<TInput, TCoerced>
   implements GraphEntity {
-  public readonly cache = new DeferredCollection();
-
-  public readonly input = new DeferredValue();
-
-  public readonly output = new DeferredValue();
+  public readonly output = new DeferredCollection();
 
   public readonly optimizer = new DeferredCollection();
 
@@ -53,7 +50,9 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   protected state: LayerState = LayerState.Created;
 
-  protected model: Model;
+  protected model?: Model;
+
+  protected rawInputs: DeferredReadonlyCollection[] = [];
 
 
   public constructor(params: TInput = {} as any, name?: string) {
@@ -144,34 +143,22 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  /*
-  public getSymbol(name: string): any {
+  public abstract hasInputs(): boolean;
+
+
+  public hasOutputs(): boolean {
+    return (this.output.getKeys().length > 0);
   }
 
 
-  public setSymbol(name: string, symbol: Symbol) {
-
-  }
-
-  public hasSymbol(name: string) {
-
+  public setRawInputs(inputs: DeferredReadonlyCollection[]): void {
+    this.rawInputs = inputs;
   }
 
 
-  protected mustHaveSymbol(name: string): void {
-
+  public getRawOutputs(): DeferredReadonlyCollection[] {
+    return [new DeferredReadonlyCollection(this.output)];
   }
-
-
-  public register(variableName: string, symbol: NDSymbol): void {
-    this.symbols.add(this.getSymbolName(variableName), symbol);
-  }
-
-
-  public getSymbolName(variableName: string): string {
-    return `${this.getLayerName()}-${variableName}`;
-  }
-  */
 
 
   public getLayerName(): string {

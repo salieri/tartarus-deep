@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { GraphNode } from './node';
-import { GraphEntity } from './entity';
+import { GraphEntity, EntityIdentifier } from './entity';
+import { DeferredReadonlyCollection } from '../symbol';
 
 
 export enum GraphState {
@@ -33,50 +34,72 @@ export class Graph {
   }
 
 
+  protected resolveEntities(entities?: EntityIdentifier|EntityIdentifier[]): GraphNode[] {
+    if (!entities) {
+      return [];
+    }
+
+    return _.map(
+      _.castArray(entities),
+      (entity: EntityIdentifier): GraphNode => {
+        if (entity instanceof GraphNode) {
+          return entity as GraphNode;
+        }
+
+        if (_.isString(entity)) {
+          return this.find(entity as string);
+        }
+
+        return this.find(entity as GraphEntity);
+      },
+    );
+  }
+
+
   /**
    * Add a entity to the graph
    * @param entity
-   * @param [parentEntity] If specified, connects `entity` to the output of `parentEntity`
+   * @param [parentEntities] If specified, connects `entity` to the output of `parentEntity`
    */
-  public add(entity: GraphEntity, parentEntity?: GraphEntity): GraphNode {
+  public add(entity: GraphEntity, parentEntities?: EntityIdentifier|EntityIdentifier[]): GraphNode {
     this.canModify();
 
     if (this.exists(entity)) {
       throw new Error(`Entity '${entity.getName()}' already exists in this graph`);
     }
 
-    if (parentEntity) {
-      if (this.exists(parentEntity)) {
-        throw new Error(`Parent entity '${entity.getName()}' does not exist in this graph`);
-      }
+    const resolvedParents = this.resolveEntities(parentEntities);
 
-      if (parentEntity === entity) {
-        throw new Error('Parent entity cannot be same instance than the entity being added');
-      }
-    }
+    _.each(
+      resolvedParents,
+      (node: GraphNode) => {
+        if (node.getEntity() === entity) {
+          throw new Error('Parent entity cannot be same instance than the entity being added');
+        }
+      },
+    );
 
-    const node = new GraphNode(entity);
 
-    this.nodes.push(node);
+    const newNode = new GraphNode(entity);
 
-    if (parentEntity) {
-      this.link(parentEntity, entity);
-    }
+    this.nodes.push(newNode);
 
-    return node;
+    _.each(resolvedParents, (parentNode: GraphNode) => (this.link(parentNode, newNode)));
+
+    return newNode;
   }
 
 
   /**
    * Link two neurons
-   * @param outputEntity
-   * @param inputEntity
+   * @param output
+   * @param input
    */
-  public link(outputEntity: GraphEntity, inputEntity: GraphEntity): void {
+  public link(output: EntityIdentifier, input: EntityIdentifier): void {
     this.canModify();
 
-    const outputNode  = this.find(outputEntity);
-    const inputNode   = this.find(inputEntity);
+    const outputNode  = this.find(output);
+    const inputNode   = this.find(input);
 
     this.checkForCircularLinks(outputNode, 'backward', inputNode);
     this.checkForCircularLinks(outputNode, 'forward', inputNode);
@@ -184,9 +207,9 @@ export class Graph {
    * if `number` accesses graph entity pool by index;
    * if `GraphEntity` finds the node that matches the specific instance
    */
-  public find(entity: GraphEntity | string | number): GraphNode {
+  public find(entity: EntityIdentifier): GraphNode {
     if (_.isNumber(entity) === true) {
-      const nEntity = entity as number;
+      const nEntity = entity as unknown as number;
 
       if ((nEntity < 0) || (nEntity >= this.nodes.length)) {
         throw new Error(`Unknown entity index: ${nEntity}`);
@@ -199,6 +222,8 @@ export class Graph {
 
     if (_.isString(entity) === true) {
       node = _.find(this.nodes, (n: GraphNode) => (n.getEntity().getName() === entity as string));
+    } else if (entity instanceof GraphNode) {
+      node = _.find(this.nodes, (n: GraphNode) => (n === entity));
     } else {
       node = _.find(this.nodes, (n: GraphNode) => (n.getEntity() === entity));
     }
@@ -218,7 +243,7 @@ export class Graph {
   }
 
 
-  public async compile(): Promise<void> {
+  public async compile(knownInputs: DeferredReadonlyCollectionDictionary): Promise<void> {
     if (this.state !== GraphState.Created) {
       throw new Error('Unexpected state');
     }
@@ -228,38 +253,59 @@ export class Graph {
     await Promise.all(
       _.map(
         this.nodes,
-        (node: GraphNode) => (node.getEntity().compile()),
+        (node: GraphNode) => (node.compile(knownInputs)), // no 'await' on purpose
       ),
     );
 
-    this.verifyLinks();
+    await this.verifyLinks();
 
     this.state = GraphState.Compiled;
   }
 
 
-  public async verifyLinks(): Promise<void> {
-    const modelInputNodes   = [];
-    const modelOutputNodes  = [];
-
+  protected prepareLinks(): void {
     _.each(
       this.nodes,
       (node: GraphNode) => {
-        if ((node.countInputs() === 0) && (node.countOutputs() === 0)) {
+        const inputCount = node.getInputs().length;
+        const outputCount = node.getOutputs().length;
+
+        if ((inputCount === 0) && (outputCount === 0)) {
           throw new Error(`Node '${node.getEntity().getName()}' is not connected with any other node`);
         }
 
-        if ((node.countInputs() === 0) && (node.getEntity().input.count() > 0)) {
-          modelInputNodes.push(node);
-        }
-
-        if ((node.countOutputs() === 0) && (node.getEntity().output.count() > 0)) {
-          modelOutputNodes.push(node);
+        if ((inputCount === 0) && (node.getEntity().hasInputs())) {
+          networkInputNodes.push(node);
         }
       },
     );
   }
 
+
+  protected async verifyLinks(): Promise<void> {
+    const networkInputNodes   = [];
+    const networkOutputNodes  = [];
+
+    _.each(
+      this.nodes,
+      (node: GraphNode) => {
+        const inputCount = node.getInputs().length;
+        const outputCount = node.getOutputs().length;
+
+        if ((inputCount === 0) && (outputCount === 0)) {
+          throw new Error(`Node '${node.getEntity().getName()}' is not connected with any other node`);
+        }
+
+        if ((inputCount === 0) && (node.getEntity().hasInputs())) {
+          networkInputNodes.push(node);
+        }
+
+        if ((outputCount === 0) && (node.getEntity().hasOutputs())) {
+          networkOutputNodes.push(node);
+        }
+      },
+    );
+  }
 
 
   /**
