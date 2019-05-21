@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NDArray } from '../../math';
+import { NDArray } from '../../../math';
 
 export type DeferredValueType = NDArray;
 

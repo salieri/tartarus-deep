@@ -1,10 +1,10 @@
 import Joi from 'joi';
 import _ from 'lodash';
-import { Graph, GraphEntity, GraphNode } from '../graph';
+import { EntityIdentifier, Graph, GraphEntity } from '../graph';
 import { Session } from '../session';
 import { Randomizer } from '../../math';
 import { Parameterized } from '../../util';
-import { DeferredReadonlyCollection, DeferredCollection } from '../symbol';
+import { DeferredReadonlyCollection, DeferredCollection, DeferredInputCollection } from '../symbol';
 
 export enum ModelState {
   Created,
@@ -19,8 +19,6 @@ export interface ModelParams {
 }
 
 
-
-
 export class Model
   extends Parameterized<ModelParams>
   implements GraphEntity {
@@ -28,15 +26,15 @@ export class Model
 
   protected state: ModelState = ModelState.Created;
 
-  protected graph: Graph = new Graph();
+  protected graph: Graph;
 
   protected session: Session;
 
   protected readonly name: string;
 
-  protected rawOutputs: DeferredCollection[] = [];
+  protected rawOutputs: DeferredInputCollection = new DeferredInputCollection();
 
-  protected rawInputs: DeferredReadonlyCollection[] = [];
+  protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
 
   public constructor(params: ModelParams = {}, name?: string) {
@@ -47,6 +45,8 @@ export class Model
     Model.modelCounter += 1;
 
     this.name = name || `${this.constructor.name}#${Model.modelCounter}`;
+
+    this.graph = new Graph(this.name);
   }
 
 
@@ -81,23 +81,24 @@ export class Model
   }
 
 
-  public hasInputs(): boolean {
+  public hasRawInputs(): boolean {
     return !!_.find(this.rawInputs, (ri: DeferredReadonlyCollection) => (ri.getRequiredFields().length > 0));
   }
 
 
-  public hasOutputs(): boolean {
+  public hasRawOutputs(): boolean {
     return !!_.find(this.rawOutputs, (ro: DeferredCollection) => (ro.getKeys().length > 0));
   }
 
 
-  public setRawInputs(inputs: DeferredReadonlyCollection[]): void {
-    this.rawInputs = inputs;
+  public setRawInputs(inputs: DeferredInputCollection): void {
+    // this.rawInputs = inputs;
+    this.graph.setRawInputs(inputs);
   }
 
 
-  public getRawOutputs(): DeferredReadonlyCollection[] {
-    return _.map(this.rawOutputs, (ro: DeferredCollection) => new DeferredReadonlyCollection(ro));
+  public getRawOutputs(): DeferredInputCollection {
+    return this.graph.getRawOutputs().filter(this.preferredOutputs);
   }
 
 

@@ -1,19 +1,22 @@
-import { DeferredReadonlyCollection } from '../symbol';
+import { DeferredInputCollection } from '../symbol';
 import { GraphNode } from './node';
+
+/* eslint-disable @typescript-eslint/no-empty-interface */
+export interface GraphEntityParams {}
+
 
 export interface GraphEntity {
   compile(): Promise<void>;
 
   getName(): string;
 
-  getRawOutputs(): DeferredReadonlyCollection[];
-  setRawInputs(inputs: DeferredReadonlyCollection[]): void;
+  getRawOutputs(): DeferredInputCollection;
+  setRawInputs(inputs: DeferredInputCollection): void;
 
-
-  hasInputs(): boolean;
-  hasOutputs(): boolean;
+  hasRawInputs(): boolean;
+  hasRawOutputs(): boolean;
 }
 
 
-export type EntityIdentifier = GraphNode|GraphEntity|string;
+export type EntityIdentifier = GraphNode|GraphEntity|string|number;
 

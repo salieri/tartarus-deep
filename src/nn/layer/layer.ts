@@ -1,5 +1,5 @@
 import { Promise } from 'bluebird';
-import { DeferredCollection, DeferredReadonlyCollection } from '../symbol';
+import { DeferredCollection, DeferredInputCollection } from '../symbol';
 import { Model } from '../model';
 
 import {
@@ -52,7 +52,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   protected model?: Model;
 
-  protected rawInputs: DeferredReadonlyCollection[] = [];
+  protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
 
   public constructor(params: TInput = {} as any, name?: string) {
@@ -143,21 +143,25 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  public abstract hasInputs(): boolean;
+  public abstract hasRawInputs(): boolean;
 
 
-  public hasOutputs(): boolean {
+  public hasRawOutputs(): boolean {
     return (this.output.getKeys().length > 0);
   }
 
 
-  public setRawInputs(inputs: DeferredReadonlyCollection[]): void {
+  public setRawInputs(inputs: DeferredInputCollection): void {
     this.rawInputs = inputs;
   }
 
 
-  public getRawOutputs(): DeferredReadonlyCollection[] {
-    return [new DeferredReadonlyCollection(this.output)];
+  public getRawOutputs(): DeferredInputCollection {
+    const out = new DeferredInputCollection();
+
+    out.setDefault(this.output);
+
+    return out;
   }
 
 

@@ -77,15 +77,24 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected resolveInput(): void {
-    if (this.rawInputs.length < 1) {
+    try {
+      const defaultInput = this.rawInputs.getDefault();
+
+      this.input.setCollection(defaultInput);
+      return;
+    } catch (err) {
+      /* do nothing */
+    }
+
+    if (this.rawInputs.count() < 1) {
       throw new Error(`Missing input for dense layer '${this.getName()}'`);
     }
 
-    if (this.rawInputs.length > 1) {
+    if (this.rawInputs.count() > 1) {
       throw new Error(`Too many inputs for a dense layer '${this.getName()}'`);
     }
 
-    this.input.setCollection(this.rawInputs[0]);
+    this.input.setCollection(this.rawInputs.first());
   }
 
 
@@ -125,7 +134,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   }
 
 
-  public hasInputs(): boolean {
+  public hasRawInputs(): boolean {
     return (this.input.getRequiredFields().length > 0);
   }
 

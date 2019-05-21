@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { GraphNode } from './node';
 import { GraphEntity, EntityIdentifier } from './entity';
-import { DeferredReadonlyCollection } from '../symbol';
+import { DeferredInputCollection } from '../symbol';
 
 
 export enum GraphState {
@@ -16,6 +16,12 @@ export class Graph {
   protected nodes: GraphNode[] = [];
 
   protected state: GraphState = GraphState.Created;
+
+  protected name: string;
+
+  public constructor(name: string) {
+    this.name = name;
+  }
 
 
   /**
@@ -106,8 +112,8 @@ export class Graph {
     this.checkForCircularLinks(inputNode, 'backward', outputNode);
     this.checkForCircularLinks(inputNode, 'forward', outputNode);
 
-    outputNode.addOutput(inputNode);
-    inputNode.addInput(outputNode);
+    outputNode.addOutputNode(inputNode);
+    inputNode.addInputNode(outputNode);
   }
 
 
@@ -136,7 +142,7 @@ export class Graph {
    */
   public traverse(node: GraphNode, direction: string, callback: Function): void {
     _.each(
-      (direction === 'forward') ? node.outputs : node.inputs,
+      (direction === 'forward') ? node.getOutputNodes() : node.getInputNodes(),
       (linkNode: GraphNode): void => {
         callback(linkNode);
         this.traverse(linkNode, direction, callback);
@@ -203,7 +209,7 @@ export class Graph {
 
   /**
    * Find entity in the graph
-   * @param {GraphEntity|string|number} entity If `string`, matches against the name of the entity;
+   * @param {EntityIdentifier} entity If `string`, matches against the name of the entity;
    * if `number` accesses graph entity pool by index;
    * if `GraphEntity` finds the node that matches the specific instance
    */
@@ -221,7 +227,7 @@ export class Graph {
     let node;
 
     if (_.isString(entity) === true) {
-      node = _.find(this.nodes, (n: GraphNode) => (n.getEntity().getName() === entity as string));
+      node = _.find(this.nodes, (n: GraphNode) => (n.getEntity().getName() === (entity as string)));
     } else if (entity instanceof GraphNode) {
       node = _.find(this.nodes, (n: GraphNode) => (n === entity));
     } else {
@@ -243,17 +249,19 @@ export class Graph {
   }
 
 
-  public async compile(knownInputs: DeferredReadonlyCollectionDictionary): Promise<void> {
+  public async compile(externalInputs: DeferredInputCollection): Promise<void> {
     if (this.state !== GraphState.Created) {
       throw new Error('Unexpected state');
     }
 
     this.state = GraphState.Compiling;
 
+    this.resolveExternalInputs(externalInputs);
+
     await Promise.all(
       _.map(
         this.nodes,
-        (node: GraphNode) => (node.compile(knownInputs)), // no 'await' on purpose
+        (node: GraphNode) => (node.compile()), // no 'await' on purpose
       ),
     );
 
@@ -263,22 +271,46 @@ export class Graph {
   }
 
 
-  protected prepareLinks(): void {
+  protected resolveExternalInputs(knownInputs: DeferredInputCollection): void {
+    const defaultInput = knownInputs.getDefault();
+    let defaultSpent = false;
+
     _.each(
       this.nodes,
       (node: GraphNode) => {
-        const inputCount = node.getInputs().length;
-        const outputCount = node.getOutputs().length;
+        const inputCount = node.getInputNodes().length;
+        const outputCount = node.getOutputNodes().length;
 
         if ((inputCount === 0) && (outputCount === 0)) {
-          throw new Error(`Node '${node.getEntity().getName()}' is not connected with any other node`);
+          throw new Error(`Node '${node.getName()}' is not connected with any other node`);
         }
 
-        if ((inputCount === 0) && (node.getEntity().hasInputs())) {
-          networkInputNodes.push(node);
+        if ((inputCount === 0) && (node.getEntity().hasRawInputs())) {
+          let entityInput = knownInputs.get(node.getName());
+
+          if (!entityInput) {
+            if (!defaultInput) {
+              throw new Error(`Could not resolve input for layer '${node.getName()}' in model ${this.getName()}`);
+            }
+
+            if (defaultSpent) {
+              throw new Error(
+                `Multiple inputs in model '${this.getName()}' require default inputs, including '${node.getName()}'`,
+              );
+            }
+
+            defaultSpent = true;
+            entityInput = defaultInput;
+          }
+
+          node.overrideRawInputs(new DeferredInputCollection(entityInput));
         }
       },
     );
+
+    if ((defaultInput) && (defaultSpent)) {
+      throw new Error(`Default input was defined but not spent in model '${this.getName()}'`);
+    }
   }
 
 
@@ -289,22 +321,23 @@ export class Graph {
     _.each(
       this.nodes,
       (node: GraphNode) => {
-        const inputCount = node.getInputs().length;
-        const outputCount = node.getOutputs().length;
+        const inputCount = node.getInputNodes().length;
+        const outputCount = node.getOutputNodes().length;
 
-        if ((inputCount === 0) && (outputCount === 0)) {
-          throw new Error(`Node '${node.getEntity().getName()}' is not connected with any other node`);
-        }
-
-        if ((inputCount === 0) && (node.getEntity().hasInputs())) {
+        if ((inputCount === 0) && (node.getEntity().hasRawInputs())) {
           networkInputNodes.push(node);
         }
 
-        if ((outputCount === 0) && (node.getEntity().hasOutputs())) {
+        if ((outputCount === 0) && (node.getEntity().hasRawOutputs())) {
           networkOutputNodes.push(node);
         }
       },
     );
+  }
+
+
+  public getName(): string {
+    return this.name;
   }
 
 

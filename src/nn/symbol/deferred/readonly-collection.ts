@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { DeferredValueType, DeferredValue } from './deferred-value';
-import { DeferredCollection } from './deferred-collection';
+import { DeferredValueType, DeferredValue } from './value';
+import { DeferredCollection } from './collection';
 
 
 export class DeferredReadonlyCollection {

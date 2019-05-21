@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { DeferredValue, DeferredValueType } from './deferred-value';
+import { DeferredValue, DeferredValueType } from './value';
 
 export interface DeferredValueCollectionInf {
   [key: string]: DeferredValue;

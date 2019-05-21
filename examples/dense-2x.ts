@@ -28,9 +28,9 @@ export class Dense2x extends SampleGenerator {
       .output('result');
 
 
-    model
-      .add(new Concat('moo'), ['dense-1', 'dense-2'])
-      .add(new Dense(), ['moo']);
+    // model
+    //   .add(new Concat('moo'), ['dense-1', 'dense-2'])
+    //   .add(new Dense(), ['moo']);
 
     return model;
   }
