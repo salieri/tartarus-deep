@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { DeferredValue, DeferredValueType } from './value';
+import { NDArray } from '../../../math';
 
 export interface DeferredValueCollectionInf {
   [key: string]: DeferredValue;
@@ -10,6 +11,13 @@ export class DeferredCollection {
   private collection: DeferredValueCollectionInf = {};
 
   private defaultKey: string = 'default';
+
+  public constructor(defaultValue?: NDArray) {
+    if (defaultValue) {
+      this.declare(this.defaultKey, defaultValue.getDims());
+      this.setDefaultValue(defaultValue);
+    }
+  }
 
 
   public declare(key: string, dimensions:number[]|number): void {

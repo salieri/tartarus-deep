@@ -2,7 +2,7 @@ import Joi from 'joi';
 import _ from 'lodash';
 import { EntityIdentifier, Graph, GraphEntity } from '../graph';
 import { Session } from '../session';
-import { Randomizer } from '../../math';
+import { NDArray, Randomizer } from '../../math';
 import { Parameterized } from '../../util';
 import { DeferredReadonlyCollection, DeferredCollection, DeferredInputCollection } from '../symbols';
 
@@ -19,6 +19,9 @@ export interface ModelParams {
 }
 
 
+export type RelaxedInputCollectionDefinition = number[]|number|NDArray|DeferredInputCollection|DeferredCollection;
+
+
 export class Model
   extends Parameterized<ModelParams>
   implements GraphEntity {
@@ -32,9 +35,7 @@ export class Model
 
   protected readonly name: string;
 
-  protected rawOutputs: DeferredInputCollection = new DeferredInputCollection();
-
-  protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
+  protected outputNodes: string[] = [];
 
 
   public constructor(params: ModelParams = {}, name?: string) {
@@ -82,12 +83,16 @@ export class Model
 
 
   public hasRawInputs(): boolean {
-    return !!_.find(this.rawInputs, (ri: DeferredReadonlyCollection) => (ri.getRequiredFields().length > 0));
+    const rawInputs = this.graph.getRawInputs();
+
+    return !!_.find(rawInputs, (ri: DeferredReadonlyCollection) => (ri.getRequiredFields().length > 0));
   }
 
 
   public hasRawOutputs(): boolean {
-    return !!_.find(this.rawOutputs, (ro: DeferredCollection) => (ro.getKeys().length > 0));
+    const rawOutputs = this.getRawOutputs();
+
+    return !!_.find(rawOutputs, (ro: DeferredCollection) => (ro.getKeys().length > 0));
   }
 
 
@@ -98,43 +103,55 @@ export class Model
 
 
   public getRawOutputs(): DeferredInputCollection {
-    return this.graph.getRawOutputs().filter(this.preferredOutputs);
+    return this.graph.getRawOutputs(this.outputNodes);
   }
 
 
   public push(entity: GraphEntity): Model {
-    this.graph.push(entity);
+    const node = this.graph.push(entity);
+
+    this.output(node);
 
     return this;
   }
 
 
-  public input(dims: number[]|number, layerId = '__default'): Model {
-    const finalDimensions = _.castArray(dims);
+  protected prepareInputCollection(definition: RelaxedInputCollectionDefinition): DeferredInputCollection {
+    if (definition instanceof  DeferredInputCollection) {
+      return definition;
+    }
 
-    this.knownInputs.declare(layerId, finalDimensions);
+    if (definition instanceof DeferredCollection) {
+      return new DeferredInputCollection(definition);
+    }
+
+    if (definition instanceof NDArray) {
+      return new DeferredInputCollection(new DeferredCollection(definition));
+    }
+
+    const dims = _.castArray(definition);
+    const collection = new DeferredCollection();
+
+    collection.declareDefault(dims);
+
+    return new DeferredInputCollection(collection);
+  }
+
+
+  public input(definition: RelaxedInputCollectionDefinition): Model {
+    this.setRawInputs(this.prepareInputCollection(definition));
 
     return this;
   }
 
 
-  public output(layerId: string|string[]): Model {
-    _.each(
-      _.castArray(layerId),
-      (l: string) => this.knownOutputs.declare(l),
+  public output(entities: EntityIdentifier|EntityIdentifier[]): Model {
+    this.outputNodes = _.map(
+      _.castArray(entities),
+      (entity: EntityIdentifier) => (this.graph.find(entity).getName()),
     );
 
     return this;
-  }
-
-
-  protected resolveInput(): void {
-
-  }
-
-
-  protected resolveOutput(): void {
-
   }
 
 
@@ -145,12 +162,7 @@ export class Model
 
     this.state = ModelState.Compiling;
 
-    this.resolveInput();
-    this.resolveOutput();
-
-    await this.graph.compile(this.knownInputs);
-
-    this.rawOutputs = this.graph.getOutputs();
+    await this.graph.compile();
 
     this.state = ModelState.Compiled;
   }

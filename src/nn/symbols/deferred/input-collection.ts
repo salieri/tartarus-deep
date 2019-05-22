@@ -60,7 +60,7 @@ export class DeferredInputCollection {
   }
 
 
-  public merge(input: DeferredInputCollection, defaultFieldNameOverride: string|null = null, force: boolean = false): void {
+  public merge(input: DeferredInputCollection, defaultFieldNameRemap: string|null = null, force: boolean = false): void {
     _.each(
       input.inputs,
       (sourceInput: DeferredReadonlyCollection, key: string) => {
@@ -70,13 +70,33 @@ export class DeferredInputCollection {
 
         let finalKey = key;
 
-        if ((finalKey === DeferredInputCollection.DEFAULT_INPUT) && (defaultFieldNameOverride)) {
-          finalKey = defaultFieldNameOverride;
+        if ((finalKey === DeferredInputCollection.DEFAULT_INPUT) && (defaultFieldNameRemap)) {
+          finalKey = defaultFieldNameRemap;
         }
 
         this.set(finalKey, sourceInput);
       },
     );
+  }
+
+
+  public filter(matchList: string[], convertSingleToDefault: boolean = false): DeferredInputCollection {
+    if (matchList.length === 0) {
+      throw new Error('Empty match list');
+    }
+
+    if ((matchList.length === 1) && (convertSingleToDefault)) {
+      return new DeferredInputCollection(this.first());
+    }
+
+    const collection = new DeferredInputCollection();
+
+    _.each(
+      _.intersection(_.keys(this.inputs), matchList),
+      (key: string) => (collection.set(key, this.get(key))),
+    );
+
+    return collection;
   }
 }
 

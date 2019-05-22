@@ -19,6 +19,11 @@ export class Graph {
 
   protected name: string;
 
+  protected rawOutputs: DeferredInputCollection = new DeferredInputCollection();
+
+  protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
+
+
   public constructor(name: string) {
     this.name = name;
   }
@@ -249,14 +254,14 @@ export class Graph {
   }
 
 
-  public async compile(externalInputs: DeferredInputCollection): Promise<void> {
+  public async compile(): Promise<void> {
     if (this.state !== GraphState.Created) {
       throw new Error('Unexpected state');
     }
 
     this.state = GraphState.Compiling;
 
-    this.resolveExternalInputs(externalInputs);
+    this.resolveRawInputsForNodes();
 
     await Promise.all(
       _.map(
@@ -265,14 +270,14 @@ export class Graph {
       ),
     );
 
-    await this.verifyLinks();
+    // await this.verifyLinks();
 
     this.state = GraphState.Compiled;
   }
 
 
-  protected resolveExternalInputs(knownInputs: DeferredInputCollection): void {
-    const defaultInput = knownInputs.getDefault();
+  protected resolveRawInputsForNodes(): void {
+    const defaultInput = this.rawInputs.getDefault();
     let defaultSpent = false;
 
     _.each(
@@ -286,7 +291,7 @@ export class Graph {
         }
 
         if ((inputCount === 0) && (node.getEntity().hasRawInputs())) {
-          let entityInput = knownInputs.get(node.getName());
+          let entityInput = this.rawInputs.get(node.getName());
 
           if (!entityInput) {
             if (!defaultInput) {
@@ -314,25 +319,38 @@ export class Graph {
   }
 
 
-  protected async verifyLinks(): Promise<void> {
-    const networkInputNodes   = [];
-    const networkOutputNodes  = [];
+  public setRawInputs(inputs: DeferredInputCollection): void {
+    this.rawInputs = inputs;
+  }
+
+
+  public getRawInputs(): DeferredInputCollection {
+    return this.rawInputs;
+  }
+
+
+  public getRawOutputs(outputNodes: string[]): DeferredInputCollection {
+    if (outputNodes.length === 0) {
+      throw new Error('No output nodes');
+    }
+
+    if (outputNodes.length === 1) {
+      const collection = new DeferredInputCollection();
+
+      // don't re-map default output
+      collection.merge(this.find(outputNodes[0]).getEntity().getRawOutputs());
+
+      return collection;
+    }
+
+    const out = new DeferredInputCollection();
 
     _.each(
-      this.nodes,
-      (node: GraphNode) => {
-        const inputCount = node.getInputNodes().length;
-        const outputCount = node.getOutputNodes().length;
-
-        if ((inputCount === 0) && (node.getEntity().hasRawInputs())) {
-          networkInputNodes.push(node);
-        }
-
-        if ((outputCount === 0) && (node.getEntity().hasRawOutputs())) {
-          networkOutputNodes.push(node);
-        }
-      },
+      outputNodes,
+      (outputNode: string) => (out.merge(this.find(outputNode).getEntity().getRawOutputs(), outputNode)),
     );
+
+    return out;
   }
 
 

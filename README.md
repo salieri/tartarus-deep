@@ -26,6 +26,7 @@ A **research only** deep learning implementation for TypeScript. Not intended fo
 *   RNNs
 *   Regularization
 *   Graph networks
+*   Chainable models
 
 
 ### 2. Compatibility
