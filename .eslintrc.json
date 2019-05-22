@@ -35,7 +35,8 @@
 
     "import/prefer-default-export": false,
 
-    "@typescript-eslint/explicit-function-return-type": [2, {"allowExpressions": true, "allowTypedFunctionExpressions": true}]
+    "@typescript-eslint/explicit-function-return-type": [2, {"allowExpressions": true, "allowTypedFunctionExpressions": true}],
+    "@typescript-eslint/member-delimiter-style": [2]
   }
 }
 

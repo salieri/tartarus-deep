@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import { Layer } from '../nn/layer';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export interface ClassModule {
   [key: string]: any;
 }
@@ -37,7 +39,7 @@ export class ClassManager {
   }
 
 
-  public coerce(instanceDefinition: string | object, layer: Layer, params?: InstanceParams) {
+  public coerce(instanceDefinition: string | object, layer: Layer, params?: InstanceParams): any {
     if (instanceDefinition instanceof this.baseClass) {
       return instanceDefinition;
     }

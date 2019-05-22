@@ -11,6 +11,7 @@ import * as initializers from '../nn/initializer';
 import * as randomizers from '../math/randomizer';
 import { Layer } from '../nn/layer';
 
+/* eslint-disable @typescript-eslint/no-explicit-any, no-underscore-dangle */
 
 function createCMExtension(name: string, cm: ClassManager): Function {
   return (joi: any) => (

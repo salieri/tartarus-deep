@@ -11,11 +11,8 @@ A **research only** deep learning implementation for TypeScript. Not intended fo
 
 
 ## Platform Goals
-* Runs on Node.js
-* Runs on modern browsers
 
-
-## Provide From-The-Ground-Up Implementation For
+### 1. From-The-Ground-Up Implementation
 
 * Vector operations
 * Matrix operations
@@ -30,7 +27,32 @@ A **research only** deep learning implementation for TypeScript. Not intended fo
 * Regularization
 * Graph networks
 
+
+### 2. Compatibility
+
+* Runs on Node.js
+* Runs on modern browsers
+
+
+### 3. Speed
+
 Decidedly unoptimized -- written for convenience, not for speed.
+
+
+
+## Acknowledgements
+
+Many ideas, designs, algorithms, and approaches have been shamelessly stolen from:
+
+* https://isaacchanghau.github.io/post/loss_functions/
+* https://ml-cheatsheet.readthedocs.io/en/latest/
+* https://en.wikipedia.org/wiki/Activation_function
+* https://keras.io/
+* https://www.tensorflow.org/api_docs/python/
+* https://mathinsight.org/matrix_vector_multiplication
+* https://stackoverflow.com/a/47593316/844771
+* http://www.numpy.org/
+* https://www.coursera.org/specializations/deep-learning
 
 
 ## Glossary
@@ -46,27 +68,6 @@ Decidedly unoptimized -- written for convenience, not for speed.
 | `<t>` | Time _t_ denotation |
 | `[l]` | Layer _l_ denotation |
 
-
-
-
-
-## Acknowledgements
-
-Many ideas, designs, algorithms, and approaches have been shamelessly stolen from...
-
-* https://isaacchanghau.github.io/post/loss_functions/
-* https://ml-cheatsheet.readthedocs.io/en/latest/
-* https://en.wikipedia.org/wiki/Activation_function
-* https://keras.io/
-* https://www.tensorflow.org/api_docs/python/
-* https://mathinsight.org/matrix_vector_multiplication
-* https://stackoverflow.com/a/47593316/844771
-* http://www.numpy.org/
-* https://www.coursera.org/specializations/deep-learning
-
-
-
-### Testing
 
 
 

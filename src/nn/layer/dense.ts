@@ -8,9 +8,9 @@ import { DeferredReadonlyCollection } from '../symbols';
 
 export interface DenseParamsInput extends LayerParams {
   units: number;
-  activation?: Activation|string,
+  activation?: Activation|string;
   bias?: boolean;
-  biasInitializer?: Initializer|string,
+  biasInitializer?: Initializer|string;
   weightInitializer?: Initializer|string;
 }
 
