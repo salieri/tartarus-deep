@@ -90,5 +90,5 @@ const customJoi = joify(Joi.extend(
 ));
 
 export { customJoi as JoiEx };
-export type JoiExSchema=Joi.Schema;
+export type JoiExSchema = Joi.Schema;
 

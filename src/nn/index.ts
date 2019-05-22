@@ -1,4 +1,5 @@
 /* eslint-disable import/no-duplicates */
+/* tslint:disable no-duplicate-imports */
 
 import * as activation from './activation';
 import * as cost from './cost';

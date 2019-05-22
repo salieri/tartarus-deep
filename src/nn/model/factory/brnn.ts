@@ -79,5 +79,3 @@ export class BRNNFactory {
 //     return model;
 //   }
 }
-
-
