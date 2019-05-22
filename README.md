@@ -71,4 +71,7 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 
 
 
+## Quality
 
+*   TypeScript: ESLint, TSLint with Airbnb-like presets
+*   Markdown: Remark Lint with recommended presets
