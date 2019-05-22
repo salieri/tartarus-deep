@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-/* eslint-disable @typescript-eslint/no-empty-interface */
+/* eslint-disable-next-line @typescript-eslint/no-empty-interface */
 export interface Parameters {}
 
 export type FinalParameters<T> = {
@@ -11,6 +11,7 @@ export type FinalParameters<T> = {
 export abstract class Parameterized<TInput extends Parameters, TCoerced extends TInput = TInput> {
   protected readonly params: FinalParameters<TCoerced>;
 
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   public constructor(params: TInput = {} as any) {
     this.params = this.validateParams(params);
   }

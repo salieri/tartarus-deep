@@ -4,9 +4,13 @@
   "description": "Tartarus Deep",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha --timeout 6000 --reporter spec 'test/**/*.ts'",
+    "test": "mocha --reporter spec 'test/**/*.ts'",
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
-    "lint-md": "remark ."
+    "coverage": "nyc npm test",
+    "lint:md": "remark .",
+    "lint:eslint": "eslint ./**/*.ts",
+    "lint:tslint": "tslint ./**/*.ts",
+    "lint": "npm run lint:tslint && npm run lint:eslint && npm run lint:md"
   },
   "repository": {
     "type": "git",

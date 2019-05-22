@@ -38,7 +38,7 @@ function createCMExtension(name: string, cm: ClassManager): Function {
             layer: joi.any().required(),
           },
           validate(params: any, value: any, state: any, options: any) {
-            if (!value.attachLayer) {
+            if (!value) {
               return (this as any).createError('`{name}`.layerMissing', {}, state, options);
             }
 

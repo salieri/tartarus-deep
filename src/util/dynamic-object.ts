@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import Joi from 'joi';
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export interface DynamicObject {
   [key: string]: any;
 }
