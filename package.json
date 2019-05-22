@@ -83,10 +83,5 @@
     "include": [
       "src/**/*.ts"
     ]
-  },
-  "remarkConfig": {
-    "plugins": [
-      "remark-preset-lint-recommended"
-    ]
   }
 }
