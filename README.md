@@ -1,4 +1,4 @@
-# Tartarus Deep
+# Tartarus Deep Learning Framework
 
 **Deep learning framework for TypeScript.** Run it on a browser, on AWS Lambda, or on anything that runs Node.js!
 

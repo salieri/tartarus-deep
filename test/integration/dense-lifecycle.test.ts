@@ -1,4 +1,9 @@
-import { Dense, Model, model } from '../../src';
+import {
+  Dense,
+  Model,
+  model,
+  symbols,
+} from '../../src';
 
 describe(
   'Dense Layer Network',
@@ -45,7 +50,7 @@ describe(
 
         m.push(new Dense({ units: 4 }));
 
-        (async () => (m.compile())).should.Throw(/Missing Input/);
+        (async () => (m.compile())).should.Throw(symbols.KeyNotFoundError);
       },
     );
 
