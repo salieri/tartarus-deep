@@ -3,7 +3,7 @@ import { Activation } from '../activation';
 import { JoiEx, JoiExSchema } from '../../util';
 import { Matrix, NDArray, Vector } from '../../math';
 import { Initializer } from '../initializer';
-import { DeferredReadonlyCollection } from '../symbols';
+import { DeferredReadonlyCollection, KeyNotFoundError } from '../symbols';
 
 
 export interface DenseParamsInput extends LayerParams {
@@ -83,7 +83,9 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
       this.input.setCollection(defaultInput);
       return;
     } catch (err) {
-      /* do nothing */
+      if (!(err instanceof KeyNotFoundError)) {
+        throw err;
+      }
     }
 
     if (this.rawInputs.count() < 1) {

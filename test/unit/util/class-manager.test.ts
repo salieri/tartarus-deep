@@ -1,10 +1,16 @@
 /* eslint-disable import/no-duplicates */
 
-import { ClassManager } from '../../src/util';
-import { Activation } from '../../src/nn/activation';
+import _ from 'lodash';
+
+import { ClassManager } from '../../../src/util';
+import { Activation } from '../../../src/nn/activation';
+import { Initializer } from '../../../src/nn/initializer';
 
 // tslint:disable-next-line
-import * as activations from '../../src/nn/activation';
+import * as activations from '../../../src/nn/activation';
+
+// tslint:disable-next-line
+import * as initializers from '../../../src/nn/initializer';
 
 
 describe(
@@ -43,6 +49,16 @@ describe(
 
         cm.coerce(activator).should.equal(activator);
         cm.coerce('bent-identity').should.not.equal(activator);
+      },
+    );
+
+
+    it(
+      'should detect all/only relevant classes',
+      () => {
+        const cm = new ClassManager(initializers, Initializer);
+
+        _.keys(cm.getKnownClasses()).should.deep.equal(['constant', 'one', 'randomuniform', 'zero']);
       },
     );
   },

@@ -1,6 +1,8 @@
+import Joi from 'joi'; // can't use JoiEx here -- circular dependency
+
 import { Initializer, InitializerParams } from './initializer';
 import { NDArray } from '../../math';
-import { JoiEx, JoiExSchema } from '../../util';
+// import { JoiEx, JoiExSchema } from '../../util';
 import { Randomizer } from '../../math/randomizer';
 
 
@@ -49,12 +51,12 @@ export class RandomUniform extends Initializer<RandomUniformParamsInput, RandomU
   }
 
 
-  public getParamSchema(): JoiExSchema {
-    return JoiEx.object().keys(
+  public getParamSchema(): Joi.Schema {
+    return Joi.object().keys(
       {
-        min: JoiEx.number().default(0.0).description('Minimum random value'),
-        max: JoiEx.number().default(1.0).description('Maximum random value'),
-        randomizer: JoiEx.randomizer().description('Randomizer').default(null),
+        min: Joi.number().default(0.0).description('Minimum random value'),
+        max: Joi.number().default(1.0).description('Maximum random value'),
+        randomizer: Joi.any().description('Randomizer').default(null),
       },
     );
   }

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { GraphNode } from './node';
 import { GraphEntity, EntityIdentifier } from './entity';
-import { DeferredInputCollection } from '../symbols';
+import { DeferredInputCollection, KeyNotFoundError } from '../symbols';
 
 
 export enum GraphState {
@@ -203,7 +203,7 @@ export class Graph {
 
       return true;
     } catch (e) {
-      if (e.match(/Unknown entity/)) {
+      if ((e.message) && (e.message.match(/Unknown entity/))) {
         return false;
       }
 
@@ -232,7 +232,7 @@ export class Graph {
     let node;
 
     if (_.isString(entity) === true) {
-      node = _.find(this.nodes, (n: GraphNode) => (n.getEntity().getName() === (entity as string)));
+      node = _.find(this.nodes, (n: GraphNode) => (n.getName() === (entity as string)));
     } else if (entity instanceof GraphNode) {
       node = _.find(this.nodes, (n: GraphNode) => (n === entity));
     } else {
@@ -283,37 +283,54 @@ export class Graph {
     _.each(
       this.nodes,
       (node: GraphNode) => {
-        const inputCount = node.getInputNodes().length;
+        const inputNodes = node.getInputNodes();
+        const inputCount = inputNodes.length;
         const outputCount = node.getOutputNodes().length;
 
         if ((inputCount === 0) && (outputCount === 0)) {
           throw new Error(`Node '${node.getName()}' is not connected with any other node`);
         }
 
-        if ((inputCount === 0) && (node.getEntity().hasRawInputs())) {
-          let entityInput = this.rawInputs.get(node.getName());
+        let entityInput;
+        const nodeRawInputs = node.getRawInputs();
 
-          if (!entityInput) {
-            if (!defaultInput) {
-              throw new Error(`Could not resolve input for layer '${node.getName()}' in model ${this.getName()}`);
-            }
+        // Feed matching input name from rawInputs to the node
+        try {
+          entityInput = this.rawInputs.get(node.getName());
 
-            if (defaultSpent) {
-              throw new Error(
-                `Multiple inputs in model '${this.getName()}' require default inputs, including '${node.getName()}'`,
-              );
-            }
+          nodeRawInputs.setDefault(entityInput);
+        } catch (err) {
+          if (!(err instanceof KeyNotFoundError)) {
+            throw err;
+          }
+        }
 
-            defaultSpent = true;
-            entityInput = defaultInput;
+        // If no matching input was available in rawInputs and the node has no linked inputs, feed default input
+        if ((inputCount === 0) && (!entityInput)) {
+          if (!defaultInput) {
+            throw new Error(`Could not resolve input for layer '${node.getName()}' in model ${this.getName()}`);
           }
 
-          node.overrideRawInputs(new DeferredInputCollection(entityInput));
+          if (defaultSpent) {
+            throw new Error(
+              `Multiple inputs in model '${this.getName()}' require default inputs, including '${node.getName()}'`,
+            );
+          }
+
+          nodeRawInputs.setDefault(defaultInput);
+
+          defaultSpent = true;
         }
+
+        // Feed linked inputs to the node
+        _.each(
+          inputNodes,
+          (inputNode: GraphNode) => nodeRawInputs.merge(inputNode.getRawOutputs(), inputNode.getName()),
+        );
       },
     );
 
-    if ((defaultInput) && (defaultSpent)) {
+    if ((defaultInput) && (!defaultSpent)) {
       throw new Error(`Default input was defined but not spent in model '${this.getName()}'`);
     }
   }
@@ -338,7 +355,7 @@ export class Graph {
       const collection = new DeferredInputCollection();
 
       // don't re-map default output
-      collection.merge(this.find(outputNodes[0]).getEntity().getRawOutputs());
+      collection.merge(this.find(outputNodes[0]).getRawOutputs());
 
       return collection;
     }
@@ -347,7 +364,7 @@ export class Graph {
 
     _.each(
       outputNodes,
-      (outputNode: string) => (out.merge(this.find(outputNode).getEntity().getRawOutputs(), outputNode)),
+      (outputNode: string) => (out.merge(this.find(outputNode).getRawOutputs(), outputNode)),
     );
 
     return out;

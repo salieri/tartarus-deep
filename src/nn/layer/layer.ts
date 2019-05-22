@@ -166,6 +166,11 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
+  public getRawInputs(): DeferredInputCollection {
+    return this.rawInputs;
+  }
+
+
   public getLayerName(): string {
     return this.name;
   }

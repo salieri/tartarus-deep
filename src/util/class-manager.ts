@@ -43,6 +43,11 @@ export class ClassManager {
   }
 
 
+  public getKnownClasses(): ClassModule {
+    return this.knownClasses;
+  }
+
+
   public coerce(instanceDefinition: string | object, layer?: LayerLike, params?: InstanceParams): any {
     if (instanceDefinition instanceof this.baseClass) {
       return instanceDefinition;
@@ -74,7 +79,7 @@ export class ClassManager {
     const simplifiedName = ClassManager.getSimplifiedName(className);
 
     if (!(simplifiedName in this.knownClasses)) {
-      throw new Error('Unknown class: `className`');
+      throw new Error(`Unknown class: '${className}'`);
     }
 
     return this.knownClasses[simplifiedName];

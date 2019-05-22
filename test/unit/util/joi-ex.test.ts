@@ -2,11 +2,11 @@
 
 import { expect } from 'chai';
 
-import { JoiEx, ClassManager } from '../../src/util';
-import { Activation } from '../../src/nn/activation';
+import { JoiEx, ClassManager } from '../../../src/util';
+import { Activation } from '../../../src/nn/activation';
 
 // tslint:disable-next-line
-import * as activations from '../../src/nn/activation';
+import * as activations from '../../../src/nn/activation';
 
 
 describe(

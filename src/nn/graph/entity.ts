@@ -11,6 +11,8 @@ export interface GraphEntity {
   getName(): string;
 
   getRawOutputs(): DeferredInputCollection;
+  getRawInputs(): DeferredInputCollection;
+
   setRawInputs(inputs: DeferredInputCollection): void;
 
   hasRawInputs(): boolean;

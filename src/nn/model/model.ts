@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import _ from 'lodash';
-import { EntityIdentifier, Graph, GraphEntity } from '../graph';
+import { EntityIdentifier, Graph, GraphEntity, GraphNode } from '../graph';
 import { Session } from '../session';
 import { NDArray, Randomizer } from '../../math';
 import { Parameterized } from '../../generic';
@@ -102,8 +102,21 @@ export class Model
   }
 
 
+  public getRawInputs(): DeferredInputCollection {
+    return this.graph.getRawInputs();
+  }
+
+
   public getRawOutputs(): DeferredInputCollection {
     return this.graph.getRawOutputs(this.outputNodes);
+  }
+
+
+  public getOutputNodes(): GraphNode[] {
+    return _.map(
+      this.outputNodes,
+      (nodeName: string) => (this.graph.find(nodeName)),
+    );
   }
 
 
@@ -152,6 +165,11 @@ export class Model
     );
 
     return this;
+  }
+
+
+  public getState(): ModelState {
+    return this.state;
   }
 
 

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import sha256 from 'fast-sha256';
+import { sha256 } from 'js-sha256';
 
 /**
  * Pseudo random number generator
@@ -7,15 +7,13 @@ import sha256 from 'fast-sha256';
 export abstract class Randomizer {
   protected seed: string;
 
-  protected seedHash: Uint8Array;
+  protected seedHash: number[];
 
   protected seedPtr: number = 0;
 
   public constructor(seed?: string) {
-    const enc = new TextEncoder();
-
     this.seed = _.toString(seed || Randomizer.generateSeed());
-    this.seedHash = sha256(enc.encode(this.seed));
+    this.seedHash = sha256.array(this.seed);
   }
 
 

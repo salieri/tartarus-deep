@@ -1,4 +1,4 @@
-import { Matrix } from '../../src/math';
+import { Matrix } from '../../../src/math';
 
 
 describe(

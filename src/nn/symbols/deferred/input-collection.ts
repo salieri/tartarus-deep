@@ -3,6 +3,9 @@ import { DeferredCollection } from './collection';
 import { DeferredReadonlyCollection } from './readonly-collection';
 
 
+export class KeyNotFoundError extends Error {}
+
+
 export interface DeferredInputDictionary {
   [key: string]: DeferredReadonlyCollection;
 }
@@ -22,7 +25,7 @@ export class DeferredInputCollection {
 
   public get(key: string): DeferredReadonlyCollection {
     if (!(key in this.inputs)) {
-      throw new Error(`Key '${key}' not found`);
+      throw new KeyNotFoundError(`Key '${key}' not found`);
     }
 
     return this.inputs[key];

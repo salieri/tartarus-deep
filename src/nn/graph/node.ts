@@ -18,7 +18,7 @@ export class GraphFeed {
 export class GraphNode {
   private readonly entity: GraphEntity;
 
-  private rawInputs?: DeferredInputCollection;
+  private rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
   private outputNodes: GraphNode[] = [];
 
@@ -79,21 +79,27 @@ export class GraphNode {
   }
 
 
-  protected getRawInputs(): DeferredInputCollection {
-    if (this.rawInputs) {
-      return this.rawInputs;
-    }
+  public getRawOutputs(): DeferredInputCollection {
+    return this.entity.getRawOutputs();
+  }
 
-    const rawInputs = new DeferredInputCollection();
 
-    _.each(
-      this.inputNodes,
-      (node: GraphNode) => rawInputs.merge(node.getEntity().getRawOutputs(), node.getName()),
-    );
-
-    this.rawInputs = rawInputs;
-
-    return rawInputs;
+  public getRawInputs(): DeferredInputCollection {
+    return this.rawInputs;
+    // if (this.rawInputs) {
+    //   return this.rawInputs;
+    // }
+    //
+    // const rawInputs = new DeferredInputCollection();
+    //
+    // _.each(
+    //   this.inputNodes,
+    //   (node: GraphNode) => rawInputs.merge(node.getEntity().getRawOutputs(), node.getName()),
+    // );
+    //
+    // this.rawInputs = rawInputs;
+    //
+    // return rawInputs;
   }
 
 
@@ -103,4 +109,3 @@ export class GraphNode {
     await this.entity.compile();
   }
 }
-

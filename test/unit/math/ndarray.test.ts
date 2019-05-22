@@ -1,4 +1,4 @@
-import { NDArray } from '../../src/math';
+import { NDArray } from '../../../src/math';
 
 
 describe(

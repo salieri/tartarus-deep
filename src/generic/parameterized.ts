@@ -21,7 +21,9 @@ export abstract class Parameterized<TInput extends Parameters, TCoerced extends 
 
 
   public validateParams(params: TInput): FinalParameters<TCoerced> {
-    const result = Joi.validate(params, this.getParamSchema());
+    const schema = this.getParamSchema();
+
+    const result = schema.validate(params);
 
     if (result.error) {
       throw result.error;
