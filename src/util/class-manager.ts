@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+// This prevents circular dependencies
 export interface LayerLike {
   attachLayer: (layer: unknown) => void;
 }
