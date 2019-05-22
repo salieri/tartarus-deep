@@ -1,5 +1,5 @@
 {
-  "name": "@tartarus/tartarus-deep",
+  "name": "@tartarus/deep",
   "version": "0.0.0",
   "description": "Tartarus Deep",
   "main": "src/index.js",

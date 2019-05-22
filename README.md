@@ -1,6 +1,6 @@
 # Tartarus Deep
 
-A **research only** deep learning implementation for TypeScript. Not intended for production use.
+**Deep learning framework for TypeScript.** Run it on a browser, on AWS Lambda, or on anything that runs Node.js!
 
 
 [![Travis CI](https://travis-ci.org/franksrevenge/tartarus-deep.svg?branch=master)](https://travis-ci.org/franksrevenge/tartarus-deep/)
@@ -37,7 +37,7 @@ A **research only** deep learning implementation for TypeScript. Not intended fo
 
 ### 3. Speed
 
-Decidedly unoptimized -- written for convenience, not for speed.
+Decidedly unoptimized -- written for research purposes, not for speed.
 
 
 
@@ -74,5 +74,5 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 
 ## Quality
 
-*   TypeScript: ESLint, TSLint with Airbnb-like presets
+*   TypeScript: ESLint & TSLint with Airbnb-like presets
 *   Markdown: Remark Lint with recommended presets
