@@ -9,7 +9,7 @@ import * as costs from '../nn/cost';
 import * as losses from '../nn/loss';
 import * as initializers from '../nn/initializer';
 import * as randomizers from '../math/randomizer';
-import { Layer } from '../nn/layer';
+
 
 /* eslint-disable @typescript-eslint/no-explicit-any, no-underscore-dangle */
 
@@ -38,7 +38,7 @@ function createCMExtension(name: string, cm: ClassManager): Function {
             layer: joi.any().required(),
           },
           validate(params: any, value: any, state: any, options: any) {
-            if (!(value instanceof Layer)) {
+            if (!value.attachLayer) {
               return (this as any).createError('`{name}`.layerMissing', {}, state, options);
             }
 

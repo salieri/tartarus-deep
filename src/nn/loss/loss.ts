@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { Vector } from '../../math';
-import { Parameterized, Parameters } from '../../util';
+import { Parameterized, Parameters } from '../../generic';
 
 export type LossParams = Parameters;
 

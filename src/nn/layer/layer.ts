@@ -5,9 +5,10 @@ import { Model } from '../model';
 import {
   JoiEx,
   JoiExSchema,
-  Parameterized,
-  Parameters,
 } from '../../util';
+
+import { Parameterized, Parameters } from '../../generic';
+
 
 import { Session } from '../session';
 import { GraphEntity } from '../graph';

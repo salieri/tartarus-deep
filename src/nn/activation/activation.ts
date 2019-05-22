@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { NDArray } from '../../math';
-import { Parameterized, Parameters } from '../../util';
+import { Parameterized, Parameters } from '../../generic';
 
 
 /**

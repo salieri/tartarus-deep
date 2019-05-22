@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { NDArray } from '../../math';
 import { Layer } from '../layer';
-import { Parameterized, Parameters } from '../../util';
+import { Parameterized, Parameters } from '../../generic';
 
 
 export type InitializerParams = Parameters;
@@ -11,7 +11,7 @@ export abstract class Initializer
   <TInput extends InitializerParams = InitializerParams, TCoerced extends TInput = TInput> extends Parameterized<TInput, TCoerced> {
   protected layer?: Layer;
 
-  public attach(layer: Layer): void {
+  public attachLayer(layer: Layer): void {
     if (this.layer) {
       throw new Error(`Initializer is already attached to layer '${layer.getLayerName()}'`);
     }

@@ -1,8 +1,10 @@
-import { ClassManager } from '../../../src/util';
-import { Activation } from '../../../src/nn/activation';
+/* eslint-disable import/no-duplicates */
+
+import { ClassManager } from '../../src/util';
+import { Activation } from '../../src/nn/activation';
 
 // tslint:disable-next-line
-import * as activations from '../../../src/nn/activation';
+import * as activations from '../../src/nn/activation';
 
 
 describe(
@@ -15,7 +17,7 @@ describe(
         const activator = cm.factory('binary');
 
         activator.should.be.instanceOf(activations.Binary);
-      }
+      },
     );
 
 
@@ -23,11 +25,11 @@ describe(
       'should instantiate a class with parameters',
       () => {
         const cm        = new ClassManager(activations, Activation);
-        const activator = cm.factory('ReLU', { leak: 1.23 });
+        const activator = cm.factory('ReLU', undefined, { leak: 1.23 });
 
         activator.should.be.instanceOf(activations.ReLU);
         activator.params.leak.should.equal(1.23);
-      }
+      },
     );
 
 
@@ -41,8 +43,7 @@ describe(
 
         cm.coerce(activator).should.equal(activator);
         cm.coerce('bent-identity').should.not.equal(activator);
-      }
+      },
     );
-
-  }
+  },
 );

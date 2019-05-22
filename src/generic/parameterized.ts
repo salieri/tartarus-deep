@@ -1,4 +1,4 @@
-import { JoiEx, JoiExSchema } from './joi-ex';
+import Joi from 'joi';
 
 /* eslint-disable @typescript-eslint/no-empty-interface */
 export interface Parameters {}
@@ -16,11 +16,11 @@ export abstract class Parameterized<TInput extends Parameters, TCoerced extends 
   }
 
 
-  public abstract getParamSchema(): JoiExSchema;
+  public abstract getParamSchema(): Joi.Schema;
 
 
   public validateParams(params: TInput): FinalParameters<TCoerced> {
-    const result = JoiEx.validate(params, this.getParamSchema());
+    const result = Joi.validate(params, this.getParamSchema());
 
     if (result.error) {
       throw result.error;

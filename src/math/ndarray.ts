@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 export type NumberTreeElement = number[] | number;
-export type NDArrayConstructorType = NumberTreeElement[]|NDArray[]|number[];
+export type NDArrayConstructorType = NumberTreeElement[]|NDArray[]|number[]|[number[][]];
 
 
 export interface NDArrayCollection {

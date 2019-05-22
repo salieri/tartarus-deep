@@ -1,5 +1,3 @@
-import 'mocha';
-import { expect } from 'chai';
 import { NDArray } from '../../src/math';
 
 
@@ -10,7 +8,7 @@ describe(
       'should not create NDArray without specified dimensions',
       () => {
         (() => (new NDArray())).should.Throw(/Unspecified dimensions/);
-      }
+      },
     );
 
 
@@ -25,7 +23,7 @@ describe(
 
         m.get().length.should.equal(3);
         (m.get()[1] as number[]).length.should.equal(4);
-      }
+      },
     );
 
 
@@ -36,8 +34,8 @@ describe(
           [
             [0, 0, 0, 0],
             [0, 1, 1, 0],
-            [0, 0, 0, 0]
-          ]
+            [0, 0, 0, 0],
+          ],
         );
 
         m.countDims().should.equal(2);
@@ -51,7 +49,7 @@ describe(
         m.getAt([1, 1]).should.equal(1);
         m.getAt([1, 2]).should.equal(1);
         m.getAt([2, 3]).should.equal(0);
-      }
+      },
     );
 
 
@@ -62,11 +60,11 @@ describe(
           [
             [1, 0, 0],
             [1, 0, 0, 0],
-            [1, 0, 0]
-          ]
-          ))
+            [1, 0, 0],
+          ],
+        ))
         ).should.Throw(/Inconsistent data size/);
-      }
+      },
     );
 
 
@@ -77,26 +75,26 @@ describe(
 
         (() => (nd.setData(
           [
-            [1, 2, 3]
-          ]
+            [1, 2, 3],
+          ],
         ))).should.Throw(/Inconsistent data size/);
 
         (() => (nd.setData(
           [
             [1, 2, 3],
             [1, 2, 3],
-            [1, 2, 3]
-          ]
+            [1, 2, 3],
+          ],
         ))).should.Throw(/Inconsistent data size/);
 
         (() => (nd.setData(
           [
             [1, 2],
             [1, 2],
-            [1, 2]
-          ]
+            [1, 2],
+          ],
         ))).should.Throw(/Inconsistent data size/);
-      }
+      },
     );
 
 
@@ -107,8 +105,8 @@ describe(
           [
             [0, 0, 0, 0],
             [0, 1, 1, 0],
-            [0, 0, 0, 0]
-          ]
+            [0, 0, 0, 0],
+          ],
         );
 
         const m = new NDArray(mSource);
@@ -124,7 +122,7 @@ describe(
         m.getAt([1, 1]).should.equal(1);
         m.getAt([1, 2]).should.equal(1);
         m.getAt([2, 3]).should.equal(0);
-      }
+      },
     );
 
 
@@ -135,24 +133,24 @@ describe(
           [
             [0, 0, 0, 0],
             [0, 1, 1, 0],
-            [0, 0, 0, 0]
-          ]
+            [0, 0, 0, 0],
+          ],
         );
 
         const m2 = new NDArray(
           [
             [0, 0, 0, 0],
             [0, 1, 1, 0],
-            [0, 0, 0, 0]
-          ]
+            [0, 0, 0, 0],
+          ],
         );
 
         const n1 = new NDArray(
           [
             [3, 0, 0, 0],
             [0, 3, 3, 0],
-            [0, 0, 0, 3]
-          ]
+            [0, 0, 0, 3],
+          ],
         );
 
         m1.equals(m1).should.equal(true);
@@ -161,7 +159,7 @@ describe(
 
         m1.equals(n1).should.equal(false);
         n1.equals(n1).should.equal(true);
-      }
+      },
     );
 
 
@@ -172,18 +170,18 @@ describe(
           [
             [1, 2, 3],
             [4, 5, 6],
-            [7, 8, 9]
-          ]
+            [7, 8, 9],
+          ],
         );
 
         nd.add(1).toJSON().should.deep.equal(
           [
             [2, 3, 4],
             [5, 6, 7],
-            [8, 9, 10]
-          ]
+            [8, 9, 10],
+          ],
         );
-      }
+      },
     );
 
 
@@ -194,18 +192,18 @@ describe(
           [
             [1, 2, 3],
             [4, 5, 6],
-            [7, 8, 9]
-          ]
+            [7, 8, 9],
+          ],
         );
 
         nd.sub(1).toJSON().should.deep.equal(
           [
             [0, 1, 2],
             [3, 4, 5],
-            [6, 7, 8]
-          ]
+            [6, 7, 8],
+          ],
         );
-      }
+      },
     );
 
 
@@ -216,18 +214,18 @@ describe(
           [
             [1, 2, 3],
             [4, 5, 6],
-            [7, 8, 9]
-          ]
+            [7, 8, 9],
+          ],
         );
 
         nd.mul(2).toJSON().should.deep.equal(
           [
             [1 * 2, 2 * 2, 3 * 2],
             [4 * 2, 5 * 2, 6 * 2],
-            [7 * 2, 8 * 2, 9 * 2]
-          ]
+            [7 * 2, 8 * 2, 9 * 2],
+          ],
         );
-      }
+      },
     );
 
 
@@ -238,18 +236,18 @@ describe(
           [
             [2, 4, 6],
             [8, 10, 12],
-            [14, 16, 18]
-          ]
+            [14, 16, 18],
+          ],
         );
 
         nd.div(2).toJSON().should.deep.equal(
           [
             [2 / 2, 4 / 2, 6 / 2],
             [8 / 2, 10 / 2, 12 / 2],
-            [14 / 2, 16 / 2, 18 / 2]
-          ]
+            [14 / 2, 16 / 2, 18 / 2],
+          ],
         );
-      }
+      },
     );
 
 
@@ -260,16 +258,16 @@ describe(
           [
             [1, 2, 3],
             [4, 5, 6],
-            [7, 8, 9]
-          ]
+            [7, 8, 9],
+          ],
         );
 
         const nd2 = new NDArray(
           [
             [2, 3, 4],
             [5, 6, 7],
-            [8, 9, 10]
-          ]
+            [8, 9, 10],
+          ],
         );
 
 
@@ -277,10 +275,10 @@ describe(
           [
             [1 + 2, 2 + 3, 3 + 4],
             [4 + 5, 5 + 6, 6 + 7],
-            [7 + 8, 8 + 9, 9 + 10]
-          ]
+            [7 + 8, 8 + 9, 9 + 10],
+          ],
         );
-      }
+      },
     );
 
 
@@ -291,16 +289,16 @@ describe(
           [
             [1, 2, 3],
             [4, 5, 6],
-            [7, 8, 9]
-          ]
+            [7, 8, 9],
+          ],
         );
 
         const nd2 = new NDArray(
           [
             [2, 3, 4],
             [5, 6, 7],
-            [8, 9, 10]
-          ]
+            [8, 9, 10],
+          ],
         );
 
 
@@ -308,10 +306,10 @@ describe(
           [
             [1 - 2, 2 - 3, 3 - 4],
             [4 - 5, 5 - 6, 6 - 7],
-            [7 - 8, 8 - 9, 9 - 10]
-          ]
+            [7 - 8, 8 - 9, 9 - 10],
+          ],
         );
-      }
+      },
     );
 
 
@@ -322,16 +320,16 @@ describe(
           [
             [1, 2, 3],
             [4, 5, 6],
-            [7, 8, 9]
-          ]
+            [7, 8, 9],
+          ],
         );
 
         const nd2 = new NDArray(
           [
             [2, 3, 4],
             [5, 6, 7],
-            [8, 9, 10]
-          ]
+            [8, 9, 10],
+          ],
         );
 
 
@@ -339,10 +337,10 @@ describe(
           [
             [1 * 2, 2 * 3, 3 * 4],
             [4 * 5, 5 * 6, 6 * 7],
-            [7 * 8, 8 * 9, 9 * 10]
-          ]
+            [7 * 8, 8 * 9, 9 * 10],
+          ],
         );
-      }
+      },
     );
 
 
@@ -353,16 +351,16 @@ describe(
           [
             [1, 2, 3],
             [4, 5, 6],
-            [7, 8, 9]
-          ]
+            [7, 8, 9],
+          ],
         );
 
         const nd2 = new NDArray(
           [
             [2, 3, 4],
             [5, 6, 7],
-            [8, 9, 10]
-          ]
+            [8, 9, 10],
+          ],
         );
 
 
@@ -370,10 +368,10 @@ describe(
           [
             [1 / 2, 2 / 3, 3 / 4],
             [4 / 5, 5 / 6, 6 / 7],
-            [7 / 8, 8 / 9, 9 / 10]
-          ]
+            [7 / 8, 8 / 9, 9 / 10],
+          ],
         );
-      }
+      },
     );
 
 
@@ -384,21 +382,20 @@ describe(
           [
             [3, 3, 3],
             [3, 3, 3],
-            [3, 3, 3]
-          ]
+            [3, 3, 3],
+          ],
         );
 
         const nd2 = new NDArray(
           [
             [1, 2],
-            [1, 2]
-          ]
+            [1, 2],
+          ],
         );
 
         (() => nd1.add(nd2)).should.Throw(/Cannot do elementwise addition on NDArrays with differing dimensions/);
-      }
+      },
     );
-
-  }
+  },
 );
 

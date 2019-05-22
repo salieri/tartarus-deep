@@ -1,5 +1,8 @@
 import _ from 'lodash';
-import { Layer } from '../nn/layer';
+
+export interface LayerLike {
+  attachLayer: (layer: unknown) => void;
+}
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -39,7 +42,7 @@ export class ClassManager {
   }
 
 
-  public coerce(instanceDefinition: string | object, layer: Layer, params?: InstanceParams): any {
+  public coerce(instanceDefinition: string | object, layer?: LayerLike, params?: InstanceParams): any {
     if (instanceDefinition instanceof this.baseClass) {
       return instanceDefinition;
     }
@@ -52,11 +55,17 @@ export class ClassManager {
   }
 
 
-  public factory(className: string, layer: Layer, params?: InstanceParams): any {
+  public factory(className: string, layer?: LayerLike, params?: InstanceParams): any {
     // tslint:disable-next-line
     const ClassSpec = this.find(className);
 
-    return new ClassSpec(params, layer);
+    const instance = new ClassSpec(params);
+
+    if (layer) {
+      instance.attachLayer(layer);
+    }
+
+    return instance;
   }
 
 
