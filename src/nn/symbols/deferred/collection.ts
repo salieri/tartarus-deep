@@ -21,6 +21,11 @@ export class DeferredCollection {
   }
 
 
+  public declareDefault(dimensions: number[]|number): void {
+    this.declare(this.getDefaultKey(), dimensions);
+  }
+
+
   public get(key: string): DeferredValue {
     this.require(key);
 
@@ -51,6 +56,11 @@ export class DeferredCollection {
     this.require(key);
 
     this.defaultKey = key;
+  }
+
+
+  public setDefaultValue(value: DeferredValueType): void {
+    this.setValue(this.getDefaultKey(), value);
   }
 
 

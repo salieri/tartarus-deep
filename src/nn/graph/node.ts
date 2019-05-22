@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { GraphEntity } from './entity';
-import { DeferredInputCollection } from '../symbol/deferred';
+import { DeferredInputCollection } from '../symbols';
 
 
 export class GraphFeed {

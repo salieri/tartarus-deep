@@ -4,6 +4,11 @@ export type NumberTreeElement = number[] | number;
 export type NDArrayConstructorType = NumberTreeElement[]|NDArray[]|number[];
 
 
+export interface NDArrayCollection {
+  [key: string]: NDArray;
+}
+
+
 export class NDArray {
   private static idCounter: number = 0;
 

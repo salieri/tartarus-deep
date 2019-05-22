@@ -4,7 +4,7 @@ import { EntityIdentifier, Graph, GraphEntity } from '../graph';
 import { Session } from '../session';
 import { Randomizer } from '../../math';
 import { Parameterized } from '../../util';
-import { DeferredReadonlyCollection, DeferredCollection, DeferredInputCollection } from '../symbol';
+import { DeferredReadonlyCollection, DeferredCollection, DeferredInputCollection } from '../symbols';
 
 export enum ModelState {
   Created,

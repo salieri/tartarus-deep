@@ -1,4 +1,4 @@
-import { DeferredInputCollection } from '../symbol';
+import { DeferredInputCollection } from '../symbols';
 import { GraphNode } from './node';
 
 /* eslint-disable @typescript-eslint/no-empty-interface */

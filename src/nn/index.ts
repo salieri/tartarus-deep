@@ -8,7 +8,7 @@ import * as layer from './layer';
 import * as loss from './loss';
 import * as model from './model';
 import * as session from './session';
-import * as symbol from './symbol';
+import * as symbols from './symbols';
 
 import { Activation } from './activation';
 import { Cost } from './cost';
@@ -18,7 +18,7 @@ import { Layer, Dense } from './layer';
 import { Loss } from './loss';
 import { Model } from './model';
 import { Session } from './session';
-import { NDSymbol } from './symbol';
+import { DeferredCollection, DeferredInputCollection } from './symbols';
 
 
 export {
@@ -30,10 +30,12 @@ export {
   loss,
   model,
   session,
-  symbol,
+  symbols,
 
   Activation,
   Cost,
+  DeferredCollection,
+  DeferredInputCollection,
   Dense,
   Graph,
   Initializer,
@@ -41,6 +43,5 @@ export {
   Loss,
   Model,
   Session,
-  NDSymbol,
 };
 

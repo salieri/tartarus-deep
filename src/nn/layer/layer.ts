@@ -1,5 +1,5 @@
 import { Promise } from 'bluebird';
-import { DeferredCollection, DeferredInputCollection } from '../symbol';
+import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { Model } from '../model';
 
 import {

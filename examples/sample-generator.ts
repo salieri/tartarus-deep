@@ -1,17 +1,11 @@
 import {
+  DeferredInputFeed,
   JoiEx,
   JoiExSchema,
   Model,
-  NDArray,
   Parameterized,
   Parameters,
 } from '../src';
-
-
-export interface SampleData {
-  x: NDArray;
-  y: NDArray;
-}
 
 
 export interface SampleGeneratorParams extends Parameters {
@@ -26,7 +20,7 @@ export abstract class SampleGenerator extends Parameterized<SampleGeneratorParam
 
   public abstract model(): Model;
 
-  public abstract samples(count: number): SampleData[];
+  public abstract samples(count: number): DeferredInputFeed;
 
 
   public getParamSchema(): JoiExSchema {

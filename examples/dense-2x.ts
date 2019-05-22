@@ -8,12 +8,14 @@
 import _ from 'lodash';
 
 import {
+  DeferredInputFeed,
+  DeferredMemoryInputFeed,
   Dense,
   Model,
   NDArray,
 } from '../src';
 
-import { SampleData, SampleGenerator } from './sample-generator';
+import { SampleGenerator } from './sample-generator';
 
 
 export class Dense2x extends SampleGenerator {
@@ -22,20 +24,19 @@ export class Dense2x extends SampleGenerator {
 
     model
       .input(1)
-      .push(new Dense({ units: 4, activation: 'relu' }, 'dense-1'))
-      .push(new Dense({ units: 4, activation: 'relu' }, 'dense-2'))
-      .push(new Dense({ units: 1, activation: 'sigmoid' }, 'result'))
-      .output('result');
+      .push(new Dense({ units: 4, activation: 'relu' }))
+      .push(new Dense({ units: 4, activation: 'relu' }))
+      .push(new Dense({ units: 1, activation: 'sigmoid' }, 'result'));
 
-
-    // model
-    //   .add(new Concat('moo'), ['dense-1', 'dense-2'])
-    //   .add(new Dense(), ['moo']);
+    // .output('result'); /* should be automatic, unless you want to declare it */
 
     return model;
   }
 
-  public samples(count: number): SampleData[] {
-    return _.times(count, n => ({ x: new NDArray([n]), y: new NDArray([n * 2]) }));
+
+  public samples(count: number): DeferredInputFeed {
+    return DeferredMemoryInputFeed.factory(
+      _.times(count, n => ({ x: new NDArray([n]), y: new NDArray([n * 2]) })),
+    );
   }
 }

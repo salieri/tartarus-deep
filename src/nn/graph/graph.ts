@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { GraphNode } from './node';
 import { GraphEntity, EntityIdentifier } from './entity';
-import { DeferredInputCollection } from '../symbol';
+import { DeferredInputCollection } from '../symbols';
 
 
 export enum GraphState {
