@@ -27,7 +27,7 @@
     "name": "Aleksi Asikainen",
     "email": "aleksi.asikainen@gmail.com"
   },
-  "license": "SEE LICENSE IN license.md",
+  "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
     "@types/bluebird": "^3.5.26",
