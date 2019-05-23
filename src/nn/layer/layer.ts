@@ -144,14 +144,6 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  public abstract hasRawInputs(): boolean;
-
-
-  public hasRawOutputs(): boolean {
-    return (this.output.getKeys().length > 0);
-  }
-
-
   public setRawInputs(inputs: DeferredInputCollection): void {
     this.rawInputs = inputs;
   }

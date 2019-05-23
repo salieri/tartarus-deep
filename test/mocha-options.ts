@@ -4,8 +4,8 @@
 import '@babel/polyfill';
 
 import chai from 'chai';
-// import chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
 chai.should();
-// chai.use(chaiAsPromised);
+chai.use(chaiAsPromised);
 

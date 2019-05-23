@@ -35,8 +35,6 @@ export class Model
 
   protected readonly name: string;
 
-  protected outputNodes: string[] = [];
-
 
   public constructor(params: ModelParams = {}, name?: string) {
     super(params);
@@ -75,24 +73,17 @@ export class Model
   }
 
 
-  public add(entity: GraphEntity, parentEntities?: EntityIdentifier): Model {
+  public add(entity: GraphEntity, parentEntities?: EntityIdentifier|EntityIdentifier[]): Model {
     this.graph.add(entity, parentEntities);
 
     return this;
   }
 
 
-  public hasRawInputs(): boolean {
-    const rawInputs = this.graph.getRawInputs();
+  public link(output: EntityIdentifier, input: EntityIdentifier): Model {
+    this.graph.link(output, input);
 
-    return !!_.find(rawInputs, (ri: DeferredReadonlyCollection) => (ri.getRequiredFields().length > 0));
-  }
-
-
-  public hasRawOutputs(): boolean {
-    const rawOutputs = this.getRawOutputs();
-
-    return !!_.find(rawOutputs, (ro: DeferredCollection) => (ro.getKeys().length > 0));
+    return this;
   }
 
 
@@ -108,15 +99,12 @@ export class Model
 
 
   public getRawOutputs(): DeferredInputCollection {
-    return this.graph.getRawOutputs(this.outputNodes);
+    return this.graph.getRawOutputs();
   }
 
 
   public getOutputNodes(): GraphNode[] {
-    return _.map(
-      this.outputNodes,
-      (nodeName: string) => (this.graph.find(nodeName)),
-    );
+    return this.graph.getOutputNodes();
   }
 
 
@@ -159,10 +147,7 @@ export class Model
 
 
   public output(entities: EntityIdentifier|EntityIdentifier[]): Model {
-    this.outputNodes = _.map(
-      _.castArray(entities),
-      (entity: EntityIdentifier) => (this.graph.find(entity).getName()),
-    );
+    this.graph.setOutputNodes(entities);
 
     return this;
   }

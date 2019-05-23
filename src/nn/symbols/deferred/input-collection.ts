@@ -47,6 +47,11 @@ export class DeferredInputCollection {
   }
 
 
+  public getKeys(): string[] {
+    return _.keys(this.inputs);
+  }
+
+
   public count(): number {
     return _.keys(this.inputs).length;
   }

@@ -105,7 +105,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
     this.input.requireDefault();
 
-    const inputUnits = this.input.getDefault().size();
+    const inputUnits = this.input.getDefault().countElements();
     const units = this.params.units;
 
     this.optimizer.declare(Dense.WEIGHT_MATRIX, [units, inputUnits]);
@@ -133,11 +133,6 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
       bias.set(await bInit.initialize(new NDArray(...bias.getDims())));
     }
-  }
-
-
-  public hasRawInputs(): boolean {
-    return (this.input.getRequiredFields().length > 0);
   }
 
 

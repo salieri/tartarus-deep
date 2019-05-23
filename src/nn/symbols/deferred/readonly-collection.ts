@@ -31,6 +31,11 @@ export class DeferredReadonlyCollection {
   }
 
 
+  public getDefaultKey(): string {
+    return this.collection.getDefaultKey();
+  }
+
+
   public require(key: string): void {
     this.collection.require(key);
 

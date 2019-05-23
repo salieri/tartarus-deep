@@ -15,7 +15,7 @@ import { Activation } from './activation';
 import { Cost } from './cost';
 import { Graph } from './graph';
 import { Initializer } from './initializer';
-import { Layer, Dense } from './layer';
+import { Layer, Concat, Dense } from './layer';
 import { Loss } from './loss';
 import { Model } from './model';
 import { Session } from './session';
@@ -34,6 +34,7 @@ export {
   symbols,
 
   Activation,
+  Concat,
   Cost,
   DeferredCollection,
   DeferredInputCollection,

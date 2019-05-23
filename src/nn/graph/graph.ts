@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { GraphNode } from './node';
 import { GraphEntity, EntityIdentifier } from './entity';
-import { DeferredInputCollection, KeyNotFoundError } from '../symbols';
+import { DeferredInputCollection, DeferredReadonlyCollection, KeyNotFoundError } from '../symbols';
 
 
 export enum GraphState {
@@ -22,6 +22,8 @@ export class Graph {
   protected rawOutputs: DeferredInputCollection = new DeferredInputCollection();
 
   protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
+
+  protected outputNodes: GraphNode[] = [];
 
 
   public constructor(name: string) {
@@ -76,7 +78,11 @@ export class Graph {
     this.canModify();
 
     if (this.exists(entity)) {
-      throw new Error(`Entity '${entity.getName()}' already exists in this graph`);
+      throw new Error(`Instance '${entity.getName()}' already exists in this graph`);
+    }
+
+    if (this.exists(entity.getName())) {
+      throw new Error(`Duplicate entity name: '${entity.getName()}' already exists in this graph`);
     }
 
     const resolvedParents = this.resolveEntities(parentEntities);
@@ -113,9 +119,10 @@ export class Graph {
     const inputNode   = this.find(input);
 
     this.checkForCircularLinks(outputNode, 'backward', inputNode);
-    this.checkForCircularLinks(outputNode, 'forward', inputNode);
-    this.checkForCircularLinks(inputNode, 'backward', outputNode);
     this.checkForCircularLinks(inputNode, 'forward', outputNode);
+
+    // this.checkForCircularLinks(outputNode, 'forward', inputNode);
+    // this.checkForCircularLinks(inputNode, 'backward', outputNode);
 
     outputNode.addOutputNode(inputNode);
     inputNode.addInputNode(outputNode);
@@ -131,7 +138,7 @@ export class Graph {
   private checkForCircularLinks(node: GraphNode, direction: string, targetNode: GraphNode): void {
     const linkTestFn = (linkNode: GraphNode): void => {
       if (linkNode === targetNode) {
-        throw new Error('Circular graph of nodes detected');
+        throw new Error(`Circular graph of nodes detected while attempting to link '${node.getName()}' to '${targetNode.getName()}'`);
       }
     };
 
@@ -197,7 +204,7 @@ export class Graph {
    * Check if a entity exists in the graph
    * @param entity
    */
-  public exists(entity: GraphEntity): boolean {
+  public exists(entity: EntityIdentifier): boolean {
     try {
       this.find(entity);
 
@@ -254,6 +261,13 @@ export class Graph {
   }
 
 
+  protected prevalidateGraph(): void {
+    if (this.outputNodes.length === 0) {
+      throw new Error(`Model '${this.getName()}' has no defined outputs`);
+    }
+  }
+
+
   public async compile(): Promise<void> {
     if (this.state !== GraphState.Created) {
       throw new Error('Unexpected state');
@@ -261,6 +275,7 @@ export class Graph {
 
     this.state = GraphState.Compiling;
 
+    this.prevalidateGraph();
     this.resolveRawInputsForNodes();
 
     await Promise.all(
@@ -277,8 +292,17 @@ export class Graph {
 
 
   protected resolveRawInputsForNodes(): void {
-    const defaultInput = this.rawInputs.getDefault();
+    let defaultInput: DeferredReadonlyCollection|undefined;
     let defaultSpent = false;
+
+    try {
+      defaultInput = this.rawInputs.getDefault();
+    } catch (err) {
+      if (!(err instanceof KeyNotFoundError)) {
+        throw err;
+      }
+    }
+
 
     _.each(
       this.nodes,
@@ -287,8 +311,8 @@ export class Graph {
         const inputCount = inputNodes.length;
         const outputCount = node.getOutputNodes().length;
 
-        if ((inputCount === 0) && (outputCount === 0)) {
-          throw new Error(`Node '${node.getName()}' is not connected with any other node`);
+        if ((inputCount === 0) && (outputCount === 0) && (!_.find(this.outputNodes, (n: GraphNode) => (n === node)))) {
+          throw new Error(`Node '${node.getName()}' is not connected with any other node or output`);
         }
 
         let entityInput;
@@ -346,16 +370,16 @@ export class Graph {
   }
 
 
-  public getRawOutputs(outputNodes: string[]): DeferredInputCollection {
-    if (outputNodes.length === 0) {
+  public getRawOutputs(): DeferredInputCollection {
+    if (this.outputNodes.length === 0) {
       throw new Error('No output nodes');
     }
 
-    if (outputNodes.length === 1) {
+    if (this.outputNodes.length === 1) {
       const collection = new DeferredInputCollection();
 
       // don't re-map default output
-      collection.merge(this.find(outputNodes[0]).getRawOutputs());
+      collection.merge(this.outputNodes[0].getRawOutputs());
 
       return collection;
     }
@@ -363,11 +387,24 @@ export class Graph {
     const out = new DeferredInputCollection();
 
     _.each(
-      outputNodes,
-      (outputNode: string) => (out.merge(this.find(outputNode).getRawOutputs(), outputNode)),
+      this.outputNodes,
+      (outputNode: GraphNode) => (out.merge(outputNode.getRawOutputs(), outputNode.getName())),
     );
 
     return out;
+  }
+
+
+  public getOutputNodes(): GraphNode[] {
+    return this.outputNodes;
+  }
+
+
+  public setOutputNodes(entities: EntityIdentifier|EntityIdentifier[]): void {
+    this.outputNodes = _.map(
+      _.castArray(entities),
+      (entity: EntityIdentifier) => (this.find(entity)),
+    );
   }
 
 

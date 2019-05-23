@@ -618,6 +618,39 @@ export class NDArray {
   }
 
 
+  protected static copyDataEx(target: NDArray, source: NDArray, targetPosStart: number, sourcePosStart: number, count: number): void {
+    const sourcePos = [sourcePosStart];
+    const targetPos = [targetPosStart];
+
+    for (let pos = 0; pos < count; pos += 1) {
+      target.setAt(targetPos, source.getAt(sourcePos));
+
+      sourcePos[0] += 1;
+      targetPos[0] += 1;
+    }
+  }
+
+
+  /**
+   * Concatenate NDArray with another NDArray
+   * The resulting NDArray is flattened into a one-dimensional array.
+   */
+  public concat(anotherArray: NDArray): NDArray {
+    const myNd = this.flatten();
+    const anotherNd = anotherArray.flatten();
+
+    const myElementCount = myNd.countElements();
+    const anotherElementCount = anotherNd.countElements();
+
+    const nd = new NDArray(myElementCount + anotherElementCount);
+
+    NDArray.copyDataEx(nd, myNd, 0, 0, myElementCount);
+    NDArray.copyDataEx(nd, anotherNd, myElementCount, 0, anotherElementCount);
+
+    return nd;
+  }
+
+
   /**
    * Iterate multiple NDArrays of the same shape and provide the element value from each NDArray to the callback.
    * Returns a new NDArray of the same shape with its values set to the return values of the callback

@@ -32,13 +32,13 @@ export class DeferredValue {
   }
 
 
-  public size(): number {
+  public countElements(): number {
     this.mustBeDeclared();
 
     return _.reduce(
       this.dimensions,
       (total, dimensionSize) => (total * dimensionSize),
-      0,
+      1,
     );
   }
 

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { NDArray } from '../../../src/math';
 
 
@@ -394,6 +395,41 @@ describe(
         );
 
         (() => nd1.add(nd2)).should.Throw(/Cannot do elementwise addition on NDArrays with differing dimensions/);
+      },
+    );
+
+
+    it(
+      'should concatenate arrays of different shapes',
+      () => {
+        const nd1 = new NDArray(
+          [
+            [1, 2, 3, 4],
+            [5, 6, 7, 8],
+          ],
+        );
+
+        const nd2 = new NDArray(
+          [
+            [9, 10],
+            [11, 12],
+            [13, 14],
+          ],
+        );
+
+        const concat = nd1.concat(nd2);
+
+        const dims = concat.getDims();
+
+        dims.length.should.equal(1);
+        dims[0].should.equal(8 + 6);
+
+        _.times(
+          8 + 6,
+          (n: number) => {
+            concat.getAt([n]).should.equal(n + 1);
+          },
+        );
       },
     );
   },
