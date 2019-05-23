@@ -1,7 +1,7 @@
 {
   "name": "@tartarus/deep",
   "version": "0.0.0",
-  "description": "Tartarus Deep",
+  "description": "Deep learning framework for TypeScript",
   "main": "src/index.js",
   "scripts": {
     "test": "mocha --reporter spec 'test/**/*.ts'",
@@ -18,7 +18,10 @@
   },
   "keywords": [
     "deep",
-    "deep-learning"
+    "deep-learning",
+    "typescript",
+    "machine-learning",
+    "ml"
   ],
   "engines": {
     "node": ">= 8.0.0"
@@ -28,6 +31,10 @@
     "email": "aleksi.asikainen@gmail.com"
   },
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/franksrevenge/tartarus-deep/issues"
+  },
+  "homepage": "https://github.com/franksrevenge/tartarus-deep#readme",
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
     "@types/bluebird": "^3.5.26",
