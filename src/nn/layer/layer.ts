@@ -61,9 +61,17 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
     Layer.layerCounter += 1;
 
-    this.name = name || `${this.constructor.name}#${Layer.layerCounter}`;
+    this.name = this.validateName(name || `${this.constructor.name}#${Layer.layerCounter}`);
   }
 
+
+  protected validateName(name: string): string {
+    if (name.match(/[. ]/)) {
+      throw new Error('Layer names may not contain spaces or periods');
+    }
+
+    return name;
+  }
 
   // public setParam(paramName: string, value: any): Layer {
   //   const result = JoiEx.validate(this.params[paramName], value);

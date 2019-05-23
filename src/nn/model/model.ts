@@ -43,9 +43,18 @@ export class Model
 
     Model.modelCounter += 1;
 
-    this.name = name || `${this.constructor.name}#${Model.modelCounter}`;
+    this.name = this.validateName(name || `${this.constructor.name}#${Model.modelCounter}`);
 
     this.graph = new Graph(this.name);
+  }
+
+
+  protected validateName(name: string): string {
+    if (name.match(/[. ]/)) {
+      throw new Error('Model names may not contain spaces or periods');
+    }
+
+    return name;
   }
 
 

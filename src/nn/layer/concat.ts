@@ -3,9 +3,11 @@ import { Layer, LayerParams } from './layer';
 import { JoiEx, JoiExSchema } from '../../util';
 import { DeferredValue, DeferredReadonlyCollection } from '../symbols';
 import { NDArray } from '../../math';
+import { KeyNotFoundError } from '../../error';
 
 
-export type ConcatOutputTraverseFunction = (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection) => void;
+export type ConcatOutputTraverseFunction = (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => void;
+export type ConcatOutputTraverseKeyFunction = (fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => void;
 
 
 export interface ConcatLayerExtendedDefinition {
@@ -17,7 +19,7 @@ export type ConcatLayerDefinition = string|ConcatLayerExtendedDefinition;
 
 
 export interface ConcatParams extends LayerParams {
-  order?: null|ConcatLayerDefinition[];
+  fields?: null|ConcatLayerDefinition[];
 }
 
 
@@ -50,9 +52,9 @@ export class Concat extends Layer<ConcatParams> {
 
 
   protected getInputKeysInOrder(): string[] {
-    if (this.params.order) {
+    if (this.params.fields) {
       return _.map(
-        this.params.order,
+        this.params.fields,
         (l: ConcatLayerDefinition): string => {
           if (_.isString(l)) {
             return l;
@@ -68,26 +70,55 @@ export class Concat extends Layer<ConcatParams> {
 
 
   protected getInputInOrder(): ConcatLayerDefinition[] {
-    return this.params.order ? this.params.order : this.rawInputs.getKeys();
+    return this.params.fields ? this.params.fields : this.rawInputs.getKeys();
   }
 
 
   protected verifyInputLayers(): void {
     const allKeys = this.rawInputs.getKeys();
-    const orderedKeys = this.getInputKeysInOrder();
+    // const orderedKeys = this.getInputKeysInOrder();
 
-    const differenceAllKeys = _.difference(allKeys, orderedKeys);
-    const differenceOrderedKeys = _.difference(orderedKeys, allKeys);
+    const definedLayerKeys: string[] = [];
+
+    try {
+      this.traverseKeys(
+        (fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => {
+          definedLayerKeys.push(layerKey);
+
+          try {
+            layerOutput.require(fieldKey);
+          } catch (err) {
+            if (err instanceof KeyNotFoundError) {
+              throw new Error(`Concat layer '${this.getName()}' requires `
+                + `field '${fieldKey}' from `
+                + `layer '${layerKey}', which has not been declared`);
+            }
+
+            throw err;
+          }
+        },
+      );
+    } catch (err) {
+      if (err instanceof KeyNotFoundError) {
+        throw new Error(`Concat layer '${this.getName()}' expects input from layer '${err.key}', which is not linked to this layer`);
+      }
+
+      throw err;
+    }
+
+    const cleanedLayerKeys = _.uniq(definedLayerKeys);
+    const differenceAllKeys = _.difference(allKeys, cleanedLayerKeys);
+    const differenceOrderedKeys = _.difference(cleanedLayerKeys, allKeys);
 
     if (differenceAllKeys.length > 0) {
       throw new Error(
-        `Concat layer ${this.getName()} has more input layers than defined in the 'order' parameter: ${_.join(differenceAllKeys)}`,
+        `Concat layer '${this.getName()}' has more input layers than defined in the 'fields' parameter: ${_.join(differenceAllKeys)}`,
       );
     }
 
     if (differenceOrderedKeys.length > 0) {
       throw new Error(
-        `Concat layer ${this.getName()} 'order' parameter defines layers which output is `
+        `Concat layer ${this.getName()} 'fields' parameter defines layers which output is `
         + `not linked to the layer: ${_.join(differenceOrderedKeys)}`,
       );
     }
@@ -95,15 +126,38 @@ export class Concat extends Layer<ConcatParams> {
 
 
   protected traverse(callback: ConcatOutputTraverseFunction) : void {
+    this.traverseKeys(
+      (fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => {
+        const field = layerOutput.get(fieldKey);
+
+        callback(field, fieldKey, layerOutput, layerKey);
+      },
+    );
+  }
+
+
+  protected traverseKeys(callback: ConcatOutputTraverseKeyFunction) : void {
     _.each(
       this.getInputInOrder(),
       (layer: ConcatLayerDefinition) => {
-        const key = _.isString(layer) ? layer : layer.layer;
-        const layerOutput = this.rawInputs.get(key);
-        const fieldKey = _.isString(layer) ? layerOutput.getDefaultKey() : (layer.field || layerOutput.getDefaultKey());
-        const field = layerOutput.get(fieldKey);
+        let layerKey = _.isString(layer) ? layer : layer.layer;
 
-        callback(field, fieldKey, layerOutput);
+        let fieldKey: string|undefined;
+
+        const layerSections = _.split(layerKey, '.', 2);
+
+        if (layerSections.length > 1) {
+          layerKey = layerSections[0];
+          fieldKey = layerSections[1];
+        }
+
+        const layerOutput = this.rawInputs.get(layerKey);
+
+        if (!fieldKey) {
+          fieldKey = _.isString(layer) ? layerOutput.getDefaultKey() : (layer.field || layerOutput.getDefaultKey());
+        }
+
+        callback(fieldKey, layerOutput, layerKey);
       },
     );
   }
@@ -140,13 +194,13 @@ export class Concat extends Layer<ConcatParams> {
   public getParamSchema(): JoiExSchema {
     return JoiEx.object().keys(
       {
-        order: JoiEx.array()
+        fields: JoiEx.array()
           .optional()
           .items(
             JoiEx.string(),
             JoiEx.object().keys(
               {
-                layer: JoiEx.string().required().description('Name of the layer'),
+                layer: JoiEx.string().required().description('Name of the layer ("layer.field" shortcut allowed)'),
                 field: JoiEx.string().optional().allow(null).default(null)
                   .description('Output field to include'),
               },

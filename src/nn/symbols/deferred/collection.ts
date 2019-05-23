@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import { DeferredValue, DeferredValueType } from './value';
 import { NDArray } from '../../../math';
+import { KeyNotFoundError } from '../../../error';
+
 
 export interface DeferredValueCollectionInf {
   [key: string]: DeferredValue;
@@ -88,7 +90,7 @@ export class DeferredCollection {
 
   public require(key: string): void {
     if (!(key in this.collection)) {
-      throw new Error(`Unknown key: '${key}'`);
+      throw new KeyNotFoundError(`Unknown key: '${key}'`, key);
     }
   }
 

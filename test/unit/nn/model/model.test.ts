@@ -3,13 +3,13 @@ import {
   Dense,
   Model,
   model,
-} from '../../src';
+} from '../../../../src';
 
 describe(
-  'Dense Layer Network',
+  'Model',
   () => {
     it(
-      'should compile a network',
+      'should compile a model',
       async () => {
         const m = new Model();
         const lastLayer = new Dense({ units: 2 }, 'last-layer');
@@ -44,7 +44,7 @@ describe(
 
 
     it(
-      'should not compile a network, if no input dimension has been defined',
+      'should not compile a model, if no input dimension has been defined',
       async () => {
         const m = new Model();
 
@@ -57,7 +57,7 @@ describe(
 
 
     it(
-      'should not compile a network, if no output nodes have been defined',
+      'should not compile a model, if no output nodes have been defined',
       async () => {
         const m = new Model();
 
@@ -70,7 +70,7 @@ describe(
 
 
     it(
-      'should not create a network with two layers having the same name',
+      'should not create a model with two layers having the same name',
       () => {
         const m = new Model();
 
@@ -95,7 +95,7 @@ describe(
 
 
     it(
-      'should prevent circular networks from being created (adding)',
+      'should prevent circular networks from being created',
       () => {
         const m = new Model();
 
@@ -129,7 +129,7 @@ describe(
         m.push(layer1);
         m.push(layer2);
 
-        const anotherLayer = new Concat({ order: ['layer-2', 'layer-1'] }, 'another');
+        const anotherLayer = new Concat({ fields: ['layer-2', 'layer-1'] }, 'another');
 
         m.add(anotherLayer, ['layer-1', 'layer-2']);
 
@@ -154,6 +154,23 @@ describe(
 
         anotherOut.count().should.equal(1);
         anotherOutSize.should.equal(layer1OutSize + layer2OutSize);
+      },
+    );
+
+
+    it(
+      'should not allow space or period to be used in model name',
+      () => {
+        (() => (new Model({}, 'hello.world'))).should.Throw(/Model names may not contain spaces or periods/);
+        (() => (new Model({}, 'hello world'))).should.Throw(/Model names may not contain spaces or periods/);
+      },
+    );
+
+
+    it(
+      'should reject invalid parameters',
+      () => {
+        (() => (new Model({ moo: 2 } as any))).should.Throw(/"moo" is not allowed/);
       },
     );
   },

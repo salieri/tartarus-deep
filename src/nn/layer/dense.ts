@@ -3,7 +3,8 @@ import { Activation } from '../activation';
 import { JoiEx, JoiExSchema } from '../../util';
 import { Matrix, NDArray, Vector } from '../../math';
 import { Initializer } from '../initializer';
-import { DeferredReadonlyCollection, KeyNotFoundError } from '../symbols';
+import { DeferredReadonlyCollection } from '../symbols';
+import { KeyNotFoundError } from '../../error';
 
 
 export interface DenseParamsInput extends LayerParams {

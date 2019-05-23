@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { NDArray } from '../../../math';
+import { ValueNotSetError } from '../../../error';
 
 export type DeferredValueType = NDArray;
 
@@ -24,7 +25,7 @@ export class DeferredValue {
   public set(value: NDArray): void {
     this.mustBeDeclared();
 
-    if (_.isEqual(this.dimensions, value.getDims())) {
+    if (!_.isEqual(this.dimensions, value.getDims())) {
       throw new Error('Value does not match expected dimensions');
     }
 
@@ -54,7 +55,7 @@ export class DeferredValue {
     this.mustBeDeclared();
 
     if (!this.value) {
-      throw new Error('Value has not been set');
+      throw new ValueNotSetError('Value has not been set');
     }
 
     return this.value;

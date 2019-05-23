@@ -74,5 +74,39 @@ describe(
         expect(result.value).to.be.instanceOf(activations.Sigmoid);
       },
     );
+
+
+    it(
+      'should fail to instantiate an initializer, if "layer" parameter is not given',
+      () => {
+        const schema = JoiEx.initializer().optional().default('zero');
+        const result = JoiEx.validate(undefined, schema);
+
+        expect(result.error).to.not.equal(null);
+        expect(result.error).to.match(/Initializer schemas must use .layer\(\)/);
+      },
+    );
+
+
+    it(
+      'should fail to instantiate an initializer, if "layer" parameter is empty',
+      () => {
+        // @ts-ignore
+        (() => (JoiEx.initializer().layer())).should.Throw(/"layer" is required/);
+      },
+    );
+
+
+    it(
+      'should fail to instantiate an initializer, if "layer" parameter contains an invalid object',
+      () => {
+        // @ts-ignore
+        const schema = JoiEx.initializer().layer('mooo').optional().default('zero');
+        const result = JoiEx.validate(undefined, schema);
+
+        expect(result.error).to.not.equal(null);
+        expect(result.error).to.match(/Unexpected data type passed to the coerce function/);
+      },
+    );
   },
 );

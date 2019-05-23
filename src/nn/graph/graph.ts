@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import { GraphNode } from './node';
 import { GraphEntity, EntityIdentifier } from './entity';
-import { DeferredInputCollection, DeferredReadonlyCollection, KeyNotFoundError } from '../symbols';
+import { DeferredInputCollection, DeferredReadonlyCollection } from '../symbols';
+import { KeyNotFoundError } from '../../error';
 
 
 export enum GraphState {

@@ -1,9 +1,7 @@
 import _ from 'lodash';
 import { DeferredCollection } from './collection';
 import { DeferredReadonlyCollection } from './readonly-collection';
-
-
-export class KeyNotFoundError extends Error {}
+import { KeyNotFoundError } from '../../../error';
 
 
 export interface DeferredInputDictionary {
@@ -25,7 +23,7 @@ export class DeferredInputCollection {
 
   public get(key: string): DeferredReadonlyCollection {
     if (!(key in this.inputs)) {
-      throw new KeyNotFoundError(`Key '${key}' not found`);
+      throw new KeyNotFoundError(`Key '${key}' not found`, key);
     }
 
     return this.inputs[key];

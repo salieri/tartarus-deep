@@ -48,7 +48,35 @@ export class ClassManager {
   }
 
 
+  public static hasPrototypeCalled(obj: any, prototypeName: string): boolean {
+    if (!obj) {
+      return false;
+    }
+
+    let curLevel = Object.getPrototypeOf(obj);
+
+    // limit to 6 levels of inheritance
+    for (let i = 0; i < 6; i += 1) {
+      if ((!curLevel) || (!curLevel.constructor) || (!curLevel.constructor.name)) {
+        return false;
+      }
+
+      if (curLevel.constructor.name === prototypeName) {
+        return true;
+      }
+
+      curLevel = Object.getPrototypeOf(curLevel);
+    }
+
+    return false;
+  }
+
+
   public coerce(instanceDefinition: string | object, layer?: LayerLike, params?: InstanceParams): any {
+    if ((layer) && (!ClassManager.hasPrototypeCalled(layer, 'Layer'))) {
+      throw new Error('Layer object is not an instance of \'Layer\'');
+    }
+
     if (instanceDefinition instanceof this.baseClass) {
       return instanceDefinition;
     }
