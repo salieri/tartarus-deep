@@ -40,18 +40,11 @@ function createCMExtension(name: string, cm: ClassManager): Function {
 }
 
 
-type InitializerLayer = (layer: any) => Joi.AnySchema;
-
-interface InitializerSchema extends Joi.AnySchema {
-  layer: InitializerLayer;
-}
-
-
 /* eslint-disable @typescript-eslint/no-namespace */
 declare namespace ExtendedJoi {
   export function activation(): Joi.AnySchema;
   export function cost(): Joi.AnySchema;
-  export function initializer(): InitializerSchema;
+  export function initializer(): Joi.AnySchema;
   export function loss(): Joi.AnySchema;
   export function randomizer(): Joi.AnySchema;
 }
