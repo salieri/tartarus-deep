@@ -5,6 +5,8 @@ import { sha256 } from 'js-sha256';
  * Pseudo random number generator
  */
 export abstract class Randomizer {
+  protected  static counter: number = 0;
+
   protected seed: string;
 
   protected seedHash: number[];
@@ -20,7 +22,9 @@ export abstract class Randomizer {
   private static generateSeed(): string {
     const d = new Date();
 
-    return `Tartarus#${d.getTime()}#${Math.random()}`;
+    Randomizer.counter += 1;
+
+    return `Tartarus#${d.getTime()}#${Math.random()}#${Randomizer.counter}`;
   }
 
 
@@ -52,8 +56,16 @@ export abstract class Randomizer {
   /**
    * Return a random `int` between 0 (inclusive) and `range` (exclusive)
    */
-  public range(range: number): number {
-    return Math.round(this.random() * range);
+  public intRange(range: number): number {
+    return Math.floor(this.floatRange(range));
+  }
+
+
+  /**
+   * Return a random number between 0 (inclusive) and `range` (exclusive)
+   */
+  public floatRange(range: number): number {
+    return this.random() * range;
   }
 
 
@@ -61,7 +73,7 @@ export abstract class Randomizer {
    * Return a random `int` between `inclusiveMin` (inclusive) and `exclusiveMax` (exclusive)
    */
   public intBetween(inclusiveMin: number, exclusiveMax: number): number {
-    return Math.round(this.floatBetween(inclusiveMin, exclusiveMax));
+    return Math.floor(this.floatBetween(inclusiveMin, exclusiveMax));
   }
 
 
@@ -69,7 +81,7 @@ export abstract class Randomizer {
    * Return a random number between `inclusiveMin` (inclusive) and `exclusiveMax` (exclusive)
    */
   public floatBetween(inclusiveMin: number, exclusiveMax: number): number {
-    return inclusiveMin + this.range(exclusiveMax - inclusiveMin);
+    return inclusiveMin + this.floatRange(exclusiveMax - inclusiveMin);
   }
 }
 

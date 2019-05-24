@@ -1,6 +1,5 @@
 import { Promise } from 'bluebird';
-import { DeferredCollection, DeferredInputCollection } from '../symbols';
-import { Model } from '../model';
+import { DeferredCollection, DeferredInputCollection, DeferredReadonlyCollection } from '../symbols';
 
 import {
   JoiEx,
@@ -51,7 +50,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   protected state: LayerState = LayerState.Created;
 
-  protected model?: Model;
+  protected session?: Session;
 
   protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
@@ -94,6 +93,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   public getName(): string {
     return this.name;
   }
+
 
   protected abstract async backwardExec(): Promise<void>;
 
@@ -144,11 +144,16 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
 
   public getSession(): Session {
-    if (!this.model) {
-      throw new Error(`Cannot resolve session: Layer ${this.name} is not attached to a model`);
+    if (!this.session) {
+      throw new Error(`Cannot resolve session: Layer '${this.getName()}' is not attached to a session`);
     }
 
-    return this.model.getSession();
+    return this.session;
+  }
+
+
+  public setSession(session: Session): void {
+    this.session = session;
   }
 
 
@@ -171,8 +176,8 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  public getLayerName(): string {
-    return this.name;
+  public getOptimizer(): DeferredReadonlyCollection {
+    return new DeferredReadonlyCollection(this.optimizer);
   }
 }
 

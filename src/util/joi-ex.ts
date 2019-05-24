@@ -20,11 +20,11 @@ function createCMExtension(name: string, cm: ClassManager): Function {
       base: joi.any(),
       language: {
         coerceFailure: 'Unexpected data type passed to the coerce function',
-        layerMissing: 'Initializer schemas must use .layer() to pass relevant layer instance',
+        layerMissing: 'Initializer schemas must pass "refObject" element in context',
       },
       coerce(value: any, state: any, options: any): any {
         try {
-          const layer = _.get(this, '_flags.layer');
+          const layer = _.get(options, 'context.refObject');
 
           if ((_.get(this, '_type') === 'initializer') && (!layer)) {
             return (this as any).createError(`${name}.layerMissing`, {}, state, options);
@@ -35,26 +35,6 @@ function createCMExtension(name: string, cm: ClassManager): Function {
           return (this as any).createError(`${name}.coerceFailure`, {}, state, options);
         }
       },
-      rules: [
-        {
-          name: 'layer',
-          setup(params: any) {
-            (this as any)._flags.layer = params.layer;
-          },
-          params: {
-            layer: joi.any().required(),
-          },
-          validate(params: any, value: any, state: any, options: any) {
-            if (value.layer) {
-              if (!ClassManager.hasPrototypeCalled(value.layer, 'Layer')) {
-                return (this as any).createError('`{name}`.invalidLayerObject', {}, state, options);
-              }
-            }
-
-            return value;
-          },
-        },
-      ],
     }
   );
 }

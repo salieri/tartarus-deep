@@ -23,7 +23,7 @@ export abstract class Parameterized<TInput extends Parameters, TCoerced extends 
   public validateParams(params: TInput): FinalParameters<TCoerced> {
     const schema = this.getParamSchema();
 
-    const result = schema.validate(params);
+    const result = schema.validate(params, { context: { refObject: this } });
 
     if (result.error) {
       throw result.error;

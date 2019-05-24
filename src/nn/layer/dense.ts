@@ -55,12 +55,12 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * Z = A_prev * W + b
    */
   protected calculate(input: NDArray): NDArray {
-    const weight = this.optimizer.getValue(Dense.WEIGHT_MATRIX) as Matrix;
+    const weight = new Matrix(this.optimizer.getValue(Dense.WEIGHT_MATRIX));
 
     let output = weight.vecmul(new Vector(input.flatten()));
 
     if (this.params.bias) {
-      output = output.add(this.optimizer.getValue(Dense.BIAS_MATRIX) as Vector) as Vector;
+      output = output.add(new Vector(this.optimizer.getValue(Dense.BIAS_MATRIX))) as Vector;
     }
 
     return output;
@@ -144,12 +144,12 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
         activation: JoiEx.activation().default('identity').description('Activation function'),
 
         bias: JoiEx.boolean().default(true).description('Apply bias'),
-        biasInitializer: JoiEx.initializer().layer(this).default('zero').description('Bias initializer'),
+        biasInitializer: JoiEx.initializer().default('zero').description('Bias initializer'),
 
         // biasRegularizer : JoiEx.regularizer().default( null ).description( 'Bias regularizer' ),
         // biasConstraint : JoiEx.constraint().default( null ).description( 'Bias constraint' ),
 
-        weightInitializer: JoiEx.initializer().layer(this).default('random-uniform').description('Weight initializer'),
+        weightInitializer: JoiEx.initializer().default('random-uniform').description('Weight initializer'),
 
         // kernelRegularizer : JoiEx.regularizer().default( 'l2' ).description( 'Kernel regularizer' ),
         // kernelConstraint : JoiEx.constraint().default( 'max-norm' ).description( 'Kernel constraint' ),

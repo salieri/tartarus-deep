@@ -77,32 +77,35 @@ describe(
 
 
     it(
-      'should fail to instantiate an initializer, if "layer" parameter is not given',
+      'should fail to instantiate an initializer, if a Layer object is not passed in context',
       () => {
         const schema = JoiEx.initializer().optional().default('zero');
         const result = JoiEx.validate(undefined, schema);
 
         expect(result.error).to.not.equal(null);
-        expect(result.error).to.match(/Initializer schemas must use .layer\(\)/);
+        expect(result.error).to.match(/Initializer schemas must pass "refObject" element in context/);
       },
     );
 
 
     it(
-      'should fail to instantiate an initializer, if "layer" parameter is empty',
+      'should fail to instantiate an initializer, if "refObject" context value is null',
       () => {
-        // @ts-ignore
-        (() => (JoiEx.initializer().layer())).should.Throw(/"layer" is required/);
+        const schema = JoiEx.initializer().optional().default('zero');
+        const result = JoiEx.validate(undefined, schema, { context: { refObject: null } });
+
+        expect(result.error).to.not.equal(null);
+        expect(result.error).to.match(/Initializer schemas must pass "refObject" element in context/);
       },
     );
 
 
     it(
-      'should fail to instantiate an initializer, if "layer" parameter contains an invalid object',
+      'should fail to instantiate an initializer, if "refObject" context value contains an invalid object',
       () => {
         // @ts-ignore
-        const schema = JoiEx.initializer().layer('mooo').optional().default('zero');
-        const result = JoiEx.validate(undefined, schema);
+        const schema = JoiEx.initializer().optional().default('zero');
+        const result = JoiEx.validate(undefined, schema, { context: { refObject: 'moooo' } });
 
         expect(result.error).to.not.equal(null);
         expect(result.error).to.match(/Unexpected data type passed to the coerce function/);

@@ -13,7 +13,7 @@ describe(
       async () => {
         const concat = new Concat();
 
-        const data = LayerOutputUtil.createOutput();
+        const data = LayerOutputUtil.createManyOutputs();
 
         concat.setRawInputs(data);
 
@@ -40,7 +40,7 @@ describe(
       async () => {
         const concat = new Concat({ fields: ['layer-1.secondField', 'layer-2'] });
 
-        const data = LayerOutputUtil.createOutput();
+        const data = LayerOutputUtil.createManyOutputs();
 
         concat.setRawInputs(data);
 
@@ -66,7 +66,7 @@ describe(
       'should use default output fields, if not told otherwise',
       async () => {
         const concat = new Concat({ fields: ['layer-1', 'layer-2'] });
-        const data = LayerOutputUtil.createOutput();
+        const data = LayerOutputUtil.createManyOutputs();
 
         concat.setRawInputs(data);
 
@@ -93,7 +93,7 @@ describe(
       async () => {
         const concat = new Concat({ fields: ['layer-2', 'layer-1'] });
 
-        const data = LayerOutputUtil.createOutput();
+        const data = LayerOutputUtil.createManyOutputs();
 
         concat.setRawInputs(data);
 
@@ -135,7 +135,7 @@ describe(
           },
         );
 
-        const data = LayerOutputUtil.createOutput();
+        const data = LayerOutputUtil.createManyOutputs();
 
         concat.setRawInputs(data);
 
@@ -172,7 +172,7 @@ describe(
       'should fail, if field configuration refers to a non-existent field',
       async () => {
         const concat = new Concat({ fields: ['layer-1.nonExistentField', 'layer-2'] });
-        const data = LayerOutputUtil.createOutput();
+        const data = LayerOutputUtil.createManyOutputs();
 
         concat.setRawInputs(data);
 
@@ -185,7 +185,7 @@ describe(
       'should fail, if field configuration refers to a non-existent layer',
       async () => {
         const concat = new Concat({ fields: ['missing-layer'] });
-        const data = LayerOutputUtil.createOutput();
+        const data = LayerOutputUtil.createManyOutputs();
 
         concat.setRawInputs(data);
 
@@ -198,7 +198,7 @@ describe(
       'should fail, if not all input layers are referred',
       async () => {
         const concat = new Concat({ fields: ['layer-1'] });
-        const data = LayerOutputUtil.createOutput();
+        const data = LayerOutputUtil.createManyOutputs();
 
         concat.setRawInputs(data);
 

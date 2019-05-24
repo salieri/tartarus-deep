@@ -95,8 +95,10 @@ export class ClassManager {
 
     const instance = new ClassSpec(params);
 
-    if (layer) {
-      instance.attachLayer(layer);
+    if ((layer) && (ClassManager.hasPrototypeCalled(layer, 'Layer'))) {
+      if (instance.attachLayer) {
+        instance.attachLayer(layer);
+      }
     }
 
     return instance;

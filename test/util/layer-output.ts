@@ -2,7 +2,7 @@ import { NDArray } from '../../src/math';
 import { DeferredInputCollection, DeferredCollection } from '../../src/nn/symbols';
 
 export class LayerOutputUtil {
-  public static createOutput(): DeferredInputCollection {
+  public static createManyOutputs(): DeferredInputCollection {
     const layer1Output = new DeferredCollection();
 
     layer1Output.declare('firstField', [2, 4]);
@@ -25,6 +25,22 @@ export class LayerOutputUtil {
 
     layerOutput.set('layer-1', layer1Output);
     layerOutput.set('layer-2', layer2Output);
+
+    return layerOutput;
+  }
+
+
+  public static createOutput(): DeferredInputCollection {
+    const output = new DeferredCollection();
+
+    output.declare('values', 4);
+    output.setValue('values', new NDArray([4, 5, 6, 7]));
+
+    output.setDefaultKey('values');
+
+    const layerOutput = new DeferredInputCollection();
+
+    layerOutput.setDefault(output);
 
     return layerOutput;
   }

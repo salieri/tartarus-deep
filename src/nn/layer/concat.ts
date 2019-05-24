@@ -53,24 +53,6 @@ export class Concat extends Layer<ConcatParams> {
   }
 
 
-  protected getInputKeysInOrder(): string[] {
-    if (this.params.fields) {
-      return _.map(
-        this.params.fields,
-        (l: ConcatLayerDefinition): string => {
-          if (_.isString(l)) {
-            return l;
-          }
-
-          return l.layer;
-        },
-      );
-    }
-
-    return this.rawInputs.getKeys();
-  }
-
-
   protected getInputInOrder(): ConcatLayerDefinition[] {
     return this.params.fields ? this.params.fields : this.rawInputs.getKeys();
   }
@@ -110,7 +92,7 @@ export class Concat extends Layer<ConcatParams> {
 
     const cleanedLayerKeys = _.uniq(definedLayerKeys);
     const differenceAllKeys = _.difference(allKeys, cleanedLayerKeys);
-    const differenceOrderedKeys = _.difference(cleanedLayerKeys, allKeys);
+    // const differenceOrderedKeys = _.difference(cleanedLayerKeys, allKeys);
 
     if (differenceAllKeys.length > 0) {
       throw new Error(
@@ -118,12 +100,12 @@ export class Concat extends Layer<ConcatParams> {
       );
     }
 
-    if (differenceOrderedKeys.length > 0) {
-      throw new Error(
-        `Concat layer ${this.getName()} 'fields' parameter defines layers which output is `
-        + `not linked to the layer: ${_.join(differenceOrderedKeys)}`,
-      );
-    }
+    // if (differenceOrderedKeys.length > 0) {
+    //   throw new Error(
+    //     `Concat layer ${this.getName()} 'fields' parameter defines layers which output is `
+    //     + `not linked to the layer: ${_.join(differenceOrderedKeys)}`,
+    //   );
+    // }
   }
 
 
