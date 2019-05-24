@@ -6,7 +6,9 @@ import { NDArray } from '../../math';
 import { KeyNotFoundError } from '../../error';
 
 
-export type ConcatOutputTraverseFunction = (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => void;
+export type ConcatOutputTraverseFunction =
+  (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => void;
+
 export type ConcatOutputTraverseKeyFunction = (fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => void;
 
 

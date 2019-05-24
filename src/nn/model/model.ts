@@ -1,10 +1,17 @@
 import Joi from 'joi';
 import _ from 'lodash';
-import { EntityIdentifier, Graph, GraphEntity, GraphNode } from '../graph';
+
+import {
+  EntityIdentifier,
+  Graph,
+  GraphEntity,
+  GraphNode,
+} from '../graph';
+
 import { Session } from '../session';
 import { NDArray, Randomizer } from '../../math';
 import { Parameterized } from '../../generic';
-import { DeferredReadonlyCollection, DeferredCollection, DeferredInputCollection } from '../symbols';
+import { DeferredCollection, DeferredInputCollection } from '../symbols';
 
 export enum ModelState {
   Created,

@@ -24,7 +24,6 @@ class Oom {}
 class Oom2 extends Oom {}
 
 
-
 describe(
   'Class Manager',
   () => {
