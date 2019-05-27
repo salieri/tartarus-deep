@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NDArray, NDArrayConstructorType } from './ndarray';
+import { NDArray, NDArrayConstructorType, NumberTreeElement } from './ndarray';
 import { Matrix } from './matrix';
 
 export enum VectorDirection {
@@ -25,7 +25,7 @@ export class Vector extends NDArray {
           throw new Error('Vector must have exactly one data dimension');
         }
       } else if (_.isArray(dimEl) === true) {
-        if (Vector.resolveDimensions(dimEl).length !== 1) {
+        if (Vector.resolveDimensions(dimEl as NumberTreeElement).length !== 1) {
           throw new Error('Vector must have exactly one data dimension');
         }
       }

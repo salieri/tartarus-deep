@@ -11,7 +11,12 @@ export interface HingeParams extends LossParams {
 export class Hinge extends Loss<HingeParams> {
   public calculate(yHat: Vector, y: Vector): number {
     return NDArray.iterate(
-      (yHatVal: number, yVal: number): number => Math.max(0, this.params.margin - yVal * yHatVal),
+      (values: number[]): number => {
+        const yHatVal = values[0];
+        const yVal = values[1];
+
+        return Math.max(0, this.params.margin - yVal * yHatVal);
+      },
       yHat,
       y,
     ).mean();

@@ -10,7 +10,12 @@ export interface SquaredHingeParams extends LossParams {
 export class SquaredHinge extends Loss<SquaredHingeParams> {
   public calculate(yHat: Vector, y: Vector): number {
     return NDArray.iterate(
-      (yHatVal: number, yVal: number): number => Math.max(0, this.params.margin - yVal * yHatVal) ** 2,
+      (values: number[]): number => {
+        const yHatVal = values[0];
+        const yVal = values[1];
+
+        return Math.max(0, this.params.margin - yVal * yHatVal) ** 2;
+      },
       yHat,
       y,
     ).mean();

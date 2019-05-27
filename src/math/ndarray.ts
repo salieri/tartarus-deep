@@ -1,7 +1,16 @@
 import _ from 'lodash';
+import { Randomizer } from './randomizer';
 
 export type NumberTreeElement = number[] | number;
-export type NDArrayConstructorType = NumberTreeElement[]|NDArray[]|number[]|[number[]];
+export type NDArrayConstructorType = NumberTreeElement[]|NDArray[]|number[]|[number[]]|[number[][]]|[number[][][]];
+
+export type NDArrayPosition = number[];
+
+export type NDArrayTraverseElementCallback = (value: number, position: NDArrayPosition) => number|undefined|void;
+export type NDArrayTraverseArrayCallback = (branch: NumberTreeElement[], position: NDArrayPosition) => void;
+export type NDArrayElementwiseOpCallback = (a: number, b:number) => number;
+export type NDArraySummingCallback = (value: number) => number;
+export type NDArrayIterationCallback = (arrayValues: number[], position: NDArrayPosition) => number;
 
 
 export interface NDArrayCollection {
@@ -40,7 +49,7 @@ export class NDArray {
       }
 
       if (_.isArray(dimEl) === true) {
-        this.dimensions = NDArray.resolveDimensions(dimEl);
+        this.dimensions = NDArray.resolveDimensions(dimEl as NumberTreeElement);
         this.data = NDArray.createDimArray(this.dimensions);
 
         this.setData(dimEl as NumberTreeElement[]);
@@ -65,9 +74,9 @@ export class NDArray {
 
 
   /**
-   * @param {int[]} dimensions
-   * @param {Number} [initialValue=0]
-   * @returns {Number[]} Multi-dimensional array representing the data
+   * @param dimensions
+   * @param initialValue
+   * @returns Multi-dimensional array representing the data
    */
   public static createDimArray(dimensions: number[], initialValue: number = 0): NumberTreeElement[] {
     function iterateCreation(depthIndex: number): NumberTreeElement[] {
@@ -107,16 +116,16 @@ export class NDArray {
    * @param positionPath
    * @param dataSource
    * @param dimensions
-   * @param [elementCallback]
-   * @param [arrayCallback]
+   * @param elementCallback
+   * @param arrayCallback
    */
   private static traverseNDArray(
     depthIndex        : number,
-    positionPath      : number[],
+    positionPath      : NDArrayPosition,
     dataSource        : NumberTreeElement[],
     dimensions        : number[],
-    elementCallback?  : Function,
-    arrayCallback?    : Function,
+    elementCallback?  : NDArrayTraverseElementCallback,
+    arrayCallback?    : NDArrayTraverseArrayCallback,
   ): void {
     positionPath.push(0);
 
@@ -131,15 +140,15 @@ export class NDArray {
 
         if (depthIndex === dimensions.length - 1) {
           if (elementCallback) {
-            const result = elementCallback(dataVal, positionPath);
+            const result = elementCallback(dataVal as number, positionPath);
 
             if (_.isUndefined(result) === false) {
-              dsArray[dataIdx] = result;
+              dsArray[dataIdx] = result as number;
             }
           }
         } else {
           if (arrayCallback) {
-            arrayCallback(dataVal, positionPath);
+            arrayCallback(dataVal as NumberTreeElement[], positionPath);
           }
 
           NDArray.traverseNDArray(depthIndex + 1, positionPath, dataVal as number[], dimensions, elementCallback, arrayCallback);
@@ -153,9 +162,9 @@ export class NDArray {
 
   /**
    * Traverse all arrays in the multi-dimensional array
-   * @param {function(NumberTreeElement[] array, number[] position)} callback
+   * @param callback
    */
-  public traverseArrays(callback: Function): void {
+  public traverseArrays(callback: NDArrayTraverseArrayCallback): void {
     NDArray.traverseNDArray(0, [], this.data, this.dimensions, undefined, callback);
   }
 
@@ -163,10 +172,10 @@ export class NDArray {
   /**
    * Traverse all elements in the multi-dimensional array
    *
-   * @param {function(number value, number[] position)} callback Called for each element in the multi-dimensional array.
+   * @param callback Called for each element in the multi-dimensional array.
    *  If the function returns a value other than undefined, the element will be set to that value.
    */
-  public traverse(callback: Function): void {
+  public traverse(callback: NDArrayTraverseElementCallback): void {
     NDArray.traverseNDArray(0, [], this.data, this.dimensions, callback, undefined);
   }
 
@@ -195,12 +204,13 @@ export class NDArray {
 
   /**
    * Randomize all values
-   * @param [min=0.0] (inclusive)
-   * @param [max=1.0] (exclusive)
+   * @param min (inclusive)
+   * @param max (exclusive)
+   * @param randomizer Randomizer instance to use; uses Math.random() if none provided
    */
-  public rand(min: number = 0.0, max: number = 1.0): NDArray {
+  public rand(min: number = 0.0, max: number = 1.0, randomizer?: Randomizer): NDArray {
     return this.apply(
-      (): number => (min + Math.random() * (max - min)),
+      (): number => (randomizer ? randomizer.floatBetween(min, max) : (min + Math.random() * (max - min))),
     );
   }
 
@@ -232,7 +242,7 @@ export class NDArray {
   /**
    * Get value from specific position
    */
-  public getAt(positionPath: number[]): number {
+  public getAt(positionPath: NDArrayPosition): number {
     this.validatePosition(positionPath);
 
     return _.get(this.data, _.join(positionPath, '.'));
@@ -242,7 +252,7 @@ export class NDArray {
   /**
    * Set value at specific position
    */
-  public setAt(positionPath: number[], value: number): void {
+  public setAt(positionPath: NDArrayPosition, value: number): void {
     this.validatePosition(positionPath);
 
     _.set(this.data, _.join(positionPath, '.'), value);
@@ -263,7 +273,7 @@ export class NDArray {
       data,
       this.dimensions,
       undefined,
-      (a: NumberTreeElement[], positionPath: number[]) => {
+      (a: NumberTreeElement[], positionPath: NDArrayPosition) => {
         if (a.length !== this.dimensions[positionPath.length]) {
           throw new Error('Inconsistent data size');
         }
@@ -271,7 +281,7 @@ export class NDArray {
     );
 
     this.traverse(
-      (v: number, positionPath: number[]) => {
+      (v: number, positionPath: NDArrayPosition) => {
         const newVal = _.get(data, _.join(positionPath, '.'), '### not found ###');
 
         if (newVal === '### not found ###') {
@@ -287,7 +297,7 @@ export class NDArray {
   /**
    * Validate position path
    */
-  protected validatePosition(positionPath: number[]): void {
+  protected validatePosition(positionPath: NDArrayPosition): void {
     // if (positionPath.length === 0) {}
 
     if (positionPath.length !== this.dimensions.length) {
@@ -297,7 +307,7 @@ export class NDArray {
     _.each(
       positionPath,
       (posIdx, dimIdx) => {
-        if ((posIdx < 0) || (posIdx > this.dimensions[dimIdx])) {
+        if ((posIdx < 0) || (posIdx >= this.dimensions[dimIdx])) {
           throw new Error(
             `Invalid position path: Dimension ${dimIdx} position should be 0-${this.dimensions[dimIdx]}, was ${posIdx}`,
           );
@@ -357,12 +367,10 @@ export class NDArray {
   }
 
 
-  public apply(valCallback: Function): NDArray {
+  public apply(valCallback: NDArrayTraverseElementCallback): NDArray {
     const clone = this.clone();
 
-    clone.traverse(
-      (val: number, pos: number[]): number => valCallback(val, pos),
-    );
+    clone.traverse(valCallback);
 
     return clone;
   }
@@ -372,13 +380,12 @@ export class NDArray {
 
   /**
    * Elementwise operation between NDArrays of the same size
-   * @param {NDArray|number} b
-   * @param {function(number, number) : number} operationCb
-   * @param {string} opName
-   * @return { NDArray }
+   * @param b
+   * @param operationCb
+   * @param opName
    * @protected
    */
-  protected elementwiseOp(b: NDArray | number, operationCb: Function, opName: string): NDArray {
+  protected elementwiseOp(b: NDArray | number, operationCb: NDArrayElementwiseOpCallback, opName: string): NDArray {
     if (b instanceof NDArray) {
       if (!_.isEqual(this.getDims(), b.getDims())) {
         throw new Error(`Cannot do elementwise ${opName} on NDArrays with differing dimensions`);
@@ -388,11 +395,13 @@ export class NDArray {
     const aClone = this.clone();
 
     aClone.traverse(
-      (val: number, pos: number[]): number => {
-        let bVal = b;
+      (val: number, pos: NDArrayPosition): number => {
+        let bVal: number;
 
         if (b instanceof NDArray) {
           bVal = b.getAt(pos);
+        } else {
+          bVal = b;
         }
 
         return operationCb(val, bVal);
@@ -568,14 +577,13 @@ export class NDArray {
 
   /**
    * Calculate total sum of elements
-   * @param {Function( elementValue : number ) : number} [summingCallback] If defined, the return value of this
-   * function is used instead of the element value
+   * @param summingCallback If defined, the return value of this function is used instead of the element value
    */
-  public sum(summingCallback?: Function): number {
+  public sum(summingCallback?: NDArraySummingCallback): number {
     let total = 0;
 
     this.traverse(
-      (val: number) => {
+      (val: number): void => {
         if (summingCallback) {
           total += summingCallback(val);
         } else {
@@ -654,20 +662,20 @@ export class NDArray {
   /**
    * Iterate multiple NDArrays of the same shape and provide the element value from each NDArray to the callback.
    * Returns a new NDArray of the same shape with its values set to the return values of the callback
-   * @param {Function( ...elementValues : number, pos : number[] ) : number} callback
+   * @param callback
    * @param arrays
    */
-  public static iterate(callback: Function, ...arrays: NDArray[]): NDArray {
+  public static iterate(callback: NDArrayIterationCallback, ...arrays: NDArray[]): NDArray {
     const clone = arrays[0].clone();
 
     clone.traverse(
-      (val: number, pos: number[]): number => {
+      (val: number, pos: NDArrayPosition): number => {
         const vals: number[] = _.map(
           arrays,
           (arr: NDArray) => (arr.getAt(pos)),
         );
 
-        return callback(...vals, pos);
+        return callback(vals, pos);
       },
     );
 

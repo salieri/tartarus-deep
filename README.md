@@ -14,30 +14,34 @@
 
 ### 1. From-The-Ground-Up Implementation
 
-*   Vector operations
-*   Matrix operations
-*   Back and forward propagation
+*   Vector operations ✔
+*   Matrix operations ✔
+*   Backpropagation
+*   Forward propagation ✔
 *   Logistic regression
 *   Gradient descent
-*   Loss functions
-*   Activation functions
+*   Loss functions ✔
+*   Activation functions ✔
+*   Cost functions ✔
 *   Neural networks
 *   CNNs
 *   RNNs
 *   Regularization
-*   Graph networks
-*   Chainable models
+*   Graph networks ✔
+*   Chainable models ✔
+*   Randomization ✔
 
 
 ### 2. Compatibility
 
-*   Runs on Node.js
+*   Runs on Node.js ✔
 *   Runs on modern browsers
+*   Runs on AWS Lambda
 
 
 ### 3. Speed
 
-Decidedly unoptimized -- written for research purposes, not for speed.
+* Decidedly unoptimized -- written for research purposes, not for speed.
 
 
 
@@ -54,6 +58,7 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 *   <https://stackoverflow.com/a/47593316/844771>
 *   <http://www.numpy.org/>
 *   <https://www.coursera.org/specializations/deep-learning>
+
 
 
 ## Glossary

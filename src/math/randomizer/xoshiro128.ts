@@ -2,6 +2,7 @@ import { Randomizer } from './randomizer';
 
 /**
  * xoshiro128 pseudo random number generator
+ * @url https://stackoverflow.com/a/47593316/844771
  */
 export class Xoshiro128 extends Randomizer {
   protected a: number;

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NDArray, NDArrayConstructorType } from './ndarray';
+import { NDArray, NDArrayConstructorType, NumberTreeElement } from './ndarray';
 import { Vector } from './vector';
 
 
@@ -20,7 +20,7 @@ export class Matrix extends NDArray {
           throw new Error('Matrix must have exactly two data dimensions');
         }
       } else if (_.isArray(dimEl) === true) {
-        if (Matrix.resolveDimensions(dimEl).length !== 2) {
+        if (Matrix.resolveDimensions(dimEl as NumberTreeElement).length !== 2) {
           throw new Error('Matrix must have exactly two data dimensions');
         }
       }
@@ -65,11 +65,9 @@ export class Matrix extends NDArray {
 
   /**
    * Clone a matrix
-   * @param { Matrix } [targetObj=null]
-   * @returns { Matrix }
    * @public
    */
-  public clone(targetObj: Matrix): Matrix {
+  public clone(targetObj?: Matrix): Matrix {
     const to = targetObj || new Matrix(...this.dimensions);
 
     return super.clone(to) as Matrix;

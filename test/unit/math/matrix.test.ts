@@ -1,4 +1,4 @@
-import { Matrix } from '../../../src/math';
+import { Matrix, NDArray } from '../../../src/math';
 
 
 describe(
@@ -80,6 +80,28 @@ describe(
             [136, 158, 180],
           ],
         );
+      },
+    );
+
+
+    it(
+      'should refuse to create matrices from data with an invalid shape',
+      () => {
+        const nd = new NDArray([1, 2, 3, 4]);
+
+        (() => new Matrix(nd)).should.Throw(/Matrix must have exactly two data dimensions/);
+        (() => new Matrix([[[1, 2], [2, 3]], [[2, 3], [4, 5]]])).should.Throw(/Matrix must have exactly two data dimensions/);
+      },
+    );
+
+
+    it(
+      'should clone a matrix',
+      () => {
+        const values = [[1, 2, 3], [4, 5, 6]];
+        const m = new Matrix(values);
+
+        m.clone().get().should.deep.equal(values);
       },
     );
   },

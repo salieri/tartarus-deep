@@ -1,5 +1,11 @@
 import _ from 'lodash';
-import { NDArray } from '../../../src/math';
+
+import {
+  NDArray,
+  NDArrayPosition,
+  NumberTreeElement,
+  Xoshiro128,
+} from '../../../src/math';
 
 
 describe(
@@ -430,6 +436,275 @@ describe(
             concat.getAt([n]).should.equal(n + 1);
           },
         );
+      },
+    );
+
+
+    it(
+      'should calculate a sum of its elements',
+      () => {
+        const nd = new NDArray([1, 2, 3]);
+
+        nd.sum().should.equal(1 + 2 + 3);
+      },
+    );
+
+
+    it(
+      'should calculate a sum of its elements with a custom callback',
+      () => {
+        const nd = new NDArray([1, 2, 3]);
+
+        nd.sum((n: number) => (n * 2)).should.equal((1 + 2 + 3) * 2);
+      },
+    );
+
+
+    it(
+      'should normalize an array',
+      () => {
+        const nd = new NDArray([1, 2, 3]);
+
+        const norm = nd.normalize();
+
+        const expSum = Math.sqrt(((1 ** 2) + (2 ** 2) + (3 ** 2)));
+
+        norm.getAt([0]).should.equal(1 / expSum);
+        norm.getAt([1]).should.equal(2 / expSum);
+        norm.getAt([2]).should.equal(3 / expSum);
+      },
+    );
+
+
+    it(
+      'should calculate mean of an array',
+      () => {
+        const nd = new NDArray([1, 2, 3]);
+
+        nd.mean().should.equal((1 + 2 + 3) / 3);
+      },
+    );
+
+
+    it(
+      'should iterate multiple arrays of the same size',
+      () => {
+        const nd1 = new NDArray([1, 1, 1, 1]);
+        const nd2 = new NDArray([2, 2, 2, 2]);
+        const nd3 = new NDArray([3, 3, 3, 3]);
+
+        const result = NDArray.iterate(
+          (vals: number[]): number => ((vals[0] + vals[1]) * vals[2]),
+          nd1,
+          nd2,
+          nd3,
+        );
+
+        result.countDims().should.equal(1);
+        result.countElements().should.equal(4);
+
+        result.traverse((val: number): void => { val.should.equal((1 + 2) * 3); });
+      },
+    );
+
+
+    it(
+      'should clamp values of an array',
+      () => {
+        const nd = new NDArray([-2, -1, 0, 0.5, 1, 2]);
+
+        const result = nd.clamp(0, 1);
+
+        result.get().should.deep.equal([0, 0, 0, 0.5, 1, 1]);
+      },
+    );
+
+
+    it(
+      'should do elementwise math operations',
+      () => {
+        const vals = [-1, 0, 1, 0.4, 0.2];
+        const ops = ['sqrt', 'atan', 'acos', 'asin', 'tan', 'cos', 'sin', 'exp', 'log', 'abs'];
+
+        _.each(
+          ops,
+          (opName: string) => {
+            const nd = new NDArray(vals);
+            const result = (nd as any)[opName]() as NDArray;
+
+            _.each(
+              result.get(),
+              (resultVal: NumberTreeElement, index: number) => {
+                const originalVal = vals[index];
+
+                resultVal.should.deep.equal((Math as any)[opName](originalVal));
+              },
+            );
+          },
+        );
+      },
+    );
+
+
+    it(
+      'should negate values',
+      () => {
+        const nd = new NDArray([-1, 0, 1, 2]);
+
+        const result = nd.neg();
+
+        result.get().should.deep.equal([1, -0, -1, -2]);
+      },
+    );
+
+
+    it(
+      'should calculate elementwise exponents',
+      () => {
+        const nd = new NDArray([-1, 0, 1, 2]);
+
+        const result = nd.pow(3);
+
+        result.get().should.deep.equal([(-1) ** 3, 0 ** 3, 1 ** 3, 2 ** 3]);
+      },
+    );
+
+
+    it(
+      'should calculate elementwise exponents where exponents are provided by another array',
+      () => {
+        const nd = new NDArray([-2, 4, 8, 10]);
+        const pow = new NDArray([3, 4, 5, 6]);
+
+        const result = nd.pow(pow);
+
+        result.get().should.deep.equal([(-2) ** 3, 4 ** 4, 8 ** 5, 10 ** 6]);
+      },
+    );
+
+
+    it(
+      'should not equal with an array of different dimensions',
+      () => {
+        const a = new NDArray([0, 1, 2]);
+        const a2 = new NDArray([0, 1, 2]);
+        const b = new NDArray([0, 1, 2, 3]);
+        const c = new NDArray([0, 1, 2], [1, 2, 3]);
+
+        a.equals(a).should.equal(true);
+        a.equals(a2).should.equal(true);
+        a.equals(b).should.equal(false);
+        a.equals(c).should.equal(false);
+      },
+    );
+
+
+    it(
+      'should produce string representation of itself',
+      () => {
+        const vals = [0, 2, 4, 6, 8];
+        const nd = new NDArray(vals);
+
+        nd.toString().should.match(new RegExp(`${_.join(vals, ',')}`));
+        nd.toString().should.match(/NDArray#/);
+      },
+    );
+
+
+    it(
+      'should zero all values',
+      () => {
+        const nd = new NDArray([1, 2, 3, 4]);
+
+        nd.zero().get().should.deep.equal([0, 0, 0, 0]);
+      },
+    );
+
+
+    it(
+      'should randomize elements with a randomizer',
+      () => {
+        const r = new Xoshiro128('hello-world');
+        const nd = new NDArray(5);
+
+        const expected = [
+          0.9411756654735655,
+          0.47058743005618453,
+          0.7647048090584576,
+          0.47081434493884444,
+          0.832484302809462,
+        ];
+
+        nd.rand(0, 1, r).get().should.deep.equal(expected);
+      },
+    );
+
+
+    it(
+      'should randomize elements without a randomizer',
+      () => {
+        const nd = new NDArray(5);
+
+        // This is a super weak test
+        nd.rand(0, 1).get().should.not.deep.equal([0, 0, 0, 0, 0]);
+      },
+    );
+
+
+    it(
+      'should traverse all arrays in the NDArray',
+      () => {
+        const nd = new NDArray([[1, 2, 3], [2, 3, 4], [4, 5, 6]]);
+
+        let idx = 0;
+
+        const expectedPos = [[0], [1], [2]];
+        const expectedVal = [[1, 2, 3], [2, 3, 4], [4, 5, 6]];
+        const expectedCount = 3;
+
+
+        nd.traverseArrays(
+          (branch: NumberTreeElement[], pos: NDArrayPosition) => {
+            branch.should.deep.equal(expectedVal[idx]);
+            pos.should.deep.equal(expectedPos[idx]);
+
+            idx += 1;
+          },
+        );
+
+        idx.should.equal(expectedCount);
+      },
+    );
+
+
+    it(
+      'should fail to set data on an NDArray, if the data has an invalid shape',
+      () => {
+        const nd = new NDArray([[0, 1, 2], [2, 3, 4]]);
+
+        (() => nd.setData([1, 2, 3, 4])).should.Throw(/Inconsistent data size/);
+
+        (() => nd.setData([[0, 1, 2], [3, 2, 1, 2]])).should.Throw(/Inconsistent data size/);
+      },
+    );
+
+
+    it(
+      'should validate position paths',
+      () => {
+        const nd = new NDArray([[0, 1, 2], [2, 3, 4]]);
+
+        // @ts-ignore
+        (() => nd.validatePosition([0])).should.Throw(/Invalid position path: expected .* dimensions/);
+
+        // @ts-ignore
+        (() => nd.validatePosition([0, 3])).should.Throw(/Invalid position path: Dimension .* position should be/);
+
+        // @ts-ignore
+        (() => nd.validatePosition([2, 1])).should.Throw(/Invalid position path: Dimension .* position should be/);
+
+        // @ts-ignore
+        (() => nd.validatePosition([0, 0])).should.not.Throw();
       },
     );
   },
