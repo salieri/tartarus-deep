@@ -6,6 +6,7 @@
 [![Travis CI](https://travis-ci.org/franksrevenge/tartarus-deep.svg?branch=master)](https://travis-ci.org/franksrevenge/tartarus-deep/)
 [![Coverage Status](https://coveralls.io/repos/github/franksrevenge/tartarus-deep/badge.svg?branch=master)](https://coveralls.io/github/franksrevenge/tartarus-deep?branch=master)
 [![Codacy](https://api.codacy.com/project/badge/Grade/8279d1926eed411cae160fc6c9156560)](https://www.codacy.com/app/franksrevenge/tartarus-deep?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=franksrevenge/tartarus-deep&amp;utm_campaign=Badge_Grade)
+[![Maintainability](https://api.codeclimate.com/v1/badges/d44d858f3266337623c8/maintainability)](https://codeclimate.com/github/franksrevenge/tartarus-deep/maintainability)
 [![David](https://david-dm.org/franksrevenge/tartarus-deep.svg)](https://david-dm.org/franksrevenge/tartarus-deep)
 [![David](https://david-dm.org/franksrevenge/tartarus-deep/dev-status.svg)](https://david-dm.org/franksrevenge/tartarus-deep?type=dev)
 
