@@ -98,9 +98,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   protected abstract async backwardExec(): Promise<void>;
 
   public async backward(): Promise<void> {
-    if (this.state !== LayerState.Initialized) {
-      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
-    }
+    this.requireState(LayerState.Initialized);
 
     await this.backwardExec();
   }
@@ -109,9 +107,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   protected abstract async forwardExec(): Promise<void>;
 
   public async forward(): Promise<void> {
-    if (this.state !== LayerState.Initialized) {
-      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
-    }
+    this.requireState(LayerState.Initialized);
 
     await this.forwardExec();
   }
@@ -120,9 +116,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   protected abstract async compileExec(): Promise<void>;
 
   public async compile(): Promise<void> {
-    if (this.state !== LayerState.Created) {
-      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
-    }
+    this.requireState(LayerState.Created);
 
     await this.compileExec();
 
@@ -133,9 +127,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   protected abstract async initializeExec(): Promise<void>;
 
   public async initialize(): Promise<void> {
-    if (this.state !== LayerState.Compiled) {
-      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
-    }
+    this.requireState(LayerState.Compiled);
 
     await this.initializeExec();
 
@@ -178,6 +170,13 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   public getOptimizer(): DeferredReadonlyCollection {
     return new DeferredReadonlyCollection(this.optimizer);
+  }
+
+
+  protected requireState(state: LayerState): void {
+    if (this.state !== state) {
+      throw new Error(`Unexpected state: ${LayerState[this.state]}`);
+    }
   }
 }
 

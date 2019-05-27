@@ -270,9 +270,7 @@ export class Graph {
 
 
   public async compile(): Promise<void> {
-    if (this.state !== GraphState.Created) {
-      throw new Error('Unexpected state');
-    }
+    this.requireState(GraphState.Created);
 
     this.state = GraphState.Compiling;
 
@@ -411,6 +409,13 @@ export class Graph {
 
   public getName(): string {
     return this.name;
+  }
+
+
+  protected requireState(state: GraphState): void {
+    if (this.state !== state) {
+      throw new Error(`Unexpected state: ${this.state}`);
+    }
   }
 
 
