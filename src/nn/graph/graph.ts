@@ -3,6 +3,7 @@ import { GraphNode } from './node';
 import { GraphEntity, EntityIdentifier } from './entity';
 import { DeferredInputCollection, DeferredReadonlyCollection } from '../symbols';
 import { KeyNotFoundError } from '../../error';
+import { GraphProcessor, GraphProcessorDirection } from './processor';
 
 
 export enum GraphState {
@@ -20,7 +21,7 @@ export class Graph {
 
   protected name: string;
 
-  protected rawOutputs: DeferredInputCollection = new DeferredInputCollection();
+  // protected rawOutputs: DeferredInputCollection = new DeferredInputCollection();
 
   protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
@@ -416,6 +417,41 @@ export class Graph {
     if (this.state !== state) {
       throw new Error(`Unexpected state: ${this.state}`);
     }
+  }
+
+
+  public assign(inputs: DeferredInputCollection): void {
+    const expectedKeys = this.rawInputs.getKeys().sort();
+    const inputKeys = inputs.getKeys().sort();
+    const diff = _.difference(expectedKeys, inputKeys);
+
+    if (diff.length > 0) {
+      throw new Error(`Input is missing missing keys: ${diff}`);
+    }
+
+    this.rawInputs.assign(inputs);
+  }
+
+
+  public async forward(): Promise<void> {
+    this.requireState(GraphState.Compiled);
+
+    const processor = new GraphProcessor(this.nodes, GraphProcessorDirection.Forward);
+
+    await processor.process(
+      async (node: GraphNode) => (node.forward()),
+    );
+  }
+
+
+  public async backward(): Promise<void> {
+    this.requireState(GraphState.Compiled);
+
+    const processor = new GraphProcessor(this.nodes, GraphProcessorDirection.Forward);
+
+    await processor.process(
+      async (node: GraphNode) => (node.backward()),
+    );
   }
 
 

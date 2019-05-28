@@ -133,7 +133,7 @@ export class Model
   }
 
 
-  protected prepareInputCollection(definition: RelaxedInputCollectionDefinition): DeferredInputCollection {
+  protected static prepareInputCollection(definition: RelaxedInputCollectionDefinition): DeferredInputCollection {
     if (definition instanceof  DeferredInputCollection) {
       return definition;
     }
@@ -156,7 +156,7 @@ export class Model
 
 
   public input(definition: RelaxedInputCollectionDefinition): Model {
-    this.setRawInputs(this.prepareInputCollection(definition));
+    this.setRawInputs(Model.prepareInputCollection(definition));
 
     return this;
   }
@@ -195,7 +195,44 @@ export class Model
   }
 
 
-  public predict(): void {
+  // protected static castInputArray(inputs: RelaxedInputCollectionDefinition|RelaxedInputCollectionDefinition[]):
+  //   RelaxedInputCollectionDefinition[] {
+  //   if (
+  //     (_.isArray(inputs))
+  //     && (
+  //       (inputs[0] instanceof NDArray)
+  //       || (inputs[0] instanceof DeferredInputCollection)
+  //       || (inputs[0] instanceof DeferredCollection)
+  //     )
+  //   ) {
+  //     return _.map(
+  //       inputs,
+  //       (input: RelaxedInputCollectionDefinition) => (Model.prepareInputCollection(input)),
+  //     );
+  //   }
+  //
+  //   return [Model.prepareInputCollection(inputs as RelaxedInputCollectionDefinition)];
+  // }
+
+
+  public async predict(input: RelaxedInputCollectionDefinition): Promise<DeferredInputCollection> {
+    const preparedInput = Model.prepareInputCollection(input);
+
+    this.graph.assign(preparedInput);
+
+    await this.forward();
+
+    return this.getRawOutputs();
+  }
+
+
+  public async forward(): Promise<void> {
+    await this.graph.forward();
+  }
+
+
+  public async backward(): Promise<void> {
+    await this.graph.backward();
   }
 }
 

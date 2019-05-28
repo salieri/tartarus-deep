@@ -14,6 +14,9 @@ export interface GraphEntity {
   getRawInputs(): DeferredInputCollection;
 
   setRawInputs(inputs: DeferredInputCollection): void;
+
+  forward(): Promise<void>;
+  backward(): Promise<void>;
 }
 
 

@@ -61,6 +61,11 @@ export class DeferredReadonlyCollection {
   }
 
 
+  public areAllSet(): boolean {
+    return this.collection.areAllSet();
+  }
+
+
   public getRequiredFields(): string[] {
     return this.requiredFields;
   }

@@ -108,4 +108,14 @@ export class GraphNode {
 
     await this.entity.compile();
   }
+
+
+  public async forward(): Promise<void> {
+    await this.getEntity().forward();
+  }
+
+
+  public async backward(): Promise<void> {
+    await this.getEntity().backward();
+  }
 }

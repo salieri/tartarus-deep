@@ -71,5 +71,10 @@ export class DeferredValue {
       throw new ValueNotDeclaredError('Value has not been declared yet');
     }
   }
+
+
+  public isSet(): boolean {
+    return !!this.value;
+  }
 }
 

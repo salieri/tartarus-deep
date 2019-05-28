@@ -86,6 +86,31 @@ export class DeferredInputCollection {
   }
 
 
+  public has(key: string): boolean {
+    return (key in this.inputs);
+  }
+
+
+  public assign(inputs: DeferredInputCollection): void {
+    _.each(
+      inputs.getKeys(),
+      (key: string) => {
+        if (this.has(key)) {
+          this.set(key, inputs.get(key));
+        }
+      },
+    );
+  }
+
+
+  public areAllSet(): boolean {
+    return _.every(
+      this.inputs,
+      (input: DeferredReadonlyCollection) => input.areAllSet(),
+    );
+  }
+
+
   /* public filter(matchList: string[], convertSingleToDefault: boolean = false): DeferredInputCollection {
     if (matchList.length === 0) {
       throw new Error('Empty match list');

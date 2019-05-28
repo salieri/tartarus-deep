@@ -103,4 +103,12 @@ export class DeferredCollection {
   public requireDefault(): void {
     this.require(this.defaultKey);
   }
+
+
+  public areAllSet(): boolean {
+    return _.every(
+      this.collection,
+      (value: DeferredValue) => value.isSet(),
+    );
+  }
 }

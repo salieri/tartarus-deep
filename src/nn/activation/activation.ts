@@ -4,9 +4,8 @@ import { Parameterized, Parameters } from '../../generic';
 
 
 /**
- * Activation function `g` takes net input `z`
- * and outputs non-linear result `a` that determines
- * how active each layer in the input should be
+ * Activation function `g` takes linear input `z`
+ * and outputs non-linear result `a`
  *
  * z = wx + b
  * a = g( z )
