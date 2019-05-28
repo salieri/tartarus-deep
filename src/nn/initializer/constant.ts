@@ -11,7 +11,7 @@ export class Constant extends Initializer<ConstantParams> {
   protected readonly value: number;
 
 
-  public constructor(params: ConstantParams) {
+  public constructor(params: ConstantParams = {}) {
     super(params);
 
     this.value = params.value || 0;

@@ -52,11 +52,6 @@ describe(
         const r2 = new Xoshiro128();
 
         r.getSeed().should.not.equal(r2.getSeed());
-        r.random().should.not.equal(r2.random());
-        r.floatBetween(1, 20000).should.not.equal(r2.floatBetween(1, 20000));
-        r.intBetween(10, 20000).should.not.equal(r2.intBetween(10, 20000));
-        r.intRange(20000).should.not.equal(r2.intRange(20000));
-        r.floatRange(30000).should.not.equal(r2.floatRange(30000));
       },
     );
 

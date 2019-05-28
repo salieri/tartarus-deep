@@ -13,7 +13,7 @@ export abstract class Initializer
 
   public attachLayer(layer: Layer): void {
     if (this.layer) {
-      throw new Error(`Initializer is already attached to layer '${layer.getLayerName()}'`);
+      throw new Error(`Initializer is already attached to layer '${layer.getName()}'`);
     }
 
     this.layer = layer;
