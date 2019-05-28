@@ -13,5 +13,7 @@ export class KeyNotFoundError extends TartarusError {
 
 
 export class ValueNotSetError extends TartarusError {}
+export class ValueNotDeclaredError extends TartarusError {}
+export class InvalidValueError extends TartarusError {}
 
 export class RecoverableCompilationError extends TartarusError {}

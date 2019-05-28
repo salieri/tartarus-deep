@@ -88,6 +88,11 @@ export class DeferredCollection {
   }
 
 
+  public getDefaultValue(): DeferredValueType {
+    return this.getDefault().get();
+  }
+
+
   public require(key: string): void {
     if (!(key in this.collection)) {
       throw new KeyNotFoundError(`Unknown key: '${key}'`, key);

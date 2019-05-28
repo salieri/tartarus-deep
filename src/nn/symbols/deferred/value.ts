@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { NDArray } from '../../../math';
-import { ValueNotSetError } from '../../../error';
+import { ValueNotSetError, ValueNotDeclaredError, InvalidValueError } from '../../../error';
 
 export type DeferredValueType = NDArray;
 
@@ -18,6 +18,10 @@ export class DeferredValue {
 
 
   public declare(dimensions: number[]|number): void {
+    if (this.dimensions !== null) {
+      throw new Error('Value dimensions have already been declared');
+    }
+
     this.dimensions = _.castArray(dimensions);
   }
 
@@ -26,7 +30,7 @@ export class DeferredValue {
     this.mustBeDeclared();
 
     if (!_.isEqual(this.dimensions, value.getDims())) {
-      throw new Error('Value does not match expected dimensions');
+      throw new InvalidValueError('Value does not match expected dimensions');
     }
 
     this.value = value;
@@ -64,7 +68,7 @@ export class DeferredValue {
 
   private mustBeDeclared(): void {
     if (this.dimensions === null) {
-      throw new Error('Value has not been declared yet');
+      throw new ValueNotDeclaredError('Value has not been declared yet');
     }
   }
 }

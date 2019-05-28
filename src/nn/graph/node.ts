@@ -3,16 +3,16 @@ import { GraphEntity } from './entity';
 import { DeferredInputCollection } from '../symbols';
 
 
-export class GraphFeed {
-  public node: GraphNode;
-
-  public label: string;
-
-  public constructor(node: GraphNode, label: string) {
-    this.node = node;
-    this.label = label;
-  }
-}
+// export class GraphFeed {
+//   public node: GraphNode;
+//
+//   public label: string;
+//
+//   public constructor(node: GraphNode, label: string) {
+//     this.node = node;
+//     this.label = label;
+//   }
+// }
 
 
 export class GraphNode {

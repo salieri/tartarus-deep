@@ -86,7 +86,7 @@ export class DeferredInputCollection {
   }
 
 
-  public filter(matchList: string[], convertSingleToDefault: boolean = false): DeferredInputCollection {
+  /* public filter(matchList: string[], convertSingleToDefault: boolean = false): DeferredInputCollection {
     if (matchList.length === 0) {
       throw new Error('Empty match list');
     }
@@ -103,6 +103,6 @@ export class DeferredInputCollection {
     );
 
     return collection;
-  }
+  } */
 }
 
