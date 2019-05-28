@@ -37,11 +37,8 @@
   "homepage": "https://github.com/franksrevenge/tartarus-deep#readme",
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
-    "@types/bluebird": "^3.5.26",
     "@types/joi": "^14.3.3",
     "@types/lodash": "^4.14.130",
-    "bluebird": "^3.5.4",
-    "fast-sha256": "^1.1.0",
     "joi": "^14.3.1",
     "js-sha256": "^0.9.0",
     "lodash": "^4.17.11"

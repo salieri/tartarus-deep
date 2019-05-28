@@ -2,7 +2,6 @@
 /* eslint-disable import/no-duplicates */
 
 import _ from 'lodash';
-import Promise from 'bluebird';
 
 import * as initializers from '../../../../src/nn/initializer';
 import { Initializer } from '../../../../src/nn/initializer';
@@ -17,8 +16,8 @@ describe(
       async () => {
         let instanceCount = 0;
 
-        await Promise.props(
-          _.mapValues(
+        await Promise.all(
+          _.map(
             initializers as any,
             async (I: any) => {
               if (!(I.prototype instanceof Initializer)) {
