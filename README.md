@@ -42,7 +42,7 @@
 
 ### 3. Speed
 
-* Decidedly unoptimized -- written for research purposes, not for speed.
+*   Decidedly unoptimized -- written for research purposes, not for speed.
 
 
 
