@@ -76,5 +76,10 @@ export class DeferredValue {
   public isSet(): boolean {
     return !!this.value;
   }
+
+
+  public unset(): void {
+    this.value = null;
+  }
 }
 

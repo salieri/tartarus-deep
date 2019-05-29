@@ -103,6 +103,11 @@ export class GraphNode {
   }
 
 
+  public unsetOutputValues(): void {
+    this.getEntity().unsetOutputValues();
+  }
+
+
   public async compile(): Promise<void> {
     this.entity.setRawInputs(this.getRawInputs());
 

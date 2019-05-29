@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { GraphProcessorNode } from './processor-node';
+import { GraphProcessorNode } from './node';
 import { GraphNode } from '../node';
 
 export type GraphNodeProcessorFunction = (node: GraphNode) => Promise<void>;

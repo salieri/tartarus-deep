@@ -17,6 +17,8 @@ export interface GraphEntity {
 
   forward(): Promise<void>;
   backward(): Promise<void>;
+
+  unsetOutputValues(): void;
 }
 
 

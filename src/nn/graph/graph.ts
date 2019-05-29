@@ -455,6 +455,11 @@ export class Graph {
   }
 
 
+  public unsetOutputValues(): void {
+    _.each(this.nodes, (node: GraphNode) => node.unsetOutputValues());
+  }
+
+
   /**
    * This is super unoptimized way of compiling stuff, but intention is to
    * let the graph partially compile, which may enable other parts of the graph to compile,

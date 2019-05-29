@@ -1,5 +1,6 @@
-import Joi from 'joi';
 import _ from 'lodash';
+
+import { JoiEx, JoiExSchema } from '../../util';
 
 import {
   EntityIdentifier,
@@ -9,9 +10,13 @@ import {
 } from '../graph';
 
 import { Session } from '../session';
-import { NDArray, Randomizer } from '../../math';
+import { NDArray, Randomizer, Vector } from '../../math';
 import { Parameterized } from '../../generic';
 import { DeferredCollection, DeferredInputCollection } from '../symbols';
+import { Cost } from '../cost';
+import { Loss } from '../loss';
+import { Metric } from '../metric';
+
 
 export enum ModelState {
   Created,
@@ -21,16 +26,43 @@ export enum ModelState {
 }
 
 
-export interface ModelParams {
+export interface ModelParamsInput {
   seed?: string;
+  cost?: Cost|string;
+  loss?: Loss|string;
+  metrics?: Metric[]|string[];
+}
+
+
+export interface ModelParamsCoerced extends ModelParamsInput {
+  cost: Cost;
+  loss: Loss;
+  metrics: Metric[];
 }
 
 
 export type RelaxedInputCollectionDefinition = number[]|number|NDArray|DeferredInputCollection|DeferredCollection;
+export type RelaxedOutputCollectionDefinition = RelaxedInputCollectionDefinition;
+
+
+export interface WeightCollection {
+  [key: string]: number;
+}
+
+
+export interface MetricResultCollection {
+  [key: string]: number;
+}
+
+
+export interface EvaluationResult {
+  metrics: MetricResultCollection;
+  loss: number;
+}
 
 
 export class Model
-  extends Parameterized<ModelParams>
+  extends Parameterized<ModelParamsInput, ModelParamsCoerced>
   implements GraphEntity {
   private static modelCounter: number = 0;
 
@@ -42,8 +74,10 @@ export class Model
 
   protected readonly name: string;
 
+  protected outputWeights: WeightCollection = {};
 
-  public constructor(params: ModelParams = {}, name?: string) {
+
+  public constructor(params: ModelParamsInput = {}, name?: string) {
     super(params);
 
     this.session  = new Session(this.params.seed);
@@ -65,10 +99,12 @@ export class Model
   }
 
 
-  public getParamSchema(): Joi.Schema {
-    return Joi.object().keys(
+  public getParamSchema(): JoiExSchema {
+    return JoiEx.object().keys(
       {
-        seed: Joi.string().optional().default('hello-world').min(2),
+        seed: JoiEx.string().optional().default('tartarus-random-seed').min(2),
+        cost: JoiEx.cost().optional().default('mean'),
+        loss: JoiEx.loss().optional().default('mean-squared-error'),
       },
     );
   }
@@ -133,7 +169,20 @@ export class Model
   }
 
 
-  protected static prepareInputCollection(definition: RelaxedInputCollectionDefinition): DeferredInputCollection {
+  protected static coerceOutput(definition: RelaxedOutputCollectionDefinition): DeferredInputCollection {
+    if (_.isNumber(definition) === true) {
+      return Model.coerceInput(new NDArray([definition as number]));
+    }
+
+    if ((_.isArray(definition) === true) && (_.isNumber((definition as any[])[0]))) {
+      return Model.coerceInput(new NDArray(definition as number[]));
+    }
+
+    return Model.coerceInput(definition);
+  }
+
+
+  protected static coerceInput(definition: RelaxedInputCollectionDefinition): DeferredInputCollection {
     if (definition instanceof  DeferredInputCollection) {
       return definition;
     }
@@ -156,7 +205,7 @@ export class Model
 
 
   public input(definition: RelaxedInputCollectionDefinition): Model {
-    this.setRawInputs(Model.prepareInputCollection(definition));
+    this.setRawInputs(Model.coerceInput(definition));
 
     return this;
   }
@@ -187,11 +236,64 @@ export class Model
   }
 
 
-  public fit(): void {
+  public async fit(): Promise<void> {
+    // moo
   }
 
 
-  public evaluate(): void {
+  public async evaluate(input: RelaxedInputCollectionDefinition, expectedOutput: RelaxedOutputCollectionDefinition):
+    Promise<EvaluationResult> {
+    const output = await this.predict(input);
+    const coercedExepctedOutput = Model.coerceOutput(expectedOutput);
+
+    if (!_.isEqual(output.getKeys().sort(), coercedExepctedOutput.getKeys().sort())) {
+      throw new Error(
+        `Test labels for model '${this.getName()}' do not match with model output -- `
+        + `(${output.getKeys()}) vs (${coercedExepctedOutput.getKeys()})`,
+      );
+    }
+
+    const loss = this.calculateWeightedScore(output, coercedExepctedOutput, this.params.loss);
+    const metrics = this.calculateMetrics(output, coercedExepctedOutput);
+
+    return {
+      metrics,
+      loss,
+    };
+  }
+
+
+  protected calculateMetrics(output: DeferredInputCollection, expectedOutput: DeferredInputCollection): MetricResultCollection {
+    return _.zipObject(
+      _.keys(this.params.metrics),
+      _.map(
+        this.params.metrics,
+        (metric: Metric) => this.calculateWeightedScore(output, expectedOutput, metric),
+      ),
+    );
+  }
+
+
+  protected calculateWeightedScore(output: DeferredInputCollection, expectedOutput: DeferredInputCollection, loss: Loss|Metric): number {
+    return _.reduce(
+      output.getKeys(),
+      (accumulator: number, key: string): number => {
+        const outputValue = new Vector(output.get(key).getDefault().get());
+        const expectedOuputValue = new Vector(expectedOutput.get(key).getDefault().get());
+
+        return accumulator + this.getOutputWeight(key) * loss.calculate(outputValue, expectedOuputValue);
+      },
+      0,
+    );
+  }
+
+
+  protected getOutputWeight(key: string): number {
+    if (key in this.outputWeights) {
+      return this.outputWeights[key];
+    }
+
+    return 1.0;
   }
 
 
@@ -216,7 +318,9 @@ export class Model
 
 
   public async predict(input: RelaxedInputCollectionDefinition): Promise<DeferredInputCollection> {
-    const preparedInput = Model.prepareInputCollection(input);
+    const preparedInput = Model.coerceInput(input);
+
+    this.unsetOutputValues();
 
     this.graph.assign(preparedInput);
 
@@ -233,6 +337,11 @@ export class Model
 
   public async backward(): Promise<void> {
     await this.graph.backward();
+  }
+
+
+  public unsetOutputValues(): void {
+    this.graph.unsetOutputValues();
   }
 }
 

@@ -7,6 +7,7 @@ import * as activations from '../nn/activation';
 import * as costs from '../nn/cost';
 // import * as layers from '../nn/layer'; // -- this will cause circular dependencies
 import * as losses from '../nn/loss';
+import * as metrics from '../nn/metric';
 import * as initializers from '../nn/initializer';
 import * as randomizers from '../math/randomizer';
 
@@ -46,6 +47,7 @@ declare namespace ExtendedJoi {
   export function cost(): Joi.AnySchema;
   export function initializer(): Joi.AnySchema;
   export function loss(): Joi.AnySchema;
+  export function metric(): Joi.AnySchema;
   export function randomizer(): Joi.AnySchema;
 }
 
@@ -65,6 +67,7 @@ const customJoi = joify(Joi.extend(
     // createCMExtension( 'layer', new ClassManager( layers, layers.Layer ) ), // -- this will cause circular dependencies
 
     createCMExtension('loss', new ClassManager(losses, losses.Loss)),
+    createCMExtension('metric', new ClassManager(metrics, metrics.Metric)),
     createCMExtension('randomizer', new ClassManager(randomizers, randomizers.Randomizer)),
 
     // createCMExtension( 'regularizer', new ClassManager( regularizers, regularizers.Regularizer ) )

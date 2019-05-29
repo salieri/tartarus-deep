@@ -13,6 +13,12 @@ export type NDArraySummingCallback = (value: number) => number;
 export type NDArrayIterationCallback = (arrayValues: number[], position: NDArrayPosition) => number;
 
 
+export interface IndexResult {
+  value: number;
+  index: number;
+}
+
+
 export interface NDArrayCollection {
   [key: string]: NDArray;
 }
@@ -562,6 +568,157 @@ export class NDArray {
    */
   public sqrt(): NDArray {
     return this.apply(Math.sqrt);
+  }
+
+
+  /**
+   * Elementwise round
+   */
+  public round(): NDArray {
+    return this.apply(Math.round);
+  }
+
+
+  /**
+   * Elementwise binary equals
+   * Resulting NDArray contains 1s where both arrays equal, 0s otherwise
+   */
+  public equal(anotherArray: NDArray): NDArray {
+    return NDArray.iterate(
+      (values: number[]): number => (values[0] === values[1] ? 1 : 0),
+      this,
+      anotherArray,
+    );
+  }
+
+
+  /**
+   * Test whether `index` is in top `k`
+   * @param index
+   * @param k
+   */
+  public inTopK(index: number, k: number): boolean {
+    return !!_.find(this.topK(k), (v: IndexResult) => (v.index === index));
+  }
+
+
+  /**
+   * Get top `k` values and indexes
+   * @param k
+   */
+  public topK(k: number): IndexResult[] {
+    if (this.countDims() > 0) {
+      throw new Error('Argmax is not yet supported on multidimensional arrays');
+    }
+
+    const values = _.map(
+      this.data as number[],
+      (value: number, index: number): IndexResult => ({ index, value }),
+    );
+
+    const sortedValues = _.sortBy(values, (v: IndexResult) => v.value);
+
+    return _.reverse(_.slice(sortedValues, sortedValues.length - k));
+  }
+
+
+  /**
+   * Get the index of the highest value in the array
+   */
+  public argmax(): NDArrayPosition {
+    if (this.countDims() > 1) {
+      throw new Error('Argmax is not yet supported on multidimensional arrays');
+    }
+
+    let index = null;
+    let knownMax: number|null = null;
+
+    this.traverse(
+      (value, position) => {
+        if ((knownMax === null) || (value > knownMax)) {
+          knownMax = value;
+          index = position;
+        }
+      },
+    );
+
+    if (index === null) {
+      throw new Error('NDArray has no values');
+    }
+
+    return [index];
+  }
+
+
+  /**
+   * Get the index of the lowest value in the array
+   */
+  public argmin(): NDArrayPosition {
+    if (this.countDims() > 1) {
+      throw new Error('Argmin is not yet supported on multidimensional arrays');
+    }
+
+    let index = null;
+    let knownMin: number|null = null;
+
+    this.traverse(
+      (value, position) => {
+        if ((knownMin === null) || (value < knownMin)) {
+          knownMin = value;
+          index = position;
+        }
+      },
+    );
+
+    if (index === null) {
+      throw new Error('NDArray has no values');
+    }
+
+    return index;
+  }
+
+
+  /**
+   * Get the minimum value in the array
+   */
+  public min(): number {
+    let knownMin: number|null = null;
+
+    this.traverse(
+      (value) => {
+        if ((knownMin === null) || (value < knownMin)) {
+          knownMin = value;
+        }
+      },
+    );
+
+    if (knownMin === null) {
+      throw new Error('NDArray has no values');
+    }
+
+    return knownMin;
+  }
+
+
+  /**
+   * Get the maximum value in the array
+   */
+  public max(): number {
+    let knownMax: number|null = null;
+
+    this.traverse(
+      (value) => {
+        if ((knownMax === null) || (value > knownMax)) {
+          knownMax = value;
+        }
+      },
+    );
+
+    if (knownMax === null) {
+      throw new Error('NDArray has no values');
+    }
+
+    return knownMax;
   }
 
 

@@ -111,4 +111,9 @@ export class DeferredCollection {
       (value: DeferredValue) => value.isSet(),
     );
   }
+
+
+  public unsetValues(): void {
+    _.each(this.collection, (value: DeferredValue) => value.unset());
+  }
 }

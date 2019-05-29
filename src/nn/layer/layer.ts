@@ -177,5 +177,10 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
       throw new Error(`Unexpected state: ${LayerState[this.state]}`);
     }
   }
+
+
+  public unsetOutputValues(): void {
+    this.output.unsetValues();
+  }
 }
 
