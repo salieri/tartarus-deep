@@ -25,6 +25,7 @@
 *   Activation functions ✔
 *   Cost functions ✔
 *   Neural networks ⏳
+*   Acyclic networks ✔
 *   CNNs
 *   RNNs
 *   Regularization
@@ -32,10 +33,12 @@
 *   Chainable models ✔
 *   Randomization ✔
 *   Metrics ⏳
+*   Optimizers
 
 
 
 ### 2. Compatibility
+
 
 *   Runs on Node.js ✔
 *   Runs on modern browsers
@@ -62,7 +65,8 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 *   <http://www.numpy.org/>
 *   <https://www.coursera.org/specializations/deep-learning>
 *   <https://www.quora.com/How-does-Keras-calculate-accuracy>
-
+*   <https://brilliant.org/wiki/backpropagation/>
+*   <https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/>
 
 
 

@@ -41,6 +41,8 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   implements GraphEntity {
   public readonly output = new DeferredCollection();
 
+  public readonly backpropOutput = new DeferredCollection();
+
   public readonly optimizer = new DeferredCollection();
 
   protected readonly name: string;
@@ -52,6 +54,8 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   protected session?: Session;
 
   protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
+
+  protected rawBackpropInputs: DeferredInputCollection = new DeferredInputCollection();
 
 
   public constructor(params: TInput = {} as any, name?: string) {
@@ -119,7 +123,13 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
     await this.compileExec();
 
+    this.declareBackprop();
+
     this.state = LayerState.Compiled;
+  }
+
+  protected declareBackprop() {
+    const outputShape = this.output.getDefault();
   }
 
 
@@ -164,6 +174,25 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   public getRawInputs(): DeferredInputCollection {
     return this.rawInputs;
+  }
+
+
+  public setRawBackpropInputs(inputs: DeferredInputCollection): void {
+    this.rawBackpropInputs = inputs;
+  }
+
+
+  public getRawBackpropOutputs(): DeferredInputCollection {
+    const out = new DeferredInputCollection();
+
+    out.setDefault(this.backpropOutput);
+
+    return out;
+  }
+
+
+  public getRawBackpropInputs(): DeferredInputCollection {
+    return this.rawBackpropInputs;
   }
 
 

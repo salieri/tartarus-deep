@@ -14,8 +14,11 @@ export interface GraphEntity {
 
   getRawOutputs(): DeferredInputCollection;
   getRawInputs(): DeferredInputCollection;
-
   setRawInputs(inputs: DeferredInputCollection): void;
+
+  getRawBackpropOutputs(): DeferredInputCollection;
+  getRawBackpropInputs(): DeferredInputCollection;
+  setRawBackpropInputs(inputs: DeferredInputCollection): void;
 
   forward(): Promise<void>;
   backward(): Promise<void>;

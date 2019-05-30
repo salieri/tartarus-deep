@@ -3,30 +3,16 @@ import { GraphEntity } from './entity';
 import { DeferredInputCollection } from '../symbols';
 
 
-// export class GraphFeed {
-//   public node: GraphNode;
-//
-//   public label: string;
-//
-//   public constructor(node: GraphNode, label: string) {
-//     this.node = node;
-//     this.label = label;
-//   }
-// }
-
-
 export class GraphNode {
   private readonly entity: GraphEntity;
 
   private rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
+  private rawBackpropInputs: DeferredInputCollection = new DeferredInputCollection();
+
   private outputNodes: GraphNode[] = [];
 
   private inputNodes: GraphNode[] = [];
-
-  // private connected: boolean = false;
-
-  // private level: number = 0;
 
 
   public constructor(entity: GraphEntity) {
@@ -86,20 +72,16 @@ export class GraphNode {
 
   public getRawInputs(): DeferredInputCollection {
     return this.rawInputs;
-    // if (this.rawInputs) {
-    //   return this.rawInputs;
-    // }
-    //
-    // const rawInputs = new DeferredInputCollection();
-    //
-    // _.each(
-    //   this.inputNodes,
-    //   (node: GraphNode) => rawInputs.merge(node.getEntity().getRawOutputs(), node.getName()),
-    // );
-    //
-    // this.rawInputs = rawInputs;
-    //
-    // return rawInputs;
+  }
+
+
+  public getRawBackpropOutputs(): DeferredInputCollection {
+    return this.entity.getRawBackpropOutputs();
+  }
+
+
+  public getRawBackpropInputs(): DeferredInputCollection {
+    return this.rawBackpropInputs;
   }
 
 

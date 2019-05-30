@@ -42,7 +42,7 @@ describe(
 
 
     it(
-      'should evaluate the model performance',
+      'should evaluate model performance',
       async () => {
         console.log(await model.evaluate(4, 8));
       },

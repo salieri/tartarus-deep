@@ -37,8 +37,8 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   /**
    * dW[L] =
    */
-  protected async backwardExec(): Promise<void> {
-    // empty on purpose
+  protected async backwardExec(dPrev): Promise<void> {
+
   }
 
 

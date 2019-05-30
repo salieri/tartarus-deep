@@ -51,7 +51,7 @@ describe(
         m.push(new Dense({ units: 4 }));
         m.push(new Dense({ units: 4 }));
 
-        await m.compile().should.be.rejectedWith(/Could not resolve input for layer/);
+        await m.compile().should.be.rejectedWith(/Could not resolve input entity for layer/);
       },
     );
 

@@ -51,13 +51,13 @@ export interface WeightCollection {
 
 
 export interface MetricResultCollection {
-  [key: string]: number;
+  [key: string]: DeferredInputCollection;
 }
 
 
 export interface EvaluationResult {
   metrics: MetricResultCollection;
-  loss: number;
+  losses: DeferredInputCollection;
 }
 
 
@@ -75,6 +75,8 @@ export class Model
   protected readonly name: string;
 
   protected outputWeights: WeightCollection = {};
+
+  protected evaluation?: EvaluationResult;
 
 
   public constructor(params: ModelParamsInput = {}, name?: string) {
@@ -141,8 +143,17 @@ export class Model
   }
 
 
+  public getRawBackpropInputs(): DeferredInputCollection {
+    return this.graph.getRawBackpropInputs();
+  }
+
+
+  public setRawBackpropInputs(inputs: DeferredInputCollection): void {
+    this.graph.setRawBackpropInputs(inputs);
+  }
+
+
   public setRawInputs(inputs: DeferredInputCollection): void {
-    // this.rawInputs = inputs;
     this.graph.setRawInputs(inputs);
   }
 
@@ -154,6 +165,11 @@ export class Model
 
   public getRawOutputs(): DeferredInputCollection {
     return this.graph.getRawOutputs();
+  }
+
+
+  public getRawBackpropOutputs(): DeferredInputCollection {
+    return this.graph.getRawBackpropOutputs();
   }
 
 
@@ -251,30 +267,93 @@ export class Model
   }
 
 
-  public async fit(): Promise<void> {
-    // moo
+  public async fit(input: RelaxedInputCollectionDefinition, expectedOutput: RelaxedOutputCollectionDefinition): Promise<void> {
+    await this.evaluate(input, expectedOutput);
+
+    const coercedExpectedOutput = Model.coerceOutput(expectedOutput);
+    const outputDerivatives = this.calculateTopLevelBackpropInputs(coercedExpectedOutput);
+
+    this.graph.assignBackpropInput(outputDerivatives);
+
+    await this.backward();
+  }
+
+
+  protected calculateTopLevelBackpropInputs(expectedOutput: DeferredInputCollection): DeferredInputCollection {
+    const rawOutputs = this.getRawOutputs();
+    const backpropInputs = this.getRawBackpropInputs();
+
+    if (!this.evaluation) {
+      throw new Error('Derivatives cannot be calculated before forward propagation');
+    }
+
+    const evaluation = this.evaluation;
+
+    _.each(
+      backpropInputs.getKeys(),
+      (key: string) => {
+        const yHat = rawOutputs.get(key).getDefault().get();
+        const y = expectedOutput.get(key).getDefault().get();
+
+        const dETotalOverOutput = y.sub(yHat).neg();
+
+        const coll = backpropInputs.get(key).getCollection();
+
+        coll.setValue('derivative', dETotalOverOutput);
+        coll.setValue('loss', evaluation.losses.get(key).getDefault().get());
+
+        backpropInputs.set(key, coll);
+      },
+    );
+
+    return backpropInputs;
   }
 
 
   public async evaluate(input: RelaxedInputCollectionDefinition, expectedOutput: RelaxedOutputCollectionDefinition):
     Promise<EvaluationResult> {
     const output = await this.predict(input);
-    const coercedExepctedOutput = Model.coerceOutput(expectedOutput);
+    const coercedExpectedOutput = Model.coerceOutput(expectedOutput);
 
-    if (!_.isEqual(output.getKeys().sort(), coercedExepctedOutput.getKeys().sort())) {
+    if (!_.isEqual(output.getKeys().sort(), coercedExpectedOutput.getKeys().sort())) {
       throw new Error(
         `Test labels for model '${this.getName()}' do not match with model output -- `
-        + `(${output.getKeys()}) vs (${coercedExepctedOutput.getKeys()})`,
+        + `(${output.getKeys()}) vs (${coercedExpectedOutput.getKeys()})`,
       );
     }
 
-    const loss = this.calculateWeightedScore(output, coercedExepctedOutput, this.params.loss);
-    const metrics = this.calculateMetrics(output, coercedExepctedOutput);
+    const losses = this.calculateOutputScores(output, coercedExpectedOutput, this.params.loss);
+    const metrics = this.calculateMetrics(output, coercedExpectedOutput);
 
-    return {
+    this.evaluation = {
+      losses,
       metrics,
-      loss,
     };
+
+    return this.evaluation;
+  }
+
+
+  protected calculateOutputScores(
+    output: DeferredInputCollection,
+    expectedOutput: DeferredInputCollection,
+    loss: Loss|Metric,
+  ): DeferredInputCollection {
+    const result = new DeferredInputCollection();
+
+    _.each(
+      output.getKeys(),
+      (key: string) => {
+        const outputValue = new Vector(output.get(key).getDefault().get());
+        const expectedOuputValue = new Vector(expectedOutput.get(key).getDefault().get());
+
+        const lossScore = this.getOutputWeight(key) * loss.calculate(outputValue, expectedOuputValue);
+
+        result.set(key, new DeferredCollection(new NDArray([lossScore])));
+      },
+    );
+
+    return result;
   }
 
 
@@ -283,22 +362,8 @@ export class Model
       _.keys(this.params.metrics),
       _.map(
         this.params.metrics,
-        (metric: Metric) => this.calculateWeightedScore(output, expectedOutput, metric),
+        (metric: Metric) => this.calculateOutputScores(output, expectedOutput, metric),
       ),
-    );
-  }
-
-
-  protected calculateWeightedScore(output: DeferredInputCollection, expectedOutput: DeferredInputCollection, loss: Loss|Metric): number {
-    return _.reduce(
-      output.getKeys(),
-      (accumulator: number, key: string): number => {
-        const outputValue = new Vector(output.get(key).getDefault().get());
-        const expectedOuputValue = new Vector(expectedOutput.get(key).getDefault().get());
-
-        return accumulator + this.getOutputWeight(key) * loss.calculate(outputValue, expectedOuputValue);
-      },
-      0,
     );
   }
 
@@ -337,7 +402,7 @@ export class Model
 
     this.unsetOutputValues();
 
-    this.graph.assign(preparedInput);
+    this.graph.assignInput(preparedInput);
 
     await this.forward();
 

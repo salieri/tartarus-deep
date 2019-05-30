@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import { GraphNode } from './node';
 import { GraphEntity, EntityIdentifier } from './entity';
-import { DeferredInputCollection, DeferredReadonlyCollection } from '../symbols';
-import { KeyNotFoundError } from '../../error';
+import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { GraphProcessor, GraphProcessorDirection } from './processor';
+import { NodeBackpropInputConnector, NodeInputConnector } from './connector';
 
 
 export enum GraphState {
@@ -25,7 +25,11 @@ export class Graph {
 
   protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
+  protected rawBackpropInputs: DeferredInputCollection = new DeferredInputCollection();
+
   protected outputNodes: GraphNode[] = [];
+
+  protected inputNodes: GraphNode[] = [];
 
 
   public constructor(name: string) {
@@ -267,6 +271,8 @@ export class Graph {
     if (this.outputNodes.length === 0) {
       throw new Error(`Model '${this.getName()}' has no defined outputs`);
     }
+
+    this.checkForUnconnectedNodes();
   }
 
 
@@ -285,6 +291,8 @@ export class Graph {
       ),
     );
 
+    this.resolveRawBackpropInputsForNodes();
+
     // await this.verifyLinks();
 
     this.state = GraphState.Compiled;
@@ -292,71 +300,59 @@ export class Graph {
 
 
   protected resolveRawInputsForNodes(): void {
-    let defaultInput: DeferredReadonlyCollection|undefined;
-    let defaultSpent = false;
+    const connector = new NodeInputConnector(this);
 
-    try {
-      defaultInput = this.rawInputs.getDefault();
-    } catch (err) {
-      if (!(err instanceof KeyNotFoundError)) {
-        throw err;
-      }
-    }
+    this.inputNodes = connector.connect();
+  }
 
 
+  protected determineBackpropInputs(): DeferredInputCollection {
+    const rawOutputs = this.getRawOutputs();
+    const backpropInputs = new DeferredInputCollection();
+
+    _.each(
+      rawOutputs.getKeys(),
+      (key: string) => {
+        const output = rawOutputs.get(key).getDefault();
+        const coll = new DeferredCollection();
+
+        coll.declare('derivative', output.getDims());
+        coll.declare('loss', 1);
+
+        backpropInputs.set(key, coll);
+      },
+    );
+
+    return backpropInputs;
+  }
+
+
+  protected resolveRawBackpropInputsForNodes(): void {
+    this.rawBackpropInputs = this.determineBackpropInputs();
+
+    const connector = new NodeBackpropInputConnector(this);
+
+    connector.connect();
+  }
+
+
+  protected checkForUnconnectedNodes(): void {
     _.each(
       this.nodes,
       (node: GraphNode) => {
-        const inputNodes = node.getInputNodes();
-        const inputCount = inputNodes.length;
+        const inputCount = node.getInputNodes().length;
         const outputCount = node.getOutputNodes().length;
 
         if ((inputCount === 0) && (outputCount === 0) && (!_.find(this.outputNodes, (n: GraphNode) => (n === node)))) {
           throw new Error(`Node '${node.getName()}' is not connected with any other node or output`);
         }
-
-        let entityInput;
-        const nodeRawInputs = node.getRawInputs();
-
-        // Feed matching input name from rawInputs to the node
-        try {
-          entityInput = this.rawInputs.get(node.getName());
-
-          nodeRawInputs.setDefault(entityInput);
-        } catch (err) {
-          if (!(err instanceof KeyNotFoundError)) {
-            throw err;
-          }
-        }
-
-        // If no matching input was available in rawInputs and the node has no linked inputs, feed default input
-        if ((inputCount === 0) && (!entityInput)) {
-          if (!defaultInput) {
-            throw new Error(`Could not resolve input for layer '${node.getName()}' in model ${this.getName()}`);
-          }
-
-          if (defaultSpent) {
-            throw new Error(
-              `Multiple inputs in model '${this.getName()}' require default inputs, including '${node.getName()}'`,
-            );
-          }
-
-          nodeRawInputs.setDefault(defaultInput);
-
-          defaultSpent = true;
-        }
-
-        // Feed linked inputs to the node
-        _.each(
-          inputNodes,
-          (inputNode: GraphNode) => nodeRawInputs.merge(inputNode.getRawOutputs(), inputNode.getName()),
-        );
       },
     );
+  }
 
-    if ((defaultInput) && (!defaultSpent)) {
-      throw new Error(`Default input was defined but not spent in model '${this.getName()}'`);
-    }
+
+  public getAllNodes(): GraphNode[] {
+    return this.nodes;
   }
 
 
@@ -367,6 +363,41 @@ export class Graph {
 
   public getRawInputs(): DeferredInputCollection {
     return this.rawInputs;
+  }
+
+
+  public setRawBackpropInputs(inputs: DeferredInputCollection): void {
+    this.rawBackpropInputs = inputs;
+  }
+
+
+  public getRawBackpropInputs(): DeferredInputCollection {
+    return this.rawBackpropInputs;
+  }
+
+
+  public getRawBackpropOutputs(): DeferredInputCollection {
+    if (this.inputNodes.length === 0) {
+      throw new Error('No input nodes');
+    }
+
+    if (this.inputNodes.length === 1) {
+      const collection = new DeferredInputCollection();
+
+      // don't re-map default output
+      collection.merge(this.inputNodes[0].getRawBackpropOutputs());
+
+      return collection;
+    }
+
+    const out = new DeferredInputCollection();
+
+    _.each(
+      this.inputNodes,
+      (inputNode: GraphNode) => (out.merge(inputNode.getRawBackpropOutputs(), inputNode.getName())),
+    );
+
+    return out;
   }
 
 
@@ -420,7 +451,7 @@ export class Graph {
   }
 
 
-  public assign(inputs: DeferredInputCollection): void {
+  public assignInput(inputs: DeferredInputCollection): void {
     const expectedKeys = this.rawInputs.getKeys().sort();
     const inputKeys = inputs.getKeys().sort();
     const diff = _.difference(expectedKeys, inputKeys);
@@ -430,6 +461,19 @@ export class Graph {
     }
 
     this.rawInputs.assign(inputs);
+  }
+
+
+  public assignBackpropInput(inputs: DeferredInputCollection): void {
+    const expectedKeys = this.rawBackpropInputs.getKeys().sort();
+    const inputKeys = inputs.getKeys().sort();
+    const diff = _.difference(expectedKeys, inputKeys);
+
+    if (diff.length > 0) {
+      throw new Error(`Backprop input is missing missing keys: ${diff}`);
+    }
+
+    this.rawBackpropInputs.assign(inputs);
   }
 
 
@@ -456,7 +500,7 @@ export class Graph {
   public async backward(): Promise<void> {
     this.requireState(GraphState.Initialized);
 
-    const processor = new GraphProcessor(this.nodes, GraphProcessorDirection.Forward);
+    const processor = new GraphProcessor(this.nodes, GraphProcessorDirection.Backward);
 
     await processor.process(
       async (node: GraphNode) => (node.backward()),
@@ -467,53 +511,5 @@ export class Graph {
   public unsetOutputValues(): void {
     _.each(this.nodes, (node: GraphNode) => node.unsetOutputValues());
   }
-
-
-  /**
-   * This is super unoptimized way of compiling stuff, but intention is to
-   * let the graph partially compile, which may enable other parts of the graph to compile,
-   * and repeat that until the entire graph compiles.
-   */
-  // not necessary for compilation, actually, but might be the calculation method
-  // public async compile(): Promise<void> {
-  //   this.canModify();
-  //
-  //   this.state = GraphState.Compiling;
-  //
-  //   let uncompiledCount = 0;
-  //   const compilationErrors = [];
-  //
-  //   do {
-  //     const uncompiledLayers = _.map(
-  //       _.filter(this.nodes, (node: LayerGraphNode) => (node.isCompiled())),
-  //       (node: LayerGraphNode) => node.layer.compile(),
-  //     );
-  //
-  //     try {
-  //       /* eslint-disable no-await-in-loop */
-  //       await Promise.all(uncompiledLayers);
-  //     } catch (err) {
-  //       if (err instanceof RecoverableCompilationError) {
-  //         compilationErrors.push(err);
-  //       } else {
-  //         throw err;
-  //       }
-  //     }
-  //
-  //     uncompiledCount = this.countUnresolvedNodes();
-  //
-  //     if ((uncompiledCount > 0) && (uncompiledCount === uncompiledLayers.length)) {
-  //       const e = new Error('Compilation failed');
-  //
-  //       e.compilationErrors = compilationErrors;
-  //
-  //       throw e;
-  //     }
-  //   } while (uncompiledCount > 0);
-  //
-  //
-  //
-  //   this.state = GraphState.Compiled;
-  // }
 }
 
