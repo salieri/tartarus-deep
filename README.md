@@ -24,13 +24,15 @@
 *   Loss functions ✔
 *   Activation functions ✔
 *   Cost functions ✔
-*   Neural networks
+*   Neural networks ⏳
 *   CNNs
 *   RNNs
 *   Regularization
 *   Graph networks ✔
 *   Chainable models ✔
 *   Randomization ✔
+*   Metrics ⏳
+
 
 
 ### 2. Compatibility
@@ -60,6 +62,7 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 *   <http://www.numpy.org/>
 *   <https://www.coursera.org/specializations/deep-learning>
 *   <https://www.quora.com/How-does-Keras-calculate-accuracy>
+
 
 
 
