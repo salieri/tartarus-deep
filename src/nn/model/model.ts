@@ -126,6 +126,8 @@ export class Model
 
 
   public add(entity: GraphEntity, parentEntities?: EntityIdentifier|EntityIdentifier[]): Model {
+    entity.setSession(this.session);
+
     this.graph.add(entity, parentEntities);
 
     return this;
@@ -161,6 +163,8 @@ export class Model
 
 
   public push(entity: GraphEntity): Model {
+    entity.setSession(this.session);
+
     const node = this.graph.push(entity);
 
     this.output(node);
@@ -233,6 +237,17 @@ export class Model
     await this.graph.compile();
 
     this.state = ModelState.Compiled;
+  }
+
+
+  public async initialize(): Promise<void> {
+    if (this.state !== ModelState.Compiled) {
+      throw new Error('Model has to be compiled before it can be initialized');
+    }
+
+    await this.graph.initialize();
+
+    this.state = ModelState.Initialized;
   }
 
 
@@ -317,8 +332,8 @@ export class Model
   // }
 
 
-  public async predict(input: RelaxedInputCollectionDefinition): Promise<DeferredInputCollection> {
-    const preparedInput = Model.coerceInput(input);
+  public async predict(input: RelaxedOutputCollectionDefinition): Promise<DeferredInputCollection> {
+    const preparedInput = Model.coerceOutput(input);
 
     this.unsetOutputValues();
 
@@ -342,6 +357,11 @@ export class Model
 
   public unsetOutputValues(): void {
     this.graph.unsetOutputValues();
+  }
+
+
+  public setSession(session: Session): void {
+    this.session = session;
   }
 }
 

@@ -116,4 +116,27 @@ export class DeferredCollection {
   public unsetValues(): void {
     _.each(this.collection, (value: DeferredValue) => value.unset());
   }
+
+
+  public assign(inbound: DeferredCollection): void {
+    const inboundDefaultKey = inbound.getDefaultKey();
+
+    _.each(
+      inbound.getKeys(),
+      (key: string) => {
+        const finalKey = (key === inboundDefaultKey) ? this.getDefaultKey() : key;
+
+        if (!this.has(finalKey)) {
+          throw new Error(`Cannot assign undeclared key '${key}' => '${finalKey}'`);
+        }
+
+        this.setValue(finalKey, inbound.get(key).get());
+      },
+    );
+  }
+
+
+  public has(key: string): boolean {
+    return (key in this.collection);
+  }
 }

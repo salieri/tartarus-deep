@@ -29,7 +29,7 @@ export class GraphProcessor {
   protected async processReadyNodes(callback: GraphNodeProcessorFunction): Promise<void> {
     await Promise.all(
       _.map(
-        _.filter(this.nodes, (node: GraphProcessorNode) => ((node.isProcessed()) || (!node.canProcess(this.direction)))),
+        _.filter(this.nodes, (node: GraphProcessorNode) => ((!node.isProcessed()) && (node.canProcess(this.direction)))),
         async (node: GraphProcessorNode): Promise<void> => {
           node.setResult(await callback(node.getNode()));
           node.setProcessed(true);

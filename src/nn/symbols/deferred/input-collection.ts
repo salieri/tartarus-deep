@@ -95,9 +95,13 @@ export class DeferredInputCollection {
     _.each(
       inputs.getKeys(),
       (key: string) => {
-        if (this.has(key)) {
-          this.set(key, inputs.get(key));
+        if (!this.has(key)) {
+          throw new Error(`Cannot assign an undeclared input: ${key}`);
         }
+
+        const collection = this.get(key);
+
+        collection.assign(inputs.get(key));
       },
     );
   }

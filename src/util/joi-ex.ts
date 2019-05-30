@@ -25,14 +25,19 @@ function createCMExtension(name: string, cm: ClassManager): Function {
       },
       coerce(value: any, state: any, options: any): any {
         try {
-          const layer = _.get(options, 'context.refObject');
+          let layer;
 
-          if ((_.get(this, '_type') === 'initializer') && (!layer)) {
-            return (this as any).createError(`${name}.layerMissing`, {}, state, options);
+          if (_.get(this, '_type') === 'initializer') {
+            layer = _.get(options, 'context.refObject');
+
+            if (!layer) {
+              return (this as any).createError(`${name}.layerMissing`, {}, state, options);
+            }
           }
 
           return cm.coerce(value || _.get(this, '_flags.default'), layer);
         } catch (e) {
+          // console.error(e);
           return (this as any).createError(`${name}.coerceFailure`, {}, state, options);
         }
       },

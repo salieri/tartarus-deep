@@ -69,4 +69,9 @@ export class DeferredReadonlyCollection {
   public getRequiredFields(): string[] {
     return this.requiredFields;
   }
+
+
+  public assign(collection: DeferredReadonlyCollection): void {
+    this.collection.assign(collection.collection);
+  }
 }

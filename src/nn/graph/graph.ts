@@ -415,7 +415,7 @@ export class Graph {
 
   protected requireState(state: GraphState): void {
     if (this.state !== state) {
-      throw new Error(`Unexpected state: ${this.state}`);
+      throw new Error(`Unexpected state: ${GraphState[this.state]}`);
     }
   }
 
@@ -433,8 +433,17 @@ export class Graph {
   }
 
 
-  public async forward(): Promise<void> {
+  public async initialize(): Promise<void> {
     this.requireState(GraphState.Compiled);
+
+    await Promise.all(_.map(this.nodes, (n: GraphNode) => n.initialize()));
+
+    this.state = GraphState.Initialized;
+  }
+
+
+  public async forward(): Promise<void> {
+    this.requireState(GraphState.Initialized);
 
     const processor = new GraphProcessor(this.nodes, GraphProcessorDirection.Forward);
 
@@ -445,7 +454,7 @@ export class Graph {
 
 
   public async backward(): Promise<void> {
-    this.requireState(GraphState.Compiled);
+    this.requireState(GraphState.Initialized);
 
     const processor = new GraphProcessor(this.nodes, GraphProcessorDirection.Forward);
 
