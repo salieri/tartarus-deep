@@ -75,18 +75,6 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
     return name;
   }
 
-  // public setParam(paramName: string, value: any): Layer {
-  //   const result = JoiEx.validate(this.params[paramName], value);
-  //
-  //   if (result.error) {
-  //     throw result.error;
-  //   }
-  //
-  //   this.params[paramName] = result.value;
-  //
-  //   return this;
-  // }
-
 
   public getParamSchema(): JoiExSchema {
     return JoiEx.object();
@@ -127,6 +115,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
     this.state = LayerState.Compiled;
   }
+
 
   protected declareBackprop() {
     const outputShape = this.output.getDefault();

@@ -30,7 +30,7 @@ export class GraphProcessorNode {
         return this.node.getRawInputs().areAllSet();
 
       case GraphProcessorDirection.Backward:
-        return this.node.getRawOutputs().areAllSet();
+        return this.node.getRawBackpropInputs().areAllSet();
 
       default:
         throw new Error('Unsupported direction');

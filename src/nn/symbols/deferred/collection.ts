@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { DeferredValue, DeferredValueType } from './value';
-import { NDArray } from '../../../math';
+import { NDArray, NDArrayCollection } from '../../../math';
 import { KeyNotFoundError } from '../../../error';
 
 
@@ -14,11 +14,27 @@ export class DeferredCollection {
 
   private defaultKey: string = 'default';
 
-  public constructor(defaultValue?: NDArray) {
+  public constructor(defaultValue?: NDArray|NDArrayCollection) {
     if (defaultValue) {
-      this.declare(this.defaultKey, defaultValue.getDims());
-      this.setDefaultValue(defaultValue);
+      this.coerceData(defaultValue);
     }
+  }
+
+
+  protected coerceData(value: NDArray|NDArrayCollection): void {
+    if (value instanceof NDArray) {
+      this.declare(this.defaultKey, value.getDims());
+      this.setDefaultValue(value);
+      return;
+    }
+
+    _.each(
+      value,
+      (v: NDArray, k: string): void => {
+        this.declare(k, v.getDims());
+        this.setValue(k, v);
+      },
+    );
   }
 
 

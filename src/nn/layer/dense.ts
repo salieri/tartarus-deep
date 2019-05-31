@@ -77,6 +77,14 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   }
 
 
+  protected resolveBackpropInput(): void {
+    if (this.rawBackpropInputs.count() < 1) {
+      throw new Error(`Missing backprop input for dense layer '${this.getName()}'`);
+    }
+
+  }
+
+
   protected resolveInput(): void {
     try {
       const defaultInput = this.rawInputs.getDefault();

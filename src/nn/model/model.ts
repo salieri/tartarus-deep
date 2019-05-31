@@ -41,8 +41,8 @@ export interface ModelParamsCoerced extends ModelParamsInput {
 }
 
 
-export type RelaxedInputCollectionDefinition = number[]|number|NDArray|DeferredInputCollection|DeferredCollection;
-export type RelaxedOutputCollectionDefinition = RelaxedInputCollectionDefinition;
+export type RelaxedDeclarationCollectionDefinition = number[]|number|NDArray|DeferredInputCollection|DeferredCollection;
+export type RelaxedDataCollectionDefinition = RelaxedDeclarationCollectionDefinition;
 
 
 export interface WeightCollection {
@@ -189,20 +189,20 @@ export class Model
   }
 
 
-  protected static coerceOutput(definition: RelaxedOutputCollectionDefinition): DeferredInputCollection {
+  public static coerceData(definition: RelaxedDataCollectionDefinition): DeferredInputCollection {
     if (_.isNumber(definition) === true) {
-      return Model.coerceInput(new NDArray([definition as number]));
+      return Model.coerceDeclaration(new NDArray([definition as number]));
     }
 
     if ((_.isArray(definition) === true) && (_.isNumber((definition as any[])[0]))) {
-      return Model.coerceInput(new NDArray(definition as number[]));
+      return Model.coerceDeclaration(new NDArray(definition as number[]));
     }
 
-    return Model.coerceInput(definition);
+    return Model.coerceDeclaration(definition);
   }
 
 
-  protected static coerceInput(definition: RelaxedInputCollectionDefinition): DeferredInputCollection {
+  public static coerceDeclaration(definition: RelaxedDeclarationCollectionDefinition): DeferredInputCollection {
     if (definition instanceof  DeferredInputCollection) {
       return definition;
     }
@@ -224,8 +224,8 @@ export class Model
   }
 
 
-  public input(definition: RelaxedInputCollectionDefinition): Model {
-    this.setRawInputs(Model.coerceInput(definition));
+  public input(definition: RelaxedDeclarationCollectionDefinition): Model {
+    this.setRawInputs(Model.coerceDeclaration(definition));
 
     return this;
   }
@@ -267,10 +267,10 @@ export class Model
   }
 
 
-  public async fit(input: RelaxedInputCollectionDefinition, expectedOutput: RelaxedOutputCollectionDefinition): Promise<void> {
+  public async fit(input: RelaxedDeclarationCollectionDefinition, expectedOutput: RelaxedDataCollectionDefinition): Promise<void> {
     await this.evaluate(input, expectedOutput);
 
-    const coercedExpectedOutput = Model.coerceOutput(expectedOutput);
+    const coercedExpectedOutput = Model.coerceData(expectedOutput);
     const outputDerivatives = this.calculateTopLevelBackpropInputs(coercedExpectedOutput);
 
     this.graph.assignBackpropInput(outputDerivatives);
@@ -310,10 +310,10 @@ export class Model
   }
 
 
-  public async evaluate(input: RelaxedInputCollectionDefinition, expectedOutput: RelaxedOutputCollectionDefinition):
+  public async evaluate(input: RelaxedDeclarationCollectionDefinition, expectedOutput: RelaxedDataCollectionDefinition):
     Promise<EvaluationResult> {
     const output = await this.predict(input);
-    const coercedExpectedOutput = Model.coerceOutput(expectedOutput);
+    const coercedExpectedOutput = Model.coerceData(expectedOutput);
 
     if (!_.isEqual(output.getKeys().sort(), coercedExpectedOutput.getKeys().sort())) {
       throw new Error(
@@ -397,8 +397,8 @@ export class Model
   // }
 
 
-  public async predict(input: RelaxedOutputCollectionDefinition): Promise<DeferredInputCollection> {
-    const preparedInput = Model.coerceOutput(input);
+  public async predict(input: RelaxedDataCollectionDefinition): Promise<DeferredInputCollection> {
+    const preparedInput = Model.coerceData(input); // coerceOutput / RelaxedOutputCollectionDefinition is correct
 
     this.unsetOutputValues();
 
@@ -427,6 +427,11 @@ export class Model
 
   public setSession(session: Session): void {
     this.session = session;
+  }
+
+
+  public getGraph() : Graph {
+    return this.graph;
   }
 }
 

@@ -67,7 +67,8 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 *   <https://www.quora.com/How-does-Keras-calculate-accuracy>
 *   <https://brilliant.org/wiki/backpropagation/>
 *   <https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/>
-
+*   <https://eli.thegreenplace.net/2018/backpropagation-through-a-fully-connected-layer/>
+*   <https://towardsdatascience.com/recurrent-neural-networks-and-lstm-4b601dd822a5>
 
 
 ## Glossary
