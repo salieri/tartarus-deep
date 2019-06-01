@@ -1,6 +1,12 @@
 import _ from 'lodash';
 
-import { JoiEx, JoiExSchema } from '../../util';
+import {
+  JoiEx,
+  JoiExSchema,
+  ContextLogger,
+  Logger,
+  MuteLogger,
+} from '../../util';
 
 import {
   CompilationStage,
@@ -18,7 +24,6 @@ import { Cost } from '../cost';
 import { Loss } from '../loss';
 import { Metric } from '../metric';
 import { Layer } from '../layer';
-import { ContextLogger, Logger, MuteLogger } from '../../logger';
 
 
 export enum ModelState {

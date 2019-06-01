@@ -2,14 +2,19 @@ import _ from 'lodash';
 
 import { DeferredCollection, DeferredInputCollection, DeferredReadonlyCollection } from '../symbols';
 
-import { JoiEx, JoiExSchema } from '../../util';
+import {
+  JoiEx,
+  JoiExSchema,
+  ContextLogger,
+  Logger,
+  MuteLogger,
+} from '../../util';
 
 import { Parameterized, Parameters } from '../../generic';
 
 
 import { Session } from '../session';
 import { CompilationStage, GraphEntity } from '../graph';
-import { ContextLogger, Logger, MuteLogger } from '../../logger';
 
 
 export enum LayerState {

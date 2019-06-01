@@ -1,7 +1,7 @@
 import { DeferredInputCollection } from '../symbols';
 import { GraphNode } from './node';
 import { Session } from '../session';
-import { Logger } from '../../logger';
+import { Logger } from '../../util';
 
 /* eslint-disable-next-line @typescript-eslint/no-empty-interface */
 export interface GraphEntityParams {}

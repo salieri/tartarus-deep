@@ -1,5 +1,5 @@
 import { Xoshiro128, Randomizer } from '../../math/randomizer';
-import { ConsoleLogger, Logger } from '../../logger';
+import { ConsoleLogger, Logger } from '../../util';
 
 
 export class Session {

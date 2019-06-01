@@ -4,7 +4,7 @@ import { GraphNode } from '../node';
 import { DeferredInputCollection, DeferredReadonlyCollection } from '../../symbols/deferred';
 import { Graph } from '../graph';
 import { KeyNotFoundError } from '../../../error';
-import { ContextLogger, Logger } from '../../../logger';
+import { ContextLogger, Logger } from '../../../util';
 
 export abstract class NodeConnector {
   protected graph: Graph;

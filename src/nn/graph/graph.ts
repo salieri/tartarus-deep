@@ -6,7 +6,7 @@ import { GraphProcessor, GraphProcessorDirection } from './processor';
 import { NodeBackpropInputConnector, NodeInputConnector } from './connector';
 import { Layer } from '../layer';
 import { Session } from '../session';
-import { ContextLogger, Logger, MuteLogger } from '../../logger';
+import { ContextLogger, Logger, MuteLogger } from '../../util';
 
 
 export enum GraphState {
