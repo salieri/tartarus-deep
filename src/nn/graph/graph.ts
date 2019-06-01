@@ -1,14 +1,16 @@
 import _ from 'lodash';
 import { GraphNode } from './node';
-import { GraphEntity, EntityIdentifier } from './entity';
+import { CompilationStage, EntityIdentifier, GraphEntity } from './entity';
 import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { GraphProcessor, GraphProcessorDirection } from './processor';
 import { NodeBackpropInputConnector, NodeInputConnector } from './connector';
+import { Layer } from '../layer';
+import { Session } from '../session';
+import { ContextLogger, Logger, MuteLogger } from '../../logger';
 
 
 export enum GraphState {
   Created,
-  Compiling,
   Compiled,
   Initialized,
 }
@@ -31,9 +33,14 @@ export class Graph {
 
   protected inputNodes: GraphNode[] = [];
 
+  protected logger: Logger = new MuteLogger();
 
-  public constructor(name: string) {
+  protected session: Session;
+
+
+  public constructor(name: string, session: Session) {
     this.name = name;
+    this.session = session;
   }
 
 
@@ -108,6 +115,9 @@ export class Graph {
     this.nodes.push(newNode);
 
     _.each(resolvedParents, (parentNode: GraphNode) => (this.link(parentNode, newNode)));
+
+    entity.setSession(this.session);
+    entity.setLogger(this.logger);
 
     return newNode;
   }
@@ -276,26 +286,55 @@ export class Graph {
   }
 
 
-  public async compile(): Promise<void> {
+  public async compile(stage: CompilationStage): Promise<void> {
     this.requireState(GraphState.Created);
 
-    this.state = GraphState.Compiling;
+    switch (stage) {
+      case CompilationStage.Initialize:
+        this.prevalidateGraph();
+        break;
 
-    this.prevalidateGraph();
-    this.resolveRawInputsForNodes();
+      case CompilationStage.ForwardPropagation:
+        this.resolveRawInputsForNodes();
+        break;
 
-    await Promise.all(
-      _.map(
-        this.nodes,
-        (node: GraphNode) => (node.compile()), // no 'await' on purpose
-      ),
+      case CompilationStage.BackPropagation:
+        this.resolveRawBackpropInputsForNodes();
+        break;
+
+      case CompilationStage.Finalize:
+        break;
+
+      default:
+        throw new Error(`Unknown compilation stage: ${stage}`);
+    }
+
+
+    const processor = new GraphProcessor(
+      this.nodes,
+      (stage !== CompilationStage.BackPropagation) ? GraphProcessorDirection.Forward : GraphProcessorDirection.Backward,
     );
 
-    this.resolveRawBackpropInputsForNodes();
+    await processor.process(
+      async (node: GraphNode) => node.compile(stage),
+      (node: GraphNode, direction: GraphProcessorDirection) => {
+        switch (direction) {
+          case GraphProcessorDirection.Forward:
+            return node.getRawInputs().areAllDeclared();
 
-    // await this.verifyLinks();
+          case GraphProcessorDirection.Backward:
+            return node.getRawBackpropInputs().areAllDeclared();
 
-    this.state = GraphState.Compiled;
+          default:
+            throw new Error('Unsupported direction');
+        }
+      },
+    );
+
+
+    if (stage === CompilationStage.Finalize) {
+      this.state = GraphState.Compiled;
+    }
   }
 
 
@@ -316,8 +355,8 @@ export class Graph {
         const output = rawOutputs.get(key).getDefault();
         const coll = new DeferredCollection();
 
-        coll.declare('derivative', output.getDims());
-        coll.declare('loss', 1);
+        coll.declare(Layer.DERIVATIVE, output.getDims());
+        coll.declare(Layer.LOSS, 1);
 
         backpropInputs.set(key, coll);
       },
@@ -510,6 +549,30 @@ export class Graph {
 
   public unsetOutputValues(): void {
     _.each(this.nodes, (node: GraphNode) => node.unsetOutputValues());
+  }
+
+
+  public unsetBackpropOutputValues(): void {
+    _.each(this.nodes, (node: GraphNode) => node.unsetBackpropOutputValues());
+  }
+
+
+  public setSession(session: Session): void {
+    this.session = session;
+
+    _.each(this.nodes, (node: GraphNode) => node.getEntity().setSession(session));
+  }
+
+
+  public setLogger(parentLogger: Logger): void {
+    this.logger = new ContextLogger(parentLogger, 'graph');
+
+    _.each(this.nodes, (node: GraphNode) => node.getEntity().setLogger(this.logger));
+  }
+
+
+  public getLogger(): Logger {
+    return this.logger;
   }
 }
 

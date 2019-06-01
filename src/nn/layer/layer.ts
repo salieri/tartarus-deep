@@ -1,15 +1,15 @@
+import _ from 'lodash';
+
 import { DeferredCollection, DeferredInputCollection, DeferredReadonlyCollection } from '../symbols';
 
-import {
-  JoiEx,
-  JoiExSchema,
-} from '../../util';
+import { JoiEx, JoiExSchema } from '../../util';
 
 import { Parameterized, Parameters } from '../../generic';
 
 
 import { Session } from '../session';
-import { GraphEntity } from '../graph';
+import { CompilationStage, GraphEntity } from '../graph';
+import { ContextLogger, Logger, MuteLogger } from '../../logger';
 
 
 export enum LayerState {
@@ -53,9 +53,19 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   protected session?: Session;
 
+  protected readonly input: DeferredReadonlyCollection = new DeferredReadonlyCollection();
+
+  protected readonly backpropInput: DeferredReadonlyCollection = new DeferredReadonlyCollection();
+
   protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
   protected rawBackpropInputs: DeferredInputCollection = new DeferredInputCollection();
+
+  public static readonly DERIVATIVE: string = 'derivative';
+
+  public static readonly LOSS: string = 'loss';
+
+  protected logger: Logger = new MuteLogger();
 
 
   public constructor(params: TInput = {} as any, name?: string) {
@@ -104,21 +114,54 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  protected abstract async compileExec(): Promise<void>;
+  protected async compileInitialization(): Promise<void> { /* empty */ }
 
-  public async compile(): Promise<void> {
+  protected async compileForwardPropagation(): Promise<void> { /* empty */ }
+
+  protected async compileBackPropagation(): Promise<void> { /* empty */ }
+
+  protected async compileFinalization(): Promise<void> { /* empty */ }
+
+  protected async compileAsMember(stage: CompilationStage): Promise<void> {
     this.requireState(LayerState.Created);
 
-    await this.compileExec();
+    switch (stage) {
+      case CompilationStage.ForwardPropagation:
+        await this.compileForwardPropagation();
+        break;
 
-    this.declareBackprop();
+      case CompilationStage.BackPropagation:
+        await this.compileBackPropagation();
+        break;
 
-    this.state = LayerState.Compiled;
+      case CompilationStage.Initialize:
+        await this.compileInitialization();
+        break;
+
+      case CompilationStage.Finalize:
+        await this.compileFinalization();
+        this.state = LayerState.Compiled;
+        break;
+
+      default:
+        throw new Error(`Unknown compilation stage: ${stage}`);
+    }
   }
 
 
-  protected declareBackprop() {
-    const outputShape = this.output.getDefault();
+  protected async compileAsMaster(): Promise<void> {
+    // eslint-disable-next-line guard-for-in, no-restricted-syntax
+    for (const stage in _.filter(CompilationStage, _.isNumber)) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.compileAsMember(Number(stage));
+    }
+  }
+
+
+  public async compile(stage?: CompilationStage): Promise<void> {
+    this.requireState(LayerState.Created);
+
+    await (_.isUndefined(stage) ? this.compileAsMaster() : this.compileAsMember(stage));
   }
 
 
@@ -144,6 +187,11 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   public setSession(session: Session): void {
     this.session = session;
+  }
+
+
+  public setLogger(parentLogger: Logger): void {
+    this.logger = new ContextLogger(parentLogger, this.getName());
   }
 
 
@@ -199,6 +247,11 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   public unsetOutputValues(): void {
     this.output.unsetValues();
+  }
+
+
+  public unsetBackpropOutputValues(): void {
+    this.backpropOutput.unsetValues();
   }
 }
 

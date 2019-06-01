@@ -1,13 +1,21 @@
 import { DeferredInputCollection } from '../symbols';
 import { GraphNode } from './node';
 import { Session } from '../session';
+import { Logger } from '../../logger';
 
 /* eslint-disable-next-line @typescript-eslint/no-empty-interface */
 export interface GraphEntityParams {}
 
+export enum CompilationStage {
+  Initialize,
+  ForwardPropagation,
+  BackPropagation,
+  Finalize
+}
+
 
 export interface GraphEntity {
-  compile(): Promise<void>;
+  compile(state: CompilationStage): Promise<void>;
   initialize(): Promise<void>;
 
   getName(): string;
@@ -24,8 +32,10 @@ export interface GraphEntity {
   backward(): Promise<void>;
 
   unsetOutputValues(): void;
+  unsetBackpropOutputValues(): void;
 
   setSession(session: Session): void;
+  setLogger(parentLogger: Logger): void;
 }
 
 

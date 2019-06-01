@@ -71,6 +71,11 @@ export class DeferredReadonlyCollection {
   }
 
 
+  public areAllDeclared(): boolean {
+    return this.collection.areAllDeclared();
+  }
+
+
   public getRequiredFields(): string[] {
     return this.requiredFields;
   }

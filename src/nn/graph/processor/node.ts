@@ -24,13 +24,29 @@ export class GraphProcessorNode {
   }
 
 
-  public canProcess(direction: GraphProcessorDirection): boolean {
+  public static canProcess(node: GraphNode, direction: GraphProcessorDirection): boolean {
     switch (direction) {
       case GraphProcessorDirection.Forward:
-        return this.node.getRawInputs().areAllSet();
+        return node.getRawInputs().areAllSet();
 
       case GraphProcessorDirection.Backward:
-        return this.node.getRawBackpropInputs().areAllSet();
+        return node.getRawBackpropInputs().areAllSet();
+
+      default:
+        throw new Error('Unsupported direction');
+    }
+  }
+
+
+  public unsetOutput(direction: GraphProcessorDirection): void {
+    switch (direction) {
+      case GraphProcessorDirection.Forward:
+        this.node.unsetOutputValues();
+        break;
+
+      case GraphProcessorDirection.Backward:
+        this.node.unsetBackpropOutputValues();
+        break;
 
       default:
         throw new Error('Unsupported direction');

@@ -129,6 +129,11 @@ export class DeferredCollection {
   }
 
 
+  public areAllDeclared(): boolean {
+    return (this.getKeys().length > 0);
+  }
+
+
   public unsetValues(): void {
     _.each(this.collection, (value: DeferredValue) => value.unset());
   }

@@ -1,7 +1,7 @@
 import { Dense, Model } from '../../../../src/nn';
 import { GraphNode, GraphProcessor, GraphProcessorDirection } from '../../../../src/nn/graph';
 
-describe.only(
+describe(
   'Node Processor',
   () => {
     const model = new Model();

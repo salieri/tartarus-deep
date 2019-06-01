@@ -115,6 +115,22 @@ export class DeferredInputCollection {
   }
 
 
+  public areAllDeclared(): boolean {
+    return _.every(
+      this.inputs,
+      (input: DeferredReadonlyCollection) => input.areAllDeclared(),
+    );
+  }
+
+
+  public unsetValues(): void {
+    _.each(
+      this.inputs,
+      (input: DeferredReadonlyCollection) => input.getCollection().unsetValues(),
+    );
+  }
+
+
   /* public filter(matchList: string[], convertSingleToDefault: boolean = false): DeferredInputCollection {
     if (matchList.length === 0) {
       throw new Error('Empty match list');

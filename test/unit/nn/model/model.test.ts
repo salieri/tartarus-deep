@@ -117,7 +117,7 @@ describe(
     );
 
 
-    it(
+    it.only(
       'should allow a node to have multiple input sources',
       async () => {
         const m = new Model();
@@ -132,6 +132,7 @@ describe(
         const anotherLayer = new Concat({ fields: ['layer-2', 'layer-1'] }, 'another');
 
         m.add(anotherLayer, ['layer-1', 'layer-2']);
+        m.output('another');
 
         await m.compile();
 

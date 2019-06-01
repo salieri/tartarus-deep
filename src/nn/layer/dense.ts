@@ -3,7 +3,6 @@ import { Activation } from '../activation';
 import { JoiEx, JoiExSchema } from '../../util';
 import { Matrix, NDArray, Vector } from '../../math';
 import { Initializer } from '../initializer';
-import { DeferredReadonlyCollection } from '../symbols';
 import { KeyNotFoundError } from '../../error';
 
 
@@ -30,8 +29,6 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   protected static readonly LINEAR_OUTPUT = 'linear';
 
   protected static readonly ACTIVATED_OUTPUT = 'activated';
-
-  protected readonly input: DeferredReadonlyCollection = new DeferredReadonlyCollection();
 
 
   /**
@@ -82,6 +79,28 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
       throw new Error(`Missing backprop input for dense layer '${this.getName()}'`);
     }
 
+    // This needs rewriting to deal with cases where a layer has multiple outputs
+    // This needs rewriting to deal with bias, not just weight
+    try {
+      const defaultInput = this.rawBackpropInputs.getDefault();
+
+      this.backpropInput.setCollection(defaultInput);
+      return;
+    } catch (err) {
+      if (!(err instanceof KeyNotFoundError)) {
+        throw err;
+      }
+    }
+
+    if (this.rawBackpropInputs.count() < 1) {
+      throw new Error(`Missing input for dense layer '${this.getName()}'`);
+    }
+
+    if (this.rawBackpropInputs.count() > 1) {
+      throw new Error(`Too many inputs for a dense layer '${this.getName()}'`);
+    }
+
+    this.backpropInput.setCollection(this.rawBackpropInputs.first());
   }
 
 
@@ -109,7 +128,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   }
 
 
-  protected async compileExec(): Promise<void> {
+  protected async compileForwardPropagation(): Promise<void> {
     this.resolveInput();
 
     this.input.requireDefault();
@@ -127,6 +146,19 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     this.output.declare(Dense.ACTIVATED_OUTPUT, [units]);
 
     this.output.setDefaultKey(Dense.ACTIVATED_OUTPUT);
+  }
+
+
+  protected async compileBackPropagation(): Promise<void> {
+    this.resolveBackpropInput();
+
+    this.backpropInput.require(Layer.DERIVATIVE);
+    this.backpropInput.require(Layer.LOSS);
+
+    const inputUnits = this.input.getDefault().countElements(); // input is correct
+
+    this.backpropOutput.declare(Layer.DERIVATIVE, inputUnits);
+    this.backpropOutput.declare(Layer.LOSS, 1);
   }
 
 

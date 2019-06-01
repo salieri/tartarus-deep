@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { JoiEx, JoiExSchema } from '../../util';
 
 import {
+  CompilationStage,
   EntityIdentifier,
   Graph,
   GraphEntity,
@@ -16,11 +17,12 @@ import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { Cost } from '../cost';
 import { Loss } from '../loss';
 import { Metric } from '../metric';
+import { Layer } from '../layer';
+import { ContextLogger, Logger, MuteLogger } from '../../logger';
 
 
 export enum ModelState {
   Created,
-  Compiling,
   Compiled,
   Initialized,
 }
@@ -78,17 +80,20 @@ export class Model
 
   protected evaluation?: EvaluationResult;
 
+  protected logger: Logger = new MuteLogger();
+
 
   public constructor(params: ModelParamsInput = {}, name?: string) {
     super(params);
 
-    this.session  = new Session(this.params.seed);
-
     Model.modelCounter += 1;
 
     this.name = this.validateName(name || `${this.constructor.name}#${Model.modelCounter}`);
+    this.session = new Session(this.params.seed);
+    this.graph = new Graph(this.name, this.session);
 
-    this.graph = new Graph(this.name);
+    this.setSession(this.session);
+    this.setLogger(this.session.getLogger());
   }
 
 
@@ -128,8 +133,6 @@ export class Model
 
 
   public add(entity: GraphEntity, parentEntities?: EntityIdentifier|EntityIdentifier[]): Model {
-    entity.setSession(this.session);
-
     this.graph.add(entity, parentEntities);
 
     return this;
@@ -179,8 +182,6 @@ export class Model
 
 
   public push(entity: GraphEntity): Model {
-    entity.setSession(this.session);
-
     const node = this.graph.push(entity);
 
     this.output(node);
@@ -243,20 +244,44 @@ export class Model
   }
 
 
-  public async compile(): Promise<void> {
+  protected async compileAsMember(stage: CompilationStage): Promise<void> {
+    this.logger.debug('model.compile.stage', () => ({ stage: CompilationStage[stage], member: true }));
+
+    await this.graph.compile(stage);
+
+    if (stage === CompilationStage.Finalize) {
+      this.state = ModelState.Compiled;
+    }
+  }
+
+
+  protected async compileAsMaster(): Promise<void> {
+    // eslint-disable-next-line guard-for-in, no-restricted-syntax
+    for (const stage in _.filter(CompilationStage, _.isNumber)) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.graph.compile(Number(stage));
+
+      this.logger.debug('model.compile.stage', { stage: CompilationStage[stage] });
+    }
+  }
+
+
+  public async compile(stage?: CompilationStage): Promise<void> {
+    this.logger.info('model.compile');
+
     if (this.state !== ModelState.Created) {
       throw new Error('Model has already been compiled');
     }
 
-    this.state = ModelState.Compiling;
-
-    await this.graph.compile();
+    await (_.isUndefined(stage) ? this.compileAsMaster() : this.compileAsMember(stage));
 
     this.state = ModelState.Compiled;
   }
 
 
   public async initialize(): Promise<void> {
+    this.logger.info('model.initialize');
+
     if (this.state !== ModelState.Compiled) {
       throw new Error('Model has to be compiled before it can be initialized');
     }
@@ -299,8 +324,8 @@ export class Model
 
         const coll = backpropInputs.get(key).getCollection();
 
-        coll.setValue('derivative', dETotalOverOutput);
-        coll.setValue('loss', evaluation.losses.get(key).getDefault().get());
+        coll.setValue(Layer.DERIVATIVE, dETotalOverOutput);
+        coll.setValue(Layer.LOSS, evaluation.losses.get(key).getDefault().get());
 
         backpropInputs.set(key, coll);
       },
@@ -400,8 +425,6 @@ export class Model
   public async predict(input: RelaxedDataCollectionDefinition): Promise<DeferredInputCollection> {
     const preparedInput = Model.coerceData(input); // coerceOutput / RelaxedOutputCollectionDefinition is correct
 
-    this.unsetOutputValues();
-
     this.graph.assignInput(preparedInput);
 
     await this.forward();
@@ -425,8 +448,22 @@ export class Model
   }
 
 
+  public unsetBackpropOutputValues(): void {
+    this.graph.unsetBackpropOutputValues();
+  }
+
+
   public setSession(session: Session): void {
     this.session = session;
+
+    this.graph.setSession(this.session);
+  }
+
+
+  public setLogger(parentLogger: Logger): void {
+    this.logger = new ContextLogger(parentLogger, this.getName());
+
+    this.graph.setLogger(this.logger);
   }
 
 

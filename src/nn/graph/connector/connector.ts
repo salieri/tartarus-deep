@@ -4,12 +4,18 @@ import { GraphNode } from '../node';
 import { DeferredInputCollection, DeferredReadonlyCollection } from '../../symbols/deferred';
 import { Graph } from '../graph';
 import { KeyNotFoundError } from '../../../error';
+import { ContextLogger, Logger } from '../../../logger';
 
 export abstract class NodeConnector {
   protected graph: Graph;
 
+  protected logger: Logger;
+
+
   public constructor(graph: Graph) {
     this.graph = graph;
+
+    this.logger = new ContextLogger(graph.getLogger(), 'connector');
   }
 
   public abstract listRelevantNodesForNode(node: GraphNode): GraphNode[];
@@ -41,11 +47,20 @@ export abstract class NodeConnector {
     const defaultRaw = this.getDefault();
     const fedNodes: GraphNode[] = [];
 
+    this.logger.debug('connector.connect', () => ({ mode: this.getType() }));
+
     _.each(
       this.graph.getAllNodes(),
       (node: GraphNode) => {
+        this.logger.debug('connector.connect.process', () => ({ node: node.getName() }));
+
         const relevantNodes = this.listRelevantNodesForNode(node);
         const relevantNodeCount = relevantNodes.length;
+
+        this.logger.debug(
+          'connector.connect.relevant',
+          () => ({ node: node.getName(), relevant: _.map(relevantNodes, (rn: GraphNode) => rn.getName()) }),
+        );
 
         let entityRaw;
         const nodeRaw = this.getNodeFeed(node);
@@ -57,6 +72,8 @@ export abstract class NodeConnector {
           nodeRaw.setDefault(entityRaw);
 
           fedNodes.push(node);
+
+          this.logger.debug('connector.connect.node.feed.fromShared', () => ({ node: node.getName() }));
         } catch (err) {
           if (!(err instanceof KeyNotFoundError)) {
             throw err;
@@ -82,6 +99,8 @@ export abstract class NodeConnector {
           fedNodes.push(node);
 
           defaultSpent = true;
+
+          this.logger.debug('connector.connect.node.feed.default', () => ({ node: node.getName() }));
         }
 
         // Feed linked sources to the node
@@ -89,6 +108,9 @@ export abstract class NodeConnector {
           relevantNodes,
           (sourceNode: GraphNode) => nodeRaw.merge(this.getMergeableSourcesForNode(sourceNode), sourceNode.getName()),
         );
+
+
+        this.logger.debug('connector.connect.node.feeds', () => ({ node: node.getName(), keys: nodeRaw.getKeys() }));
       },
     );
 
@@ -96,7 +118,8 @@ export abstract class NodeConnector {
       throw new Error(`Default ${this.getType()} entity was defined but not spent in model '${this.graph.getName()}'`);
     }
 
+    this.logger.debug('connector.connect.nodes', () => ({ nodes: _.map(fedNodes, (n: GraphNode) => n.getName()) }));
+
     return fedNodes;
   }
 }
-

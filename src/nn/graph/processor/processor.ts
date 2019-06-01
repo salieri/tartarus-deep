@@ -4,6 +4,8 @@ import { GraphProcessorNode } from './node';
 import { GraphNode } from '../node';
 
 export type GraphNodeProcessorFunction = (node: GraphNode) => Promise<void>;
+export type GraphNodeTestFunction = (node: GraphNode, direction: GraphProcessorDirection) => boolean;
+
 
 export enum GraphProcessorDirection {
   Forward,
@@ -11,9 +13,6 @@ export enum GraphProcessorDirection {
 }
 
 
-/**
- * This class is designed for single run only; subsequent runs calls to .process() do not result in multiple runs
- */
 export class GraphProcessor {
   private direction: GraphProcessorDirection;
 
@@ -26,10 +25,13 @@ export class GraphProcessor {
   }
 
 
-  protected async processReadyNodes(callback: GraphNodeProcessorFunction): Promise<void> {
+  protected async processReadyNodes(
+    callback: GraphNodeProcessorFunction,
+    canProcessTest: GraphNodeTestFunction = GraphProcessorNode.canProcess,
+  ): Promise<void> {
     await Promise.all(
       _.map(
-        _.filter(this.nodes, (node: GraphProcessorNode) => ((!node.isProcessed()) && (node.canProcess(this.direction)))),
+        _.filter(this.nodes, (node: GraphProcessorNode) => ((!node.isProcessed()) && (canProcessTest(node.getNode(), this.direction)))),
         async (node: GraphProcessorNode): Promise<void> => {
           node.setResult(await callback(node.getNode()));
           node.setProcessed(true);
@@ -48,12 +50,22 @@ export class GraphProcessor {
   }
 
 
-  public async process(callback: GraphNodeProcessorFunction): Promise<void> {
+  protected unsetOutput(): void {
+    _.each(this.nodes, (node: GraphProcessorNode) => node.unsetOutput(this.direction));
+  }
+
+
+  public async process(
+    callback: GraphNodeProcessorFunction,
+    canProcessTest: GraphNodeTestFunction = GraphProcessorNode.canProcess,
+  ): Promise<void> {
+    this.unsetOutput();
+
     let unprocessedCount = this.countUnprocessedNodes();
 
     while (unprocessedCount > 0) {
       // eslint-disable-next-line no-await-in-loop
-      await this.processReadyNodes(callback);
+      await this.processReadyNodes(callback, canProcessTest);
 
       const progressCount = this.countUnprocessedNodes();
 

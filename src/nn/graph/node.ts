@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { GraphEntity } from './entity';
+import { CompilationStage, GraphEntity } from './entity';
 import { DeferredInputCollection } from '../symbols';
 
 
@@ -90,10 +90,32 @@ export class GraphNode {
   }
 
 
-  public async compile(): Promise<void> {
-    this.entity.setRawInputs(this.getRawInputs());
+  public unsetBackpropOutputValues(): void {
+    this.getEntity().unsetBackpropOutputValues();
+  }
 
-    await this.entity.compile();
+
+  public async compile(stage: CompilationStage): Promise<void> {
+    switch (stage) {
+      case CompilationStage.Initialize:
+        break;
+
+      case CompilationStage.ForwardPropagation:
+        this.entity.setRawInputs(this.getRawInputs());
+        break;
+
+      case CompilationStage.BackPropagation:
+        this.entity.setRawBackpropInputs(this.getRawBackpropInputs());
+        break;
+
+      case CompilationStage.Finalize:
+        break;
+
+      default:
+        throw new Error(`Unknown compilation stage: ${stage}`);
+    }
+
+    await this.entity.compile(stage);
   }
 
 

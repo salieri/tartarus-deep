@@ -1,8 +1,7 @@
 import { DeferredCollection, Dense, Model } from '../../../../src/nn';
-import { GraphNode, GraphProcessor, GraphProcessorDirection } from '../../../../src/nn/graph';
 import { NDArray } from '../../../../src/math';
 
-describe.only(
+describe(
   'Graph Connector',
   () => {
     const model = new Model();
@@ -68,14 +67,18 @@ describe.only(
 
         const v1 = new NDArray([1, 2, 3]);
         const v2 = new NDArray([4, 5, 6, 7]);
-        // const v3 = new NDArray([8]);
 
+        // @ts-ignore
         d1.input.getDefault().get().should.equal(initialInput);
 
         d1.output.setDefaultValue(v1);
+
+        // @ts-ignore
         d2.input.getDefault().get().should.equal(v1);
 
         d2.output.setDefaultValue(v2);
+
+        // @ts-ignore
         d3.input.getDefault().get().should.equal(v2);
       },
     );
@@ -94,20 +97,29 @@ describe.only(
         const d2 = l2.getEntity() as Dense;
         const d3 = l3.getEntity() as Dense;
 
-        // const bv1 = new NDArray([-1, -2, -3]);
-        const bv2 = new NDArray([-4, -5, -6, -7]);
-        const bv3 = new NDArray([-8]);
+        const bv2 = new NDArray([-1, -2, -3]);
+        const bv3 = new NDArray([-4, -5, -6, -7]);
 
+        // @ts-ignore
         d3.rawBackpropInputs.getDefault().get('loss').get().should.equal(initialBackpropInput.get('loss').get());
+
+        // @ts-ignore
         d3.rawBackpropInputs.getDefault().get('derivative').get().should.equal(initialBackpropInput.get('derivative').get());
 
-        d3.backpropInput.getValue('loss').should.equal(initialBackpropInput.get('loss'));
-        d3.backpropInput.getValue('derivative').should.equal(initialBackpropInput.get('derivative'));
+        // @ts-ignore
+        d3.backpropInput.getValue('loss').should.equal(initialBackpropInput.get('loss').get());
+
+        // @ts-ignore
+        d3.backpropInput.getValue('derivative').should.equal(initialBackpropInput.get('derivative').get());
 
         d3.backpropOutput.setValue('derivative', bv3);
+
+        // @ts-ignore
         d2.backpropInput.getValue('derivative').should.equal(bv3);
 
         d2.backpropOutput.setValue('derivative', bv2);
+
+        // @ts-ignore
         d1.backpropInput.getValue('derivative').should.equal(bv2);
       },
     );

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { Layer, LayerParams } from './layer';
 import { JoiEx, JoiExSchema } from '../../util';
-import { DeferredValue, DeferredReadonlyCollection } from '../symbols';
+import { DeferredValue, DeferredReadonlyCollection, DeferredInputCollection, DeferredCollection } from '../symbols';
 import { NDArray } from '../../math';
 import { KeyNotFoundError } from '../../error';
 
@@ -162,11 +162,51 @@ export class Concat extends Layer<ConcatParams> {
   }
 
 
-  public async compileExec(): Promise<void> {
+  public async compileForwardPropagation(): Promise<void> {
     this.verifyInputLayers();
 
     this.output.declare(Concat.CONCATENATED, this.determineOutputSize());
     this.output.setDefaultKey(Concat.CONCATENATED);
+  }
+
+
+  protected rawBackpropOutputs = new DeferredInputCollection();
+
+
+  public async compileBackPropagation(): Promise<void> {
+    this.traverse(
+      (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string): void => {
+        let bpOutput: DeferredCollection;
+
+        try {
+          bpOutput = this.rawBackpropOutputs.get(layerKey).getCollection();
+        } catch (err) {
+          if (!(err instanceof KeyNotFoundError)) {
+            throw err;
+          }
+
+          bpOutput = new DeferredCollection();
+
+          bpOutput.declare(Layer.LOSS, 1);
+
+          this.rawBackpropOutputs.set(layerKey, bpOutput);
+        }
+
+        bpOutput.declare(fieldKey, field.getDims());
+      },
+    );
+
+    const i = 1;
+  }
+
+
+  public getRawBackpropOutputs(): DeferredInputCollection {
+    return this.rawBackpropOutputs;
+  }
+
+
+  public unsetBackpropOutputValues(): void {
+    this.rawBackpropOutputs.unsetValues();
   }
 
 
