@@ -18,20 +18,20 @@ export abstract class NodeConnector {
     this.logger = new ContextLogger(graph.getLogger(), 'connector');
   }
 
-  public abstract listRelevantNodesForNode(node: GraphNode): GraphNode[];
+  public abstract getSourceNodesForNode(node: GraphNode): GraphNode[];
 
-  public abstract getNodeFeed(node: GraphNode): DeferredInputCollection;
+  public abstract getNodeRawInputs(node: GraphNode): DeferredInputCollection;
 
-  public abstract getSharedFeed(): DeferredInputCollection;
+  public abstract getSharedInputs(): DeferredInputCollection;
 
-  public abstract getMergeableSourcesForNode(node: GraphNode): DeferredInputCollection;
+  public abstract getMergeableSourcesForNode(sourceNode: GraphNode, targetNode: GraphNode): DeferredInputCollection;
 
   public abstract getType(): string;
 
 
   public getDefault(): DeferredReadonlyCollection|null {
     try {
-      return this.getSharedFeed().getDefault();
+      return this.getSharedInputs().getDefault();
     } catch (err) {
       if (!(err instanceof KeyNotFoundError)) {
         throw err;
@@ -43,37 +43,37 @@ export abstract class NodeConnector {
 
 
   public connect(): GraphNode[] {
-    let defaultSpent = false;
-    const defaultRaw = this.getDefault();
-    const fedNodes: GraphNode[] = [];
+    let defaultOutputSpent = false;
+    const defaultRawOutput = this.getDefault();
+    const detectedExternalInputNodes: GraphNode[] = [];
 
     this.logger.debug('connector.connect', () => ({ mode: this.getType() }));
 
     _.each(
       this.graph.getAllNodes(),
-      (node: GraphNode) => {
-        this.logger.debug('connector.connect.process', () => ({ node: node.getName() }));
+      (curNode: GraphNode) => {
+        this.logger.debug('connector.connect.process', () => ({ node: curNode.getName() }));
 
-        const relevantNodes = this.listRelevantNodesForNode(node);
-        const relevantNodeCount = relevantNodes.length;
+        const sourceNodes = this.getSourceNodesForNode(curNode);
+        const sourceNodeCount = sourceNodes.length;
 
         this.logger.debug(
-          'connector.connect.relevant',
-          () => ({ node: node.getName(), relevant: _.map(relevantNodes, (rn: GraphNode) => rn.getName()) }),
+          'connector.connect.sources',
+          () => ({ node: curNode.getName(), relevant: _.map(sourceNodes, (n: GraphNode) => n.getName()) }),
         );
 
-        let entityRaw;
-        const nodeRaw = this.getNodeFeed(node);
+        let rawOutputs;
+        const curNodeRawInputs = this.getNodeRawInputs(curNode);
 
         // Feed matching input name from rawInputs to the node
         try {
-          entityRaw = this.getSharedFeed().get(node.getName());
+          rawOutputs = this.getSharedInputs().get(curNode.getName());
 
-          nodeRaw.setDefault(entityRaw);
+          curNodeRawInputs.setDefault(rawOutputs);
 
-          fedNodes.push(node);
+          detectedExternalInputNodes.push(curNode);
 
-          this.logger.debug('connector.connect.node.feed.fromShared', () => ({ node: node.getName() }));
+          this.logger.debug('connector.connect.node.source.fromShared', () => ({ node: curNode.getName() }));
         } catch (err) {
           if (!(err instanceof KeyNotFoundError)) {
             throw err;
@@ -81,45 +81,55 @@ export abstract class NodeConnector {
         }
 
         // If no matching input was available in rawInputs and the node has no linked inputs, feed default input
-        if ((relevantNodeCount === 0) && (!entityRaw)) {
-          if (!defaultRaw) {
+        if ((sourceNodeCount === 0) && (!rawOutputs)) {
+          if (!defaultRawOutput) {
             throw new Error(`Could not resolve ${this.getType()} entity for `
-             + `layer '${node.getName()}' in model ${this.graph.getName()}`);
+             + `layer '${curNode.getName()}' in model ${this.graph.getName()}`);
           }
 
-          if (defaultSpent) {
+          if (defaultOutputSpent) {
             throw new Error(
               `Multiple ${this.getType()} entities in model '${this.graph.getName()}' expect `
-              + `default inputs, including '${node.getName()}'`,
+              + `default inputs, including '${curNode.getName()}'`,
             );
           }
 
-          nodeRaw.setDefault(defaultRaw);
+          curNodeRawInputs.setDefault(defaultRawOutput);
 
-          fedNodes.push(node);
+          detectedExternalInputNodes.push(curNode);
 
-          defaultSpent = true;
+          defaultOutputSpent = true;
 
-          this.logger.debug('connector.connect.node.feed.default', () => ({ node: node.getName() }));
+          this.logger.debug('connector.connect.node.source.fromDefault', () => ({ node: curNode.getName() }));
         }
 
         // Feed linked sources to the node
         _.each(
-          relevantNodes,
-          (sourceNode: GraphNode) => nodeRaw.merge(this.getMergeableSourcesForNode(sourceNode), sourceNode.getName()),
+          sourceNodes,
+          (sourceNode: GraphNode) => {
+            console.log('Merging', sourceNode.getName(), ' => ', curNode.getName(), `(${this.getType()})`);
+            console.log('Keys', this.getMergeableSourcesForNode(sourceNode, curNode).getKeys());
+
+            curNodeRawInputs.merge(
+              this.getMergeableSourcesForNode(sourceNode, curNode),
+              sourceNode.getName(),
+              false,
+              (key: string) => ((key === curNode.getName()) ? sourceNode.getName() : key),
+            );
+            // detectedExternalInputNodes.push(sourceNode);
+          },
         );
 
-
-        this.logger.debug('connector.connect.node.feeds', () => ({ node: node.getName(), keys: nodeRaw.getKeys() }));
+        this.logger.debug('connector.connect.node.feeds', () => ({ node: curNode.getName(), keys: curNodeRawInputs.getKeys() }));
       },
     );
 
-    if ((defaultRaw) && (!defaultSpent)) {
+    if ((defaultRawOutput) && (!defaultOutputSpent)) {
       throw new Error(`Default ${this.getType()} entity was defined but not spent in model '${this.graph.getName()}'`);
     }
 
-    this.logger.debug('connector.connect.nodes', () => ({ nodes: _.map(fedNodes, (n: GraphNode) => n.getName()) }));
+    this.logger.debug('connector.connect.nodes', () => ({ nodes: _.map(detectedExternalInputNodes, (n: GraphNode) => n.getName()) }));
 
-    return fedNodes;
+    return _.uniq(detectedExternalInputNodes);
   }
 }

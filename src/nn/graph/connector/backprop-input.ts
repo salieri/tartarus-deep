@@ -4,23 +4,23 @@ import { NodeConnector } from './connector';
 
 
 export class NodeBackpropInputConnector extends NodeConnector {
-  public listRelevantNodesForNode(node: GraphNode): GraphNode[] {
+  public getSourceNodesForNode(node: GraphNode): GraphNode[] {
     return node.getOutputNodes();
   }
 
 
-  public getNodeFeed(node: GraphNode): DeferredInputCollection {
+  public getNodeRawInputs(node: GraphNode): DeferredInputCollection {
     return node.getRawBackpropInputs();
   }
 
 
-  public getSharedFeed(): DeferredInputCollection {
+  public getSharedInputs(): DeferredInputCollection {
     return this.graph.getRawBackpropInputs();
   }
 
 
-  public getMergeableSourcesForNode(node: GraphNode): DeferredInputCollection {
-    return node.getRawBackpropOutputs();
+  public getMergeableSourcesForNode(sourceNode: GraphNode, targetNode: GraphNode): DeferredInputCollection {
+    return sourceNode.getRawBackpropOutputs().filter([targetNode.getName(), DeferredInputCollection.DEFAULT_INPUT], true);
   }
 
 

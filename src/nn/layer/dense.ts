@@ -97,7 +97,8 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     }
 
     if (this.rawBackpropInputs.count() > 1) {
-      throw new Error(`Too many inputs for a dense layer '${this.getName()}'`);
+      // throw new Error(`Too many inputs for a dense layer '${this.getName()}'`);
+      // DO SOMETHING
     }
 
     this.backpropInput.setCollection(this.rawBackpropInputs.first());

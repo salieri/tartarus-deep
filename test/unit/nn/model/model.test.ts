@@ -117,7 +117,7 @@ describe(
     );
 
 
-    it.only(
+    it(
       'should allow a node to have multiple input sources',
       async () => {
         const m = new Model();

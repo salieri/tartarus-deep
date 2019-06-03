@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { CompilationStage, GraphEntity } from './entity';
 import { DeferredInputCollection } from '../symbols';
+import { DevParamCollection } from '../../util';
 
 
 export class GraphNode {
@@ -13,6 +14,8 @@ export class GraphNode {
   private outputNodes: GraphNode[] = [];
 
   private inputNodes: GraphNode[] = [];
+
+  public devParams: DevParamCollection = new DevParamCollection();
 
 
   public constructor(entity: GraphEntity) {

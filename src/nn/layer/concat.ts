@@ -28,6 +28,8 @@ export interface ConcatParams extends LayerParams {
 export class Concat extends Layer<ConcatParams> {
   public static readonly CONCATENATED: string = 'concatenated';
 
+  protected rawBackpropOutputs = new DeferredInputCollection();
+
 
   public async backwardExec(): Promise<void> {
     // nothing yet
@@ -167,36 +169,34 @@ export class Concat extends Layer<ConcatParams> {
 
     this.output.declare(Concat.CONCATENATED, this.determineOutputSize());
     this.output.setDefaultKey(Concat.CONCATENATED);
+
+    this.prepareForBackprop();
   }
 
 
-  protected rawBackpropOutputs = new DeferredInputCollection();
+  protected prepareForBackprop(): void {
+    const layers:string[] = [];
+
+    this.traverseKeys((fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => layers.push(layerKey));
+
+    _.each(_.uniq(layers), (layer: string) => this.rawBackpropOutputs.set(layer, new DeferredCollection()));
+  }
 
 
   public async compileBackPropagation(): Promise<void> {
     this.traverse(
       (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string): void => {
-        let bpOutput: DeferredCollection;
+        const bpOutput = this.rawBackpropOutputs.get(layerKey).getCollection();
 
-        try {
-          bpOutput = this.rawBackpropOutputs.get(layerKey).getCollection();
-        } catch (err) {
-          if (!(err instanceof KeyNotFoundError)) {
-            throw err;
-          }
-
-          bpOutput = new DeferredCollection();
-
+        if (!bpOutput.has(Layer.LOSS)) {
           bpOutput.declare(Layer.LOSS, 1);
-
-          this.rawBackpropOutputs.set(layerKey, bpOutput);
         }
 
-        bpOutput.declare(fieldKey, field.getDims());
+        if (!bpOutput.has(Layer.DERIVATIVE)) {
+          bpOutput.declare(Layer.DERIVATIVE, field.getDims());
+        }
       },
     );
-
-    const i = 1;
   }
 
 

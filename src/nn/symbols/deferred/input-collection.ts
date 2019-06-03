@@ -3,6 +3,7 @@ import { DeferredCollection } from './collection';
 import { DeferredReadonlyCollection } from './readonly-collection';
 import { KeyNotFoundError } from '../../../error';
 
+export type KeyReassignCallback = (key: string) => string;
 
 export interface DeferredInputDictionary {
   [key: string]: DeferredReadonlyCollection;
@@ -66,18 +67,27 @@ export class DeferredInputCollection {
   }
 
 
-  public merge(input: DeferredInputCollection, defaultFieldNameRemap: string|null = null, force: boolean = false): void {
+  public merge(
+    input: DeferredInputCollection,
+    defaultFieldNameRemap: string|null = null,
+    force: boolean = false,
+    keyReassignCb?: KeyReassignCallback,
+  ): void {
     _.each(
       input.inputs,
       (sourceInput: DeferredReadonlyCollection, key: string) => {
-        if ((!force) && (key in this.inputs)) {
-          throw new Error(`Duplicate key: '${key}'`);
-        }
-
         let finalKey = key;
 
         if ((finalKey === DeferredInputCollection.DEFAULT_INPUT) && (defaultFieldNameRemap)) {
           finalKey = defaultFieldNameRemap;
+        }
+
+        if (keyReassignCb) {
+          finalKey = keyReassignCb(finalKey);
+        }
+
+        if ((!force) && (finalKey in this.inputs)) {
+          throw new Error(`Duplicate key: '${finalKey}'`);
         }
 
         this.set(finalKey, sourceInput);
@@ -128,6 +138,28 @@ export class DeferredInputCollection {
       this.inputs,
       (input: DeferredReadonlyCollection) => input.getCollection().unsetValues(),
     );
+  }
+
+
+  public filter(keys: string[], allowMissing: boolean = false): DeferredInputCollection {
+    const result = new DeferredInputCollection();
+
+    _.each(
+      keys,
+      (key: string) => {
+        if (!this.has(key)) {
+          if (!allowMissing) {
+            throw new KeyNotFoundError(`Missing key: ${key}`, key);
+          }
+
+          return;
+        }
+
+        result.set(key, this.get(key));
+      },
+    );
+
+    return result;
   }
 
 

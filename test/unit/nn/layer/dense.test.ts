@@ -40,11 +40,15 @@ describe(
           },
         );
 
+
         const data = LayerOutputUtil.createOutput();
+        const backpropData = LayerOutputUtil.createBackpropOutput();
+
         const session = new Session('hello-world');
 
         dense.setSession(session);
         dense.setRawInputs(data);
+        dense.setRawBackpropInputs(backpropData);
 
         await dense.compile();
         await dense.initialize();
@@ -77,10 +81,12 @@ describe(
         );
 
         const data = LayerOutputUtil.createOutput();
+        const backpropData = LayerOutputUtil.createBackpropOutput();
         const session = new Session('hello-world');
 
         dense.setSession(session);
         dense.setRawInputs(data);
+        dense.setRawBackpropInputs(backpropData);
 
         await dense.compile();
         await dense.initialize();
