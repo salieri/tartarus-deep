@@ -1,28 +1,37 @@
 import _ from 'lodash';
 import { DeferredCollection } from './collection';
-import { DeferredReadonlyCollection } from './readonly-collection';
+import { DeferredCollectionWrapper } from './collection-wrapper';
 import { KeyNotFoundError } from '../../../error';
+import { NDArray } from '../../../math';
 
 export type KeyReassignCallback = (key: string) => string;
 
 export interface DeferredInputDictionary {
-  [key: string]: DeferredReadonlyCollection;
+  [key: string]: DeferredCollectionWrapper;
 }
 
 export class DeferredInputCollection {
+  private static idCounter: number = 0;
+
   public static readonly DEFAULT_INPUT: string = '__default__';
 
   private inputs: DeferredInputDictionary = {};
 
+  private id: number;
 
-  public constructor(defaultInput?: DeferredReadonlyCollection|DeferredCollection) {
+
+  public constructor(defaultInput?: DeferredCollectionWrapper|DeferredCollection) {
     if (defaultInput) {
       this.setDefault(defaultInput);
     }
+
+    DeferredInputCollection.idCounter += 1;
+
+    this.id = DeferredInputCollection.idCounter;
   }
 
 
-  public get(key: string): DeferredReadonlyCollection {
+  public get(key: string): DeferredCollectionWrapper {
     if (!(key in this.inputs)) {
       throw new KeyNotFoundError(`Key '${key}' not found`, key);
     }
@@ -31,17 +40,17 @@ export class DeferredInputCollection {
   }
 
 
-  public set(key: string, input: DeferredReadonlyCollection|DeferredCollection): void {
-    this.inputs[key] = new DeferredReadonlyCollection(input);
+  public set(key: string, input: DeferredCollectionWrapper|DeferredCollection): void {
+    this.inputs[key] = new DeferredCollectionWrapper(input);
   }
 
 
-  public setDefault(input: DeferredReadonlyCollection|DeferredCollection): void {
-    this.inputs[DeferredInputCollection.DEFAULT_INPUT] = new DeferredReadonlyCollection(input);
+  public setDefault(input: DeferredCollectionWrapper|DeferredCollection): void {
+    this.inputs[DeferredInputCollection.DEFAULT_INPUT] = new DeferredCollectionWrapper(input);
   }
 
 
-  public getDefault(): DeferredReadonlyCollection {
+  public getDefault(): DeferredCollectionWrapper {
     return this.get(DeferredInputCollection.DEFAULT_INPUT);
   }
 
@@ -56,7 +65,7 @@ export class DeferredInputCollection {
   }
 
 
-  public first(): DeferredReadonlyCollection {
+  public first(): DeferredCollectionWrapper {
     const keys = _.keys(this.inputs);
 
     if (keys.length === 0) {
@@ -75,7 +84,7 @@ export class DeferredInputCollection {
   ): void {
     _.each(
       input.inputs,
-      (sourceInput: DeferredReadonlyCollection, key: string) => {
+      (sourceInput: DeferredCollectionWrapper, key: string) => {
         let finalKey = key;
 
         if ((finalKey === DeferredInputCollection.DEFAULT_INPUT) && (defaultFieldNameRemap)) {
@@ -120,7 +129,7 @@ export class DeferredInputCollection {
   public areAllSet(): boolean {
     return _.every(
       this.inputs,
-      (input: DeferredReadonlyCollection) => input.areAllSet(),
+      (input: DeferredCollectionWrapper) => input.areAllSet(),
     );
   }
 
@@ -128,7 +137,7 @@ export class DeferredInputCollection {
   public areAllDeclared(): boolean {
     return _.every(
       this.inputs,
-      (input: DeferredReadonlyCollection) => input.areAllDeclared(),
+      (input: DeferredCollectionWrapper) => input.areAllDeclared(),
     );
   }
 
@@ -136,7 +145,7 @@ export class DeferredInputCollection {
   public unsetValues(): void {
     _.each(
       this.inputs,
-      (input: DeferredReadonlyCollection) => input.getCollection().unsetValues(),
+      (input: DeferredCollectionWrapper) => input.getCollection().unsetValues(),
     );
   }
 
@@ -160,6 +169,20 @@ export class DeferredInputCollection {
     );
 
     return result;
+  }
+
+
+  public getDefaultValue(): NDArray {
+    return this.getDefault().getDefault().get();
+  }
+
+
+  public snapshot(): DeferredInputCollection {
+    if (!this.areAllSet()) {
+      throw new Error('Cannot snapshopt -- some declared values in the input collection are not set');
+    }
+
+    return _.cloneDeep(this);
   }
 
 

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import { GraphNode } from '../node';
-import { DeferredInputCollection, DeferredReadonlyCollection } from '../../symbols/deferred';
+import { DeferredInputCollection, DeferredCollectionWrapper } from '../../symbols/deferred';
 import { Graph } from '../graph';
 import { KeyNotFoundError } from '../../../error';
 import { ContextLogger, Logger } from '../../../util';
@@ -29,7 +29,7 @@ export abstract class NodeConnector {
   public abstract getType(): string;
 
 
-  public getDefault(): DeferredReadonlyCollection|null {
+  public getDefault(): DeferredCollectionWrapper|null {
     try {
       return this.getSharedInputs().getDefault();
     } catch (err) {
@@ -107,9 +107,6 @@ export abstract class NodeConnector {
         _.each(
           sourceNodes,
           (sourceNode: GraphNode) => {
-            console.log('Merging', sourceNode.getName(), ' => ', curNode.getName(), `(${this.getType()})`);
-            console.log('Keys', this.getMergeableSourcesForNode(sourceNode, curNode).getKeys());
-
             curNodeRawInputs.merge(
               this.getMergeableSourcesForNode(sourceNode, curNode),
               sourceNode.getName(),

@@ -552,8 +552,18 @@ export class Graph {
   }
 
 
+  public unsetInputValues(): void {
+    _.each(this.nodes, (node: GraphNode) => node.unsetInputValues());
+  }
+
+
   public unsetBackpropOutputValues(): void {
     _.each(this.nodes, (node: GraphNode) => node.unsetBackpropOutputValues());
+  }
+
+
+  public unsetBackpropInputValues(): void {
+    _.each(this.nodes, (node: GraphNode) => node.unsetBackpropInputValues());
   }
 
 

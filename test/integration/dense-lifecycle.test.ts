@@ -21,6 +21,43 @@ describe(
     );
 
 
+    it(
+      'should predict a result on input data',
+      async () => {
+        const result = await model.predict(4);
+        const result2 = await model.predict(2);
+
+        const nd = result.getDefaultValue();
+        const nd2 = result2.getDefaultValue();
+
+        nd.countDims().should.equal(1);
+        nd2.countDims().should.equal(1);
+
+        nd.countElements().should.equal(1);
+        nd.countElements().should.equal(1);
+
+        nd.getId().should.not.equal(nd2.getId());
+
+        nd.equals(nd2).should.not.equal(true);
+      },
+    );
+
+
+    it(
+      'should evaluate model performance',
+      async () => {
+        const result = await model.evaluate(4, 8);
+
+        const nd = result.losses.getDefaultValue();
+
+        nd.countDims().should.equal(1);
+        nd.countElements().should.equal(1);
+
+        const a = 1;
+      },
+    );
+
+
     it.skip(
       'should train the model with 100 samples',
       async () => {
@@ -31,21 +68,5 @@ describe(
     );
 
 
-    it(
-      'should predict a result on input data',
-      async () => {
-        const testData = generator.samples(20);
-
-        await model.predict(4);
-      },
-    );
-
-
-    it(
-      'should evaluate model performance',
-      async () => {
-        console.log(await model.evaluate(4, 8));
-      },
-    );
   },
 );

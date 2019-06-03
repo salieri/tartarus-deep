@@ -1,5 +1,5 @@
 import { Xoshiro128, Randomizer } from '../../math/randomizer';
-import { ConsoleLogger, Logger } from '../../util';
+import { MuteLogger, Logger } from '../../util';
 
 
 export class Session {
@@ -9,7 +9,7 @@ export class Session {
 
   public constructor(seed?: string) {
     this.randomizer = new Xoshiro128(seed);
-    this.logger = new ConsoleLogger();
+    this.logger = new MuteLogger(); // ConsoleLogger();
   }
 
 

@@ -1,15 +1,15 @@
 import _ from 'lodash';
 import { Layer, LayerParams } from './layer';
 import { JoiEx, JoiExSchema } from '../../util';
-import { DeferredValue, DeferredReadonlyCollection, DeferredInputCollection, DeferredCollection } from '../symbols';
+import { DeferredValue, DeferredCollectionWrapper, DeferredInputCollection, DeferredCollection } from '../symbols';
 import { NDArray } from '../../math';
 import { KeyNotFoundError } from '../../error';
 
 
 export type ConcatOutputTraverseFunction =
-  (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => void;
+  (field: DeferredValue, fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string) => void;
 
-export type ConcatOutputTraverseKeyFunction = (fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => void;
+export type ConcatOutputTraverseKeyFunction = (fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string) => void;
 
 
 export interface ConcatLayerExtendedDefinition {
@@ -68,7 +68,7 @@ export class Concat extends Layer<ConcatParams> {
 
     try {
       this.traverseKeys(
-        (fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => {
+        (fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string) => {
           definedLayerKeys.push(layerKey);
 
           try {
@@ -113,7 +113,7 @@ export class Concat extends Layer<ConcatParams> {
 
   protected traverse(callback: ConcatOutputTraverseFunction) : void {
     this.traverseKeys(
-      (fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => {
+      (fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string) => {
         const field = layerOutput.get(fieldKey);
 
         callback(field, fieldKey, layerOutput, layerKey);
@@ -153,7 +153,7 @@ export class Concat extends Layer<ConcatParams> {
     let total = 0;
 
     this.traverse(
-      (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection): void => {
+      (field: DeferredValue, fieldKey: string, layerOutput: DeferredCollectionWrapper): void => {
         layerOutput.require(fieldKey);
 
         total += field.countElements();
@@ -177,7 +177,7 @@ export class Concat extends Layer<ConcatParams> {
   protected prepareForBackprop(): void {
     const layers:string[] = [];
 
-    this.traverseKeys((fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string) => layers.push(layerKey));
+    this.traverseKeys((fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string) => layers.push(layerKey));
 
     _.each(_.uniq(layers), (layer: string) => this.rawBackpropOutputs.set(layer, new DeferredCollection()));
   }
@@ -185,7 +185,7 @@ export class Concat extends Layer<ConcatParams> {
 
   public async compileBackPropagation(): Promise<void> {
     this.traverse(
-      (field: DeferredValue, fieldKey: string, layerOutput: DeferredReadonlyCollection, layerKey: string): void => {
+      (field: DeferredValue, fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string): void => {
         const bpOutput = this.rawBackpropOutputs.get(layerKey).getCollection();
 
         if (!bpOutput.has(Layer.LOSS)) {

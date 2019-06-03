@@ -5,15 +5,23 @@ import { ValueNotSetError, ValueNotDeclaredError, InvalidValueError } from '../.
 export type DeferredValueType = NDArray;
 
 export class DeferredValue {
+  private static idCounter: number = 0;
+
   private value: DeferredValueType|null = null;
 
   private dimensions: number[]|null = null;
+
+  private id: number;
 
 
   public constructor(dimensions?: number[]|number) {
     if (typeof dimensions !== 'undefined') {
       this.declare(dimensions);
     }
+
+    DeferredValue.idCounter += 1;
+
+    this.id = DeferredValue.idCounter;
   }
 
 

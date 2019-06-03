@@ -93,8 +93,18 @@ export class GraphNode {
   }
 
 
+  public unsetInputValues(): void {
+    this.getEntity().unsetInputValues();
+  }
+
+
   public unsetBackpropOutputValues(): void {
     this.getEntity().unsetBackpropOutputValues();
+  }
+
+
+  public unsetBackpropInputValues(): void {
+    this.getEntity().unsetBackpropInputValues();
   }
 
 

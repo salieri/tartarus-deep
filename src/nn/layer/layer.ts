@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { DeferredCollection, DeferredInputCollection, DeferredReadonlyCollection } from '../symbols';
+import { DeferredCollection, DeferredInputCollection, DeferredCollectionWrapper } from '../symbols';
 
 import {
   JoiEx,
@@ -58,9 +58,9 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   protected session?: Session;
 
-  protected readonly input: DeferredReadonlyCollection = new DeferredReadonlyCollection();
+  protected readonly input: DeferredCollectionWrapper = new DeferredCollectionWrapper();
 
-  protected readonly backpropInput: DeferredReadonlyCollection = new DeferredReadonlyCollection();
+  protected readonly backpropInput: DeferredCollectionWrapper = new DeferredCollectionWrapper();
 
   protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
 
@@ -238,8 +238,8 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  public getOptimizer(): DeferredReadonlyCollection {
-    return new DeferredReadonlyCollection(this.optimizer);
+  public getOptimizer(): DeferredCollectionWrapper {
+    return new DeferredCollectionWrapper(this.optimizer);
   }
 
 
@@ -255,8 +255,18 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
+  public unsetInputValues(): void {
+    this.input.unsetValues();
+  }
+
+
   public unsetBackpropOutputValues(): void {
     this.backpropOutput.unsetValues();
+  }
+
+
+  public unsetBackpropInputValues(): void {
+    this.backpropInput.unsetValues();
   }
 }
 

@@ -10,14 +10,22 @@ export interface DeferredValueCollectionInf {
 
 
 export class DeferredCollection {
+  private static idCounter:number = 0;
+
   private collection: DeferredValueCollectionInf = {};
 
   private defaultKey: string = 'default';
+
+  private id: number;
 
   public constructor(defaultValue?: NDArray|NDArrayCollection) {
     if (defaultValue) {
       this.coerceData(defaultValue);
     }
+
+    DeferredCollection.idCounter += 1;
+
+    this.id = DeferredCollection.idCounter;
   }
 
 

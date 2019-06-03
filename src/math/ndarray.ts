@@ -783,6 +783,11 @@ export class NDArray {
   }
 
 
+  public getId(): number {
+    return this.id;
+  }
+
+
   protected static copyDataEx(target: NDArray, source: NDArray, targetPosStart: number, sourcePosStart: number, count: number): void {
     const sourcePos = [sourcePosStart];
     const targetPos = [targetPosStart];

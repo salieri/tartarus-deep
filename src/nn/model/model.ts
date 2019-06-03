@@ -303,6 +303,8 @@ export class Model
     const coercedExpectedOutput = Model.coerceData(expectedOutput);
     const outputDerivatives = this.calculateTopLevelBackpropInputs(coercedExpectedOutput);
 
+    this.graph.unsetBackpropInputValues();
+    this.graph.unsetBackpropOutputValues();
     this.graph.assignBackpropInput(outputDerivatives);
 
     await this.backward();
@@ -430,15 +432,20 @@ export class Model
   public async predict(input: RelaxedDataCollectionDefinition): Promise<DeferredInputCollection> {
     const preparedInput = Model.coerceData(input); // coerceOutput / RelaxedOutputCollectionDefinition is correct
 
+    this.graph.unsetOutputValues();
+    this.graph.unsetInputValues();
+
     this.graph.assignInput(preparedInput);
 
     await this.forward();
 
-    return this.getRawOutputs();
+    return this.getRawOutputs().snapshot();
   }
 
 
   public async forward(): Promise<void> {
+    delete this.evaluation; // evaluation results are no longer applicable
+
     await this.graph.forward();
   }
 
@@ -453,8 +460,18 @@ export class Model
   }
 
 
+  public unsetInputValues(): void {
+    this.graph.unsetInputValues();
+  }
+
+
   public unsetBackpropOutputValues(): void {
     this.graph.unsetBackpropOutputValues();
+  }
+
+
+  public unsetBackpropInputValues(): void {
+    this.graph.unsetBackpropInputValues();
   }
 
 

@@ -3,16 +3,24 @@ import { DeferredValueType, DeferredValue } from './value';
 import { DeferredCollection } from './collection';
 
 
-export class DeferredReadonlyCollection {
+export class DeferredCollectionWrapper {
+  private static idCounter: number = 0;
+
   private collection: DeferredCollection = new DeferredCollection();
 
   private requiredFields: string[] = [];
 
+  private id: number;
 
-  public constructor(collection?: DeferredCollection|DeferredReadonlyCollection) {
+
+  public constructor(collection?: DeferredCollection|DeferredCollectionWrapper) {
     if (collection) {
       this.setCollection(collection);
     }
+
+    DeferredCollectionWrapper.idCounter += 1;
+
+    this.id = DeferredCollectionWrapper.idCounter;
   }
 
 
@@ -50,9 +58,9 @@ export class DeferredReadonlyCollection {
   }
 
 
-  public setCollection(collection: DeferredCollection|DeferredReadonlyCollection): void {
-    if (collection instanceof DeferredReadonlyCollection) {
-      this.collection = (collection as DeferredReadonlyCollection).collection;
+  public setCollection(collection: DeferredCollection|DeferredCollectionWrapper): void {
+    if (collection instanceof DeferredCollectionWrapper) {
+      this.collection = (collection as DeferredCollectionWrapper).collection;
     }
 
     if (collection instanceof DeferredCollection) {
@@ -81,7 +89,12 @@ export class DeferredReadonlyCollection {
   }
 
 
-  public assign(collection: DeferredReadonlyCollection): void {
+  public assign(collection: DeferredCollectionWrapper): void {
     this.collection.assign(collection.collection);
+  }
+
+
+  public unsetValues(): void {
+    this.collection.unsetValues();
   }
 }
