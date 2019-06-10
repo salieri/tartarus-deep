@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NDArray, NDArrayConstructorType, NumberTreeElement } from './ndarray';
+import { IndexResult, NDArray, NDArrayConstructorType, NDArrayPosition, NumberTreeElement } from './ndarray';
 import { Matrix } from './matrix';
 
 export enum VectorDirection {
@@ -115,5 +115,104 @@ export class Vector extends NDArray {
    */
   public length(): number {
     return Math.sqrt(this.sum((val: number): number => (val ** 2)));
+  }
+
+
+  /**
+   * Spread values diagonally
+   */
+  public diagonal(): Matrix {
+    const m = new Matrix(this.getSize(), this.getSize());
+
+    this.traverse(
+      (val: number, position: NDArrayPosition) => {
+        m.setAt([position[0], position[0]], val);
+      },
+    );
+
+    return m;
+  }
+
+
+  public slice(pos: NDArrayPosition, size: number): Vector {
+    const nd = new Vector(size);
+
+    _.times(size, (n: number) => nd.setAt([n], this.getAt([pos[0] + n])));
+
+    return nd;
+  }
+
+
+  /**
+   * Test whether `index` is in top `k`
+   * @param index
+   * @param k
+   */
+  public inTopK(index: number, k: number): boolean {
+    return !!_.find(this.topK(k), (v: IndexResult) => (v.index === index));
+  }
+
+
+  /**
+   * Get top `k` values and indexes
+   * @param k
+   */
+  public topK(k: number): IndexResult[] {
+    const values = _.map(
+      this.data as number[],
+      (value: number, index: number): IndexResult => ({ index, value }),
+    );
+
+    const sortedValues = _.sortBy(values, (v: IndexResult) => v.value);
+
+    return _.reverse(_.slice(sortedValues, sortedValues.length - k));
+  }
+
+
+  /**
+   * Get the index of the highest value in the array
+   */
+  public argmax(): NDArrayPosition {
+    let index = null;
+    let knownMax: number|null = null;
+
+    this.traverse(
+      (value, position) => {
+        if ((knownMax === null) || (value > knownMax)) {
+          knownMax = value;
+          index = position;
+        }
+      },
+    );
+
+    if (index === null) {
+      throw new Error('Vector has no values');
+    }
+
+    return [index];
+  }
+
+
+  /**
+   * Get the index of the lowest value in the array
+   */
+  public argmin(): NDArrayPosition {
+    let index = null;
+    let knownMin: number|null = null;
+
+    this.traverse(
+      (value, position) => {
+        if ((knownMin === null) || (value < knownMin)) {
+          knownMin = value;
+          index = position;
+        }
+      },
+    );
+
+    if (index === null) {
+      throw new Error('Vector has no values');
+    }
+
+    return index;
   }
 }

@@ -14,10 +14,29 @@ export interface ELUParamsCoerced extends ActivationParams {
 
 /**
  * Exponential linear unit
+ * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class ELU extends Activation<ELUParamsInput, ELUParamsCoerced> {
   public calculate(z: NDArray): NDArray {
-    return z.apply((val: number): number => (val < 0 ? this.params.leak * (Math.exp(val) - 1) : val));
+    const leak = this.params.leak;
+
+    return z.apply((val: number): number => (val > 0 ? val : leak * (Math.exp(val) - 1)));
+  }
+
+
+  public derivative(a: NDArray, z: NDArray): NDArray {
+    const leak = this.params.leak;
+
+    return NDArray.iterate(
+      (arrayValues: number[]): number => {
+        const aVal = arrayValues[0];
+        const zVal = arrayValues[1];
+
+        return (zVal > 0 ? 1 : aVal + leak);
+      },
+      a,
+      z,
+    );
   }
 
 

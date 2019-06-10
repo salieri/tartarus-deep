@@ -10,10 +10,17 @@ export interface ReLUParams extends ActivationParams {
 
 /**
  * Rectified linear unit / leaky rectified linear unit / parameteric rectified linear unit
+ * @link https://ml-cheatsheet.readthedocs.io/en/latest/activation_functions.html
+ * @link https://sefiks.com/2018/02/26/leaky-relu-as-an-neural-networks-activation-function/
  */
 export class ReLU extends Activation<ReLUParams> {
   public calculate(z: NDArray): NDArray {
     return z.apply((val: number): number => (val < 0 ? this.params.leak * val : val));
+  }
+
+
+  public derivative(a: NDArray, z: NDArray): NDArray {
+    return z.apply((val: number): number => (val >= 0 ? 1 : this.params.leak));
   }
 
 

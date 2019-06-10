@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import { GraphProcessorNode } from './node';
 import { GraphNode } from '../node';
+import { Graph } from '../graph';
 
 export type GraphNodeProcessorFunction = (node: GraphNode) => Promise<void>;
 export type GraphNodeTestFunction = (node: GraphNode, direction: GraphProcessorDirection) => boolean;
@@ -16,11 +17,14 @@ export enum GraphProcessorDirection {
 export class GraphProcessor {
   private direction: GraphProcessorDirection;
 
+  private graph: Graph;
+
   private nodes: GraphProcessorNode[];
 
 
-  public constructor(nodes: GraphNode[], direction: GraphProcessorDirection) {
-    this.nodes = _.map(nodes, (node: GraphNode) => (new GraphProcessorNode(node)));
+  public constructor(graph: Graph, direction: GraphProcessorDirection) {
+    this.graph = graph;
+    this.nodes = _.map(graph.getAllNodes(), (node: GraphNode) => (new GraphProcessorNode(node)));
     this.direction = direction;
   }
 

@@ -10,11 +10,20 @@ export interface ISRUParams extends ActivationParams {
 
 /**
  * Inverse square root unit
+ * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class ISRU extends Activation<ISRUParams> {
   public calculate(z: NDArray): NDArray {
     // z / ( sqrt( 1 + alpha * z^2 )
     return z.div(z.pow(2).mul(this.params.alpha).add(1).sqrt());
+  }
+
+
+  public derivative(a: NDArray, z: NDArray): NDArray {
+    const one = z.set(1);
+
+    // ( 1 / sqrt( 1 + alpha * z ^ 2 ) ) ^ 3
+    return one.div(one.add(z.pow(2).mul(this.params.alpha))).pow(3);
   }
 
 

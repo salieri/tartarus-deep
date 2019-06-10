@@ -35,7 +35,12 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * dW[L] =
    */
   protected async backwardExec(): Promise<void> {
-    // nop
+    const result = new NDArray(...this.backpropOutput.get(Layer.DERIVATIVE).getDims());
+
+
+
+    this.backpropOutput.setValue(Layer.DERIVATIVE, result);
+    this.backpropOutput.setValue(Layer.LOSS, this.backpropInput.getValue(Layer.LOSS));
   }
 
 

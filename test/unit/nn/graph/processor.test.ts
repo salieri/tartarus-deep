@@ -36,7 +36,7 @@ describe(
     it(
       'should traverse graph forward in correct order',
       async () => {
-        const processor = new GraphProcessor(model.getGraph().getAllNodes(), GraphProcessorDirection.Forward);
+        const processor = new GraphProcessor(model.getGraph(), GraphProcessorDirection.Forward);
         const callOrder: string[] = [];
         const paramName = 'test_forwardprop';
 
@@ -79,7 +79,7 @@ describe(
     it(
       'should traverse graph backward in correct order',
       async () => {
-        const processor = new GraphProcessor(model.getGraph().getAllNodes(), GraphProcessorDirection.Backward);
+        const processor = new GraphProcessor(model.getGraph(), GraphProcessorDirection.Backward);
         const callOrder: string[] = [];
         const paramName = 'test_backprop';
 

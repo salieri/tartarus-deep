@@ -324,21 +324,23 @@ export class Model
     _.each(
       backpropInputs.getKeys(),
       (key: string) => {
-        const yHat = rawOutputs.get(key).getDefault().get();
-        const y = expectedOutput.get(key).getDefault().get();
+        const yHat = rawOutputs.get(key).getDefaultValue();
+        const y = expectedOutput.get(key).getDefaultValue();
+        const errorTotal = evaluation.losses.get(key).getDefaultValue();
 
-        const dETotalOverOutput = y.sub(yHat).neg();
+        // -(y - yHat) = dErrorTotal / dOutput
+        const dETotalOverDOutput = y.sub(yHat).neg();
 
         const coll = backpropInputs.get(key).getCollection();
 
-        coll.setValue(Layer.DERIVATIVE, dETotalOverOutput);
-        coll.setValue(Layer.LOSS, evaluation.losses.get(key).getDefault().get());
+        coll.setValue(Layer.DERIVATIVE, dETotalOverDOutput);
+        coll.setValue(Layer.LOSS, errorTotal);
 
         backpropInputs.set(key, coll);
       },
     );
 
-    return backpropInputs;
+    return backpropInputs.snapshot();
   }
 
 

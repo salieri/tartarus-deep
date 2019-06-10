@@ -1,7 +1,14 @@
 import _ from 'lodash';
 import { Layer, LayerParams } from './layer';
 import { JoiEx, JoiExSchema } from '../../util';
-import { DeferredValue, DeferredCollectionWrapper, DeferredInputCollection, DeferredCollection } from '../symbols';
+
+import {
+  DeferredValue,
+  DeferredCollectionWrapper,
+  DeferredInputCollection,
+  DeferredCollection,
+} from '../symbols';
+
 import { NDArray } from '../../math';
 import { KeyNotFoundError } from '../../error';
 
@@ -32,7 +39,28 @@ export class Concat extends Layer<ConcatParams> {
 
 
   public async backwardExec(): Promise<void> {
-    // nothing yet
+    const nd = this.backpropInput.getValue(Layer.DERIVATIVE);
+    const loss = this.backpropInput.getValue(Layer.LOSS);
+
+    let curPos = 0;
+
+    this.traverse(
+      (field: DeferredValue, fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string) => {
+        if (layerOutput.getDefaultKey() !== fieldKey) {
+          curPos += field.countElements();
+          return; // only default output will have a derivative
+        }
+
+        const coll = this.rawBackpropOutputs.get(layerKey).getCollection();
+
+        const derivative = nd.slice([curPos], coll.get(Layer.DERIVATIVE).countElements());
+
+        coll.setValue(Layer.LOSS, loss);
+        coll.setValue(Layer.DERIVATIVE, derivative);
+
+        curPos += field.countElements();
+      },
+    );
   }
 
 
@@ -186,6 +214,10 @@ export class Concat extends Layer<ConcatParams> {
   public async compileBackPropagation(): Promise<void> {
     this.traverse(
       (field: DeferredValue, fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string): void => {
+        if (layerOutput.getDefaultKey() !== fieldKey) {
+          return; // Only default output will have a derivative
+        }
+
         const bpOutput = this.rawBackpropOutputs.get(layerKey).getCollection();
 
         if (!bpOutput.has(Layer.LOSS)) {

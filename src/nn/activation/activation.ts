@@ -18,6 +18,8 @@ export abstract class Activation
   <TInput extends ActivationParams = ActivationParams, TCoerced extends TInput = TInput> extends Parameterized<TInput, TCoerced> {
   public abstract calculate(z: NDArray): NDArray;
 
+  public abstract derivative(a: NDArray, z: NDArray): NDArray;
+
   public getParamSchema(): Joi.Schema {
     return Joi.object();
   }

@@ -34,20 +34,31 @@ export class NDArray {
   protected data: NumberTreeElement[] = [];
 
   /**
-   * new NDArray( 20, 30, 40 ) // create n-dimensional array the size of 20x30x40
-   * new NDArray( anotherNdArray ) // create a clone of `anotherNdArray`
-   * new NDArray( [ // create a n-dimensional array from the specified array
-   *    [ 0, 0, 0 ],
-   *      [ 1, 1, 1 ],
-   *      [ 2, 3, 4 ]
-   *  ]
-   * )
+   * ```ts
+   * // create n-dimensional array with the size of 20x30x40
+   * const nd1 = new NDArray( 20, 30, 40 );
+   *
+   * // create a clone of `anotherNdArray`
+   * const nd2 = new NDArray( anotherNdArray );
+   *
+   * // create one-dimensional array with the given data
+   * const nd3 = new NDArray([1, 2, 3]);
+   *
+   * // create a n-dimensional array with the given data
+   * const nd4 = new NDArray(
+   *   [
+   *     [ 0, 0, 0 ],
+   *     [ 1, 1, 1 ],
+   *     [ 2, 3, 4 ]
+   *   ]
+   * );
+   * ```
    */
-  public constructor(...dimensions: NDArrayConstructorType) {
-    this.validateConstructor(dimensions);
+  public constructor(...dimensionsOrValue: NDArrayConstructorType) {
+    this.validateConstructor(dimensionsOrValue);
 
-    if (dimensions.length === 1) {
-      const dimEl = dimensions[0];
+    if (dimensionsOrValue.length === 1) {
+      const dimEl = dimensionsOrValue[0];
 
       if (dimEl instanceof NDArray) {
         dimEl.clone(this);
@@ -63,7 +74,7 @@ export class NDArray {
       }
     }
 
-    this.dimensions = dimensions as number[];
+    this.dimensions = dimensionsOrValue as number[];
     this.data = NDArray.createDimArray(this.dimensions);
 
     NDArray.idCounter += 1;
@@ -540,6 +551,14 @@ export class NDArray {
 
 
   /**
+   * Elementwise tanh
+   */
+  public tanh(): NDArray {
+    return this.apply(Math.tanh);
+  }
+
+
+  /**
    * Elementwise arc sin
    */
   public asin(): NDArray {
@@ -589,92 +608,6 @@ export class NDArray {
       this,
       anotherArray,
     );
-  }
-
-
-  /**
-   * Test whether `index` is in top `k`
-   * @param index
-   * @param k
-   */
-  public inTopK(index: number, k: number): boolean {
-    return !!_.find(this.topK(k), (v: IndexResult) => (v.index === index));
-  }
-
-
-  /**
-   * Get top `k` values and indexes
-   * @param k
-   */
-  public topK(k: number): IndexResult[] {
-    if (this.countDims() > 0) {
-      throw new Error('Argmax is not yet supported on multidimensional arrays');
-    }
-
-    const values = _.map(
-      this.data as number[],
-      (value: number, index: number): IndexResult => ({ index, value }),
-    );
-
-    const sortedValues = _.sortBy(values, (v: IndexResult) => v.value);
-
-    return _.reverse(_.slice(sortedValues, sortedValues.length - k));
-  }
-
-
-  /**
-   * Get the index of the highest value in the array
-   */
-  public argmax(): NDArrayPosition {
-    if (this.countDims() > 1) {
-      throw new Error('Argmax is not yet supported on multidimensional arrays');
-    }
-
-    let index = null;
-    let knownMax: number|null = null;
-
-    this.traverse(
-      (value, position) => {
-        if ((knownMax === null) || (value > knownMax)) {
-          knownMax = value;
-          index = position;
-        }
-      },
-    );
-
-    if (index === null) {
-      throw new Error('NDArray has no values');
-    }
-
-    return [index];
-  }
-
-
-  /**
-   * Get the index of the lowest value in the array
-   */
-  public argmin(): NDArrayPosition {
-    if (this.countDims() > 1) {
-      throw new Error('Argmin is not yet supported on multidimensional arrays');
-    }
-
-    let index = null;
-    let knownMin: number|null = null;
-
-    this.traverse(
-      (value, position) => {
-        if ((knownMin === null) || (value < knownMin)) {
-          knownMin = value;
-          index = position;
-        }
-      },
-    );
-
-    if (index === null) {
-      throw new Error('NDArray has no values');
-    }
-
-    return index;
   }
 
 

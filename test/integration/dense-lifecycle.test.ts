@@ -11,7 +11,7 @@ describe(
 
 
     it(
-      'should generate a model that can learn how to multiply a value by 2x',
+      'should generate a model which can learn how to multiply a value by 2x',
       async () => {
         model = generator.model();
 
@@ -37,7 +37,6 @@ describe(
         nd.countElements().should.equal(1);
 
         nd.getId().should.not.equal(nd2.getId());
-
         nd.equals(nd2).should.not.equal(true);
       },
     );
@@ -52,21 +51,17 @@ describe(
 
         nd.countDims().should.equal(1);
         nd.countElements().should.equal(1);
-
-        const a = 1;
       },
     );
 
 
-    it.skip(
+    it(
       'should train the model with 100 samples',
       async () => {
-        const data = generator.samples(100);
+        // const data = generator.samples(100);
 
-        await model.fit(data);
+        await model.fit(4, 8);
       },
     );
-
-
   },
 );

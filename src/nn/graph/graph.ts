@@ -311,7 +311,7 @@ export class Graph {
 
 
     const processor = new GraphProcessor(
-      this.nodes,
+      this,
       (stage !== CompilationStage.BackPropagation) ? GraphProcessorDirection.Forward : GraphProcessorDirection.Backward,
     );
 
@@ -528,7 +528,7 @@ export class Graph {
   public async forward(): Promise<void> {
     this.requireState(GraphState.Initialized);
 
-    const processor = new GraphProcessor(this.nodes, GraphProcessorDirection.Forward);
+    const processor = new GraphProcessor(this, GraphProcessorDirection.Forward);
 
     await processor.process(
       async (node: GraphNode) => (node.forward()),
@@ -539,7 +539,7 @@ export class Graph {
   public async backward(): Promise<void> {
     this.requireState(GraphState.Initialized);
 
-    const processor = new GraphProcessor(this.nodes, GraphProcessorDirection.Backward);
+    const processor = new GraphProcessor(this, GraphProcessorDirection.Backward);
 
     await processor.process(
       async (node: GraphNode) => (node.backward()),

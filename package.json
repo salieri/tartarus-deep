@@ -4,13 +4,14 @@
   "description": "Deep learning framework for TypeScript",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha --reporter spec 'test/**/*.ts'",
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "coverage": "nyc npm test",
+    "docs": "typedoc --out ./docs --mode modules ./src",
     "lint:md": "remark .",
     "lint:eslint": "eslint ./**/*.ts",
     "lint:tslint": "tslint ./**/*.ts",
-    "lint": "npm run lint:tslint && npm run lint:eslint && npm run lint:md"
+    "lint": "npm run lint:tslint && npm run lint:eslint && npm run lint:md",
+    "test": "mocha --reporter spec 'test/**/*.ts'"
   },
   "repository": {
     "type": "git",
@@ -78,6 +79,7 @@
     "ts-node": "^8.1.0",
     "tslint": "^5.16.0",
     "tslint-config-airbnb": "^5.11.1",
+    "typedoc": "^0.14.2",
     "typescript": "^3.4.5"
   },
   "peerDependencies": {},

@@ -39,6 +39,11 @@ export class DeferredCollectionWrapper {
   }
 
 
+  public getDefaultValue(): DeferredValueType {
+    return this.collection.getDefaultValue();
+  }
+
+
   public getDefaultKey(): string {
     return this.collection.getDefaultKey();
   }

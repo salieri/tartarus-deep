@@ -11,6 +11,7 @@ export interface ISRLUParamsInput extends ActivationParams {
 
 /**
  * Inverse square root linear unit
+ * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class ISRLU extends Activation<ISRLUParamsInput> {
   public calculate(z: NDArray): NDArray {
@@ -22,6 +23,20 @@ export class ISRLU extends Activation<ISRLUParamsInput> {
         }
 
         return val;
+      },
+    );
+  }
+
+
+  public derivative(a: NDArray, z: NDArray): NDArray {
+    return z.apply(
+      (val: number): number => {
+        if (val >= 0) {
+          return val;
+        }
+
+        // (1 / sqrt( 1 + alpha * z^2 ))^3
+        return (1 / Math.sqrt(1 + this.params.alpha * (val ** 2))) ** 3;
       },
     );
   }

@@ -69,6 +69,10 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 *   <https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/>
 *   <https://eli.thegreenplace.net/2018/backpropagation-through-a-fully-connected-layer/>
 *   <https://towardsdatascience.com/recurrent-neural-networks-and-lstm-4b601dd822a5>
+*   <https://theclevermachine.wordpress.com/2014/09/08/derivation-derivatives-for-common-neural-network-activation-functions/>
+*   <https://sefiks.com/category/machine-learning/>
+*   <https://deepnotes.io/softmax-crossentropy>
+*   <https://cup-of-char.com/writing-activation-functions-from-mostly-scratch-in-python/>
 
 
 ## Glossary
