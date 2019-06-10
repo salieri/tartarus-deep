@@ -1,7 +1,6 @@
 export * from './activation';
 export * from './arctan';
 export * from './bent-identity';
-export * from './binary';
 export * from './elu';
 export * from './gaussian';
 export * from './identity';

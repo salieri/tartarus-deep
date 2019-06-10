@@ -1,8 +1,7 @@
 import * as activations from '../../../../src/nn/activation';
 import { NDArray } from '../../../../src/math';
 
-
-describe.only(
+describe(
   'Activation: Softmax',
   () => {
     it(
@@ -43,9 +42,20 @@ describe.only(
       'should calculate Softmax derivatives',
       () => {
         const sa = new activations.Softmax();
-        const input = new NDArray([1, 2, 3]);
-        const output = sa.calculate(input);
+        const input = new NDArray([-1, -1, 1]);
+        const softmax = sa.calculate(input);
+        const target = new NDArray([0, 1, 0]);
+        const derivative = sa.derivative(softmax, input, target);
+        const softmaxMinusTarget = softmax.sub(target); // should equal derivative
 
+        NDArray.iterate(
+          (vals: number[]): number => {
+            vals[0].should.be.closeTo(vals[1], 0.000001);
+            return 0;
+          },
+          derivative,
+          softmaxMinusTarget,
+        );
       },
     );
   },

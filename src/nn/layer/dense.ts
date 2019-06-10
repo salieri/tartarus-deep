@@ -31,22 +31,35 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   protected static readonly ACTIVATED_OUTPUT = 'activated';
 
 
+  protected derivative(a: NDArray, z: NDArray, y?: NDArray): NDArray {
+    return this.params.activation.derivative(a, z, y);
+  }
+
+
   /**
-   * dW[L] =
+   * @link https://www.youtube.com/watch?v=x_Eamf8MHwU
    */
   protected async backwardExec(): Promise<void> {
-    const result = new NDArray(...this.backpropOutput.get(Layer.DERIVATIVE).getDims());
+    const derivativeOutput  = this.derivative(
+      this.output.getValue(Dense.ACTIVATED_OUTPUT),
+      this.output.getValue(Dense.LINEAR_OUTPUT),
+      // this.train.getValue(Layer.EXPECTED_OUTPUT, true),
+    );
 
+    const weights = new Matrix(this.optimizer.getValue(Dense.WEIGHT_MATRIX));
+    const dNext = new Vector(this.backpropInput.getValue(Layer.DERIVATIVE));
 
+    // (weights)T dNext .* g'(z)
+    const dCurrent = weights.transpose().vecmul(dNext).mul(derivativeOutput).flatten();
 
-    this.backpropOutput.setValue(Layer.DERIVATIVE, result);
+    this.backpropOutput.setValue(Layer.DERIVATIVE, dCurrent);
     this.backpropOutput.setValue(Layer.LOSS, this.backpropInput.getValue(Layer.LOSS));
   }
 
 
   protected async forwardExec(): Promise<void> {
-    const linearOutput    = this.calculate(this.input.getDefault().get());
-    const activatedOutput = this.activate(linearOutput);
+    const linearOutput      = this.calculate(this.input.getDefault().get());
+    const activatedOutput   = this.activate(linearOutput);
 
     this.output.setValue(Dense.LINEAR_OUTPUT, linearOutput);
     this.output.setValue(Dense.ACTIVATED_OUTPUT, activatedOutput);

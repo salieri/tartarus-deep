@@ -9,7 +9,7 @@ import {
   DeferredCollection,
 } from '../symbols';
 
-import { NDArray } from '../../math';
+import { NDArray, Vector } from '../../math';
 import { KeyNotFoundError } from '../../error';
 
 
@@ -39,7 +39,7 @@ export class Concat extends Layer<ConcatParams> {
 
 
   public async backwardExec(): Promise<void> {
-    const nd = this.backpropInput.getValue(Layer.DERIVATIVE);
+    const v = this.backpropInput.getValue(Layer.DERIVATIVE) as Vector;
     const loss = this.backpropInput.getValue(Layer.LOSS);
 
     let curPos = 0;
@@ -53,7 +53,7 @@ export class Concat extends Layer<ConcatParams> {
 
         const coll = this.rawBackpropOutputs.get(layerKey).getCollection();
 
-        const derivative = nd.slice([curPos], coll.get(Layer.DERIVATIVE).countElements());
+        const derivative = v.slice([curPos], field.countElements());
 
         coll.setValue(Layer.LOSS, loss);
         coll.setValue(Layer.DERIVATIVE, derivative);

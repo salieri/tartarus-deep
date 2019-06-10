@@ -328,8 +328,8 @@ export class Model
         const y = expectedOutput.get(key).getDefaultValue();
         const errorTotal = evaluation.losses.get(key).getDefaultValue();
 
-        // -(y - yHat) = dErrorTotal / dOutput
-        const dETotalOverDOutput = y.sub(yHat).neg();
+        // (a[last layer] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
+        const dETotalOverDOutput = yHat.sub(y);
 
         const coll = backpropInputs.get(key).getCollection();
 

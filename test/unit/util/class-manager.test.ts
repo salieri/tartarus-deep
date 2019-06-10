@@ -31,9 +31,9 @@ describe(
       'should instantiate any class in the module',
       () => {
         const cm        = new ClassManager(activations, Activation);
-        const activator = cm.factory('binary');
+        const activator = cm.factory('identity');
 
-        activator.should.be.instanceOf(activations.Binary);
+        activator.should.be.instanceOf(activations.Identity);
       },
     );
 

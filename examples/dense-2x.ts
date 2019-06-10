@@ -24,9 +24,9 @@ export class Dense2x extends SampleGenerator {
 
     model
       .input(1)
-      .push(new Dense({ units: 4, activation: 'relu' }))
-      .push(new Dense({ units: 4, activation: 'relu' }))
-      .push(new Dense({ units: 1, activation: 'sigmoid' }, 'result'));
+      .push(new Dense({ units: 4, activation: 'identity' }))
+      .push(new Dense({ units: 4, activation: 'identity' }))
+      .push(new Dense({ units: 1, activation: 'identity' }, 'result'));
 
     // .output('result'); /* should be automatic, unless you want to declare it */
 
