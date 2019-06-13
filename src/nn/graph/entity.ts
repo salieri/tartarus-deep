@@ -28,6 +28,8 @@ export interface GraphEntity {
   getRawBackpropInputs(): DeferredInputCollection;
   setRawBackpropInputs(inputs: DeferredInputCollection): void;
 
+  getRawTrainingLabels(): DeferredInputCollection;
+
   forward(): Promise<void>;
   backward(): Promise<void>;
 
@@ -36,6 +38,9 @@ export interface GraphEntity {
 
   unsetOutputValues(): void;
   unsetBackpropOutputValues(): void;
+
+  assignTrainingLabels(labels: DeferredInputCollection): void;
+  unsetTrainingLabelValues(): void;
 
   setSession(session: Session): void;
   setLogger(parentLogger: Logger): void;

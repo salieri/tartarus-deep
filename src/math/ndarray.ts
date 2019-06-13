@@ -326,7 +326,7 @@ export class NDArray {
       (posIdx, dimIdx) => {
         if ((posIdx < 0) || (posIdx >= this.dimensions[dimIdx])) {
           throw new Error(
-            `Invalid position path: Dimension ${dimIdx} position should be 0-${this.dimensions[dimIdx]}, was ${posIdx}`,
+            `Invalid position path: Dimension ${dimIdx} position should be 0-${this.dimensions[dimIdx] - 1}, was ${posIdx}`,
           );
         }
       },
@@ -405,7 +405,7 @@ export class NDArray {
   protected elementwiseOp(b: NDArray | number, operationCb: NDArrayElementwiseOpCallback, opName: string): NDArray {
     if (b instanceof NDArray) {
       if (!_.isEqual(this.getDims(), b.getDims())) {
-        throw new Error(`Cannot do elementwise ${opName} on NDArrays with differing dimensions`);
+        throw new Error(`Cannot do elementwise ${opName} on NDArrays with differing dimensions (a: ${this.getDims()}, b: ${b.getDims()})`);
       }
     }
 

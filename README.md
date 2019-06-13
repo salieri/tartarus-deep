@@ -17,8 +17,9 @@
 
 *   Vector operations ✔
 *   Matrix operations ✔
-*   Backpropagation
+*   Backpropagation ✔
 *   Forward propagation ✔
+*   Optimization
 *   Logistic regression
 *   Gradient descent
 *   Loss functions ✔

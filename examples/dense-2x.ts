@@ -22,13 +22,16 @@ export class Dense2x extends SampleGenerator {
   public model(): Model {
     const model = new Model({ seed: this.params.seed });
 
+    /**
+     * An intentionally unnecessarily complex network for figuring out 2X
+     */
     model
       .input(1)
       .push(new Dense({ units: 4, activation: 'identity' }))
-      .push(new Dense({ units: 4, activation: 'identity' }))
+      .push(new Dense({ units: 5, activation: 'identity' }))
       .push(new Dense({ units: 1, activation: 'identity' }, 'result'));
 
-    // .output('result'); /* should be automatic, unless you want to declare it */
+    // .output('result'); /* will be automatically set to the last node, unless you choose to declare it */
 
     return model;
   }

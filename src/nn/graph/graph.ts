@@ -295,11 +295,11 @@ export class Graph {
         break;
 
       case CompilationStage.ForwardPropagation:
-        this.resolveRawInputsForNodes();
+        this.routeInputs();
         break;
 
       case CompilationStage.BackPropagation:
-        this.resolveRawBackpropInputsForNodes();
+        this.routeBackPropagationInputs();
         break;
 
       case CompilationStage.Finalize:
@@ -323,7 +323,7 @@ export class Graph {
             return node.getRawInputs().areAllDeclared();
 
           case GraphProcessorDirection.Backward:
-            return node.getRawBackpropInputs().areAllDeclared();
+            return (node.getRawTrainingLabels().areAllDeclared() || node.getRawBackpropInputs().areAllDeclared());
 
           default:
             throw new Error('Unsupported direction');
@@ -338,7 +338,7 @@ export class Graph {
   }
 
 
-  protected resolveRawInputsForNodes(): void {
+  protected routeInputs(): void {
     const connector = new NodeInputConnector(this);
 
     this.inputNodes = connector.connect();
@@ -356,7 +356,6 @@ export class Graph {
         const coll = new DeferredCollection();
 
         coll.declare(Layer.DERIVATIVE, output.getDims());
-        coll.declare(Layer.LOSS, 1);
 
         backpropInputs.set(key, coll);
       },
@@ -366,7 +365,7 @@ export class Graph {
   }
 
 
-  protected resolveRawBackpropInputsForNodes(): void {
+  protected routeBackPropagationInputs(): void {
     this.rawBackpropInputs = this.determineBackpropInputs();
 
     const connector = new NodeBackpropInputConnector(this);
@@ -503,19 +502,6 @@ export class Graph {
   }
 
 
-  public assignBackpropInput(inputs: DeferredInputCollection): void {
-    const expectedKeys = this.rawBackpropInputs.getKeys().sort();
-    const inputKeys = inputs.getKeys().sort();
-    const diff = _.difference(expectedKeys, inputKeys);
-
-    if (diff.length > 0) {
-      throw new Error(`Backprop input is missing missing keys: ${diff}`);
-    }
-
-    this.rawBackpropInputs.assign(inputs);
-  }
-
-
   public async initialize(): Promise<void> {
     this.requireState(GraphState.Compiled);
 
@@ -542,7 +528,10 @@ export class Graph {
     const processor = new GraphProcessor(this, GraphProcessorDirection.Backward);
 
     await processor.process(
-      async (node: GraphNode) => (node.backward()),
+      async (node: GraphNode) => {
+        await node.backward();
+      },
+
     );
   }
 
@@ -567,6 +556,36 @@ export class Graph {
   }
 
 
+  public unsetTrainingLabelValues(): void {
+    _.each(this.nodes, (node: GraphNode) => node.unsetTrainingLabelValues());
+  }
+
+
+  public assignTrainingLabels(labels: DeferredInputCollection): void {
+    const defaultOutput = (this.outputNodes.length === 1) ? this.outputNodes[0] : undefined;
+
+    _.each(
+      labels.getKeys(),
+      (key: string) => {
+        const label = labels.get(key);
+        let finalKey = key;
+
+        if (key === DeferredInputCollection.DEFAULT_INPUT) {
+          if (!defaultOutput) {
+            throw new Error(`Model '${this.getName()}' attempted to assign default output label, but no default output defined`);
+          }
+
+          finalKey = defaultOutput.getName();
+        }
+
+        const node = this.find(finalKey);
+
+        node.assignTrainingLabels(new DeferredInputCollection(label));
+      },
+    );
+  }
+
+
   public setSession(session: Session): void {
     this.session = session;
 
@@ -583,6 +602,17 @@ export class Graph {
 
   public getLogger(): Logger {
     return this.logger;
+  }
+
+
+  public unsetIterationValues(): void {
+    this.unsetBackpropInputValues();
+    this.unsetBackpropOutputValues();
+
+    this.unsetInputValues();
+    this.unsetOutputValues();
+
+    this.unsetTrainingLabelValues();
   }
 }
 

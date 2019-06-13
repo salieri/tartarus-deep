@@ -22,7 +22,7 @@ export abstract class NodeConnector {
 
   public abstract getNodeRawInputs(node: GraphNode): DeferredInputCollection;
 
-  public abstract getSharedInputs(): DeferredInputCollection;
+  public abstract getSharedInputs(): DeferredInputCollection|null;
 
   public abstract getMergeableSourcesForNode(sourceNode: GraphNode, targetNode: GraphNode): DeferredInputCollection;
 
@@ -31,7 +31,13 @@ export abstract class NodeConnector {
 
   public getDefault(): DeferredCollectionWrapper|null {
     try {
-      return this.getSharedInputs().getDefault();
+      const sharedInputs = this.getSharedInputs();
+
+      if (!sharedInputs) {
+        return null;
+      }
+
+      return sharedInputs.getDefault();
     } catch (err) {
       if (!(err instanceof KeyNotFoundError)) {
         throw err;
@@ -46,6 +52,7 @@ export abstract class NodeConnector {
     let defaultOutputSpent = false;
     const defaultRawOutput = this.getDefault();
     const detectedExternalInputNodes: GraphNode[] = [];
+    const sharedInputs = this.getSharedInputs();
 
     this.logger.debug('connector.connect', () => ({ mode: this.getType() }));
 
@@ -67,13 +74,15 @@ export abstract class NodeConnector {
 
         // Feed matching input name from rawInputs to the node
         try {
-          rawOutputs = this.getSharedInputs().get(curNode.getName());
+          if (sharedInputs) {
+            rawOutputs = sharedInputs.get(curNode.getName());
 
-          curNodeRawInputs.setDefault(rawOutputs);
+            curNodeRawInputs.setDefault(rawOutputs);
 
-          detectedExternalInputNodes.push(curNode);
+            detectedExternalInputNodes.push(curNode);
 
-          this.logger.debug('connector.connect.node.source.fromShared', () => ({ node: curNode.getName() }));
+            this.logger.debug('connector.connect.node.source.fromShared', () => ({ node: curNode.getName() }));
+          }
         } catch (err) {
           if (!(err instanceof KeyNotFoundError)) {
             throw err;
@@ -81,7 +90,7 @@ export abstract class NodeConnector {
         }
 
         // If no matching input was available in rawInputs and the node has no linked inputs, feed default input
-        if ((sourceNodeCount === 0) && (!rawOutputs)) {
+        if ((sourceNodeCount === 0) && (!rawOutputs) && (sharedInputs)) {
           if (!defaultRawOutput) {
             throw new Error(`Could not resolve ${this.getType()} entity for `
              + `layer '${curNode.getName()}' in model ${this.graph.getName()}`);

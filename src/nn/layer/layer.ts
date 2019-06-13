@@ -44,6 +44,10 @@ export type LayerParams = Parameters;
 export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced extends TInput = TInput>
   extends Parameterized<TInput, TCoerced>
   implements GraphEntity {
+  public static readonly DERIVATIVE: string = 'derivative';
+
+  public static readonly TRAINING_LABEL: string = 'train';
+
   public readonly output = new DeferredCollection();
 
   public readonly backpropOutput = new DeferredCollection();
@@ -66,11 +70,11 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   protected rawBackpropInputs: DeferredInputCollection = new DeferredInputCollection();
 
-  public static readonly DERIVATIVE: string = 'derivative';
-
-  public static readonly LOSS: string = 'loss';
-
   protected logger: Logger = new MuteLogger();
+
+  protected train: DeferredCollectionWrapper = new DeferredCollectionWrapper();
+
+  protected rawTrainingLabels: DeferredInputCollection = new DeferredInputCollection(this.train);
 
 
   public constructor(params: TInput = {} as any, name?: string) {
@@ -267,6 +271,21 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   public unsetBackpropInputValues(): void {
     this.backpropInput.unsetValues();
+  }
+
+
+  public unsetTrainingLabelValues(): void {
+    this.train.unsetValues();
+  }
+
+
+  public assignTrainingLabels(labels: DeferredInputCollection): void {
+    this.train.assign(labels.getDefault());
+  }
+
+
+  public getRawTrainingLabels(): DeferredInputCollection {
+    return this.rawTrainingLabels;
   }
 }
 

@@ -301,47 +301,59 @@ export class Model
     await this.evaluate(input, expectedOutput);
 
     const coercedExpectedOutput = Model.coerceData(expectedOutput);
-    const outputDerivatives = this.calculateTopLevelBackpropInputs(coercedExpectedOutput);
 
-    this.graph.unsetBackpropInputValues();
-    this.graph.unsetBackpropOutputValues();
-    this.graph.assignBackpropInput(outputDerivatives);
+    this.assignTrainingLabels(coercedExpectedOutput);
 
     await this.backward();
   }
 
 
-  protected calculateTopLevelBackpropInputs(expectedOutput: DeferredInputCollection): DeferredInputCollection {
-    const rawOutputs = this.getRawOutputs();
-    const backpropInputs = this.getRawBackpropInputs();
-
-    if (!this.evaluation) {
-      throw new Error('Derivatives cannot be calculated before forward propagation');
-    }
-
-    const evaluation = this.evaluation;
-
-    _.each(
-      backpropInputs.getKeys(),
-      (key: string) => {
-        const yHat = rawOutputs.get(key).getDefaultValue();
-        const y = expectedOutput.get(key).getDefaultValue();
-        const errorTotal = evaluation.losses.get(key).getDefaultValue();
-
-        // (a[last layer] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
-        const dETotalOverDOutput = yHat.sub(y);
-
-        const coll = backpropInputs.get(key).getCollection();
-
-        coll.setValue(Layer.DERIVATIVE, dETotalOverDOutput);
-        coll.setValue(Layer.LOSS, errorTotal);
-
-        backpropInputs.set(key, coll);
-      },
-    );
-
-    return backpropInputs.snapshot();
+  public unsetTrainingLabelValues(): void {
+    this.graph.unsetTrainingLabelValues();
   }
+
+
+  public assignTrainingLabels(labels: DeferredInputCollection): void {
+    this.graph.assignTrainingLabels(labels);
+  }
+
+
+  public getRawTrainingLabels(): DeferredInputCollection {
+    return new DeferredInputCollection(); // fake fake fake kludge kluge
+  }
+
+
+  // protected calculateTopLevelBackpropOutputs(expectedOutput: DeferredInputCollection): DeferredInputCollection {
+  //   const rawOutputs = this.getRawOutputs();
+  //   const backpropInputs = this.getRawBackpropInputs();
+  //
+  //   if (!this.evaluation) {
+  //     throw new Error('Derivatives cannot be calculated before forward propagation');
+  //   }
+  //
+  //   const evaluation = this.evaluation;
+  //
+  //   _.each(
+  //     backpropInputs.getKeys(),
+  //     (key: string) => {
+  //       const yHat = rawOutputs.get(key).getDefaultValue();
+  //       const y = expectedOutput.get(key).getDefaultValue();
+  //       const errorTotal = evaluation.losses.get(key).getDefaultValue();
+  //
+  //       // (a[last layer] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
+  //       const dETotalOverDOutput = yHat.sub(y);
+  //
+  //       const coll = backpropInputs.get(key).getCollection();
+  //
+  //       coll.setValue(Layer.DERIVATIVE, dETotalOverDOutput);
+  //       coll.setValue(Layer.LOSS, errorTotal);
+  //
+  //       backpropInputs.set(key, coll);
+  //     },
+  //   );
+  //
+  //   return backpropInputs.snapshot();
+  // }
 
 
   public async evaluate(input: RelaxedDeclarationCollectionDefinition, expectedOutput: RelaxedDataCollectionDefinition):
@@ -434,8 +446,7 @@ export class Model
   public async predict(input: RelaxedDataCollectionDefinition): Promise<DeferredInputCollection> {
     const preparedInput = Model.coerceData(input); // coerceOutput / RelaxedOutputCollectionDefinition is correct
 
-    this.graph.unsetOutputValues();
-    this.graph.unsetInputValues();
+    this.graph.unsetIterationValues();
 
     this.graph.assignInput(preparedInput);
 

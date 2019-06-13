@@ -38,7 +38,7 @@ export class DeferredValue {
     this.mustBeDeclared();
 
     if (!_.isEqual(this.dimensions, value.getDims())) {
-      throw new InvalidValueError('Value does not match expected dimensions');
+      throw new InvalidValueError(`Value does not match expected dimensions (expected: ${this.dimensions}, given: ${value.getDims()})`);
     }
 
     this.value = value;

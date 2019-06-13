@@ -88,6 +88,11 @@ export class GraphNode {
   }
 
 
+  public getRawTrainingLabels(): DeferredInputCollection {
+    return this.entity.getRawTrainingLabels();
+  }
+
+
   public unsetOutputValues(): void {
     this.getEntity().unsetOutputValues();
   }
@@ -105,6 +110,16 @@ export class GraphNode {
 
   public unsetBackpropInputValues(): void {
     this.getEntity().unsetBackpropInputValues();
+  }
+
+
+  public unsetTrainingLabelValues(): void {
+    this.getEntity().unsetTrainingLabelValues();
+  }
+
+
+  public assignTrainingLabels(labels: DeferredInputCollection): void {
+    this.getEntity().assignTrainingLabels(labels);
   }
 
 

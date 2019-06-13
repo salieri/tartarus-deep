@@ -22,7 +22,7 @@ export interface DenseParamsCoerced extends DenseParamsInput {
 
 
 export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
-  protected static readonly WEIGHT_MATRIX = 'weight';
+  public static readonly WEIGHT_MATRIX = 'weight';
 
   protected static readonly BIAS_MATRIX = 'bias';
 
@@ -40,20 +40,72 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * @link https://www.youtube.com/watch?v=x_Eamf8MHwU
    */
   protected async backwardExec(): Promise<void> {
+    let trainData;
+
+    try {
+      trainData = this.train.getDefaultValue();
+    } catch (err) {
+      if (!(err instanceof KeyNotFoundError)) {
+        throw err;
+      }
+    }
+
+
+    if (trainData) {
+      this.calculateDerivativeFromLabel();
+    } else {
+      this.calculateDerivativeFromChain();
+    }
+  }
+
+
+  protected calculateDerivativeFromLabel(): void {
+    const yHat = new Vector(this.output.getDefaultValue());
+    const y = new Vector(this.train.getDefaultValue());
+
+    // (a[last layer] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
+    const dETotalOverDOutput = yHat.sub(y);
+
+    this.backpropOutput.setValue(Layer.DERIVATIVE, dETotalOverDOutput);
+    this.backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.optimizer.getValue(Dense.WEIGHT_MATRIX));
+  }
+
+
+  protected calculateDerivativeFromChain(): void {
+    // console.log(`\n\nDER LA ${this.getName()}`);
+
     const derivativeOutput  = this.derivative(
       this.output.getValue(Dense.ACTIVATED_OUTPUT),
       this.output.getValue(Dense.LINEAR_OUTPUT),
-      // this.train.getValue(Layer.EXPECTED_OUTPUT, true),
     );
 
-    const weights = new Matrix(this.optimizer.getValue(Dense.WEIGHT_MATRIX));
+    const wNext = new Matrix(this.backpropInput.getValue(Dense.WEIGHT_MATRIX));
     const dNext = new Vector(this.backpropInput.getValue(Layer.DERIVATIVE));
 
-    // (weights)T dNext .* g'(z)
-    const dCurrent = weights.transpose().vecmul(dNext).mul(derivativeOutput).flatten();
+    // (wNext)T dNext .* g'(z)
+    const v1 = wNext.transpose().vecmul(dNext);
+    const v2 = new Vector(derivativeOutput);
+
+    // console.log(`DIMS
+    //     input ${this.input.getDefault().getDims()}
+    //     output ${this.output.getDefault().getDims()}
+    //     weights ${this.optimizer.get(Dense.WEIGHT_MATRIX).getDims()}
+    //     backpropInput ${this.backpropInput.get(Layer.DERIVATIVE).getDims()}
+    //     backpropOutput ${this.backpropOutput.get(Layer.DERIVATIVE).getDims()}
+    //     v1 ${v1.getDims()}
+    //     v2 ${v2.getDims()}
+    // `);
+    // console.log(`WEIGHT ${wNext.data}`);
+    // console.log(`DNEXT ${dNext.data}`);
+    // console.log(`V1 ${v1.data}`);
+    // console.log(`V2: ${v2.data}`);
+
+    const dCurrent = v1.mul(v2);
+
+    // console.log(`DCURRENT ${dCurrent.data}`);
 
     this.backpropOutput.setValue(Layer.DERIVATIVE, dCurrent);
-    this.backpropOutput.setValue(Layer.LOSS, this.backpropInput.getValue(Layer.LOSS));
+    this.backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.optimizer.getValue(Dense.WEIGHT_MATRIX));
   }
 
 
@@ -93,16 +145,10 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected resolveBackpropInput(): void {
-    if (this.rawBackpropInputs.count() < 1) {
-      throw new Error(`Missing backprop input for dense layer '${this.getName()}'`);
-    }
-
     // This needs rewriting to deal with cases where a layer has multiple outputs
     // This needs rewriting to deal with bias, not just weight
     try {
-      const defaultInput = this.rawBackpropInputs.getDefault();
-
-      this.backpropInput.setCollection(defaultInput);
+      this.backpropInput.setCollection(this.rawBackpropInputs.getDefault());
       return;
     } catch (err) {
       if (!(err instanceof KeyNotFoundError)) {
@@ -169,15 +215,23 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected async compileBackPropagation(): Promise<void> {
-    this.resolveBackpropInput();
+    // const inputUnits = this.input.getDefault().countElements(); // input is correct
+    this.train.setCollection(this.rawTrainingLabels.getDefault());
 
-    this.backpropInput.require(Layer.DERIVATIVE);
-    this.backpropInput.require(Layer.LOSS);
+    if (this.rawBackpropInputs.count() === 0) {
+      const trainColl  = this.train.getCollection();
 
-    const inputUnits = this.input.getDefault().countElements(); // input is correct
+      trainColl.declare(Layer.TRAINING_LABEL, this.params.units);
+      trainColl.setDefaultKey(Layer.TRAINING_LABEL);
+    } else {
+      this.resolveBackpropInput();
 
-    this.backpropOutput.declare(Layer.DERIVATIVE, inputUnits);
-    this.backpropOutput.declare(Layer.LOSS, 1);
+      this.backpropInput.require(Layer.DERIVATIVE);
+      this.backpropInput.require(Dense.WEIGHT_MATRIX);
+    }
+
+    this.backpropOutput.declare(Layer.DERIVATIVE, this.params.units);
+    this.backpropOutput.declare(Dense.WEIGHT_MATRIX, this.optimizer.get(Dense.WEIGHT_MATRIX).getDims());
   }
 
 

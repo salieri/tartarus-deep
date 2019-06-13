@@ -1,6 +1,6 @@
 import { NDArray } from '../../src/math';
 import { DeferredInputCollection, DeferredCollection } from '../../src/nn/symbols';
-import { Layer } from '../../src/nn';
+import { Dense, Layer } from '../../src/nn';
 
 export class LayerOutputUtil {
   public static createManyOutputs(): DeferredInputCollection {
@@ -53,8 +53,8 @@ export class LayerOutputUtil {
     output.declare(Layer.DERIVATIVE, 4);
     output.setValue(Layer.DERIVATIVE, new NDArray([0.4, 0.3, 0.2, 0.1]));
 
-    output.declare(Layer.LOSS, 1);
-    output.setValue(Layer.LOSS, new NDArray([0.8]));
+    output.declare(Dense.WEIGHT_MATRIX, [4, 2]);
+    output.setValue(Dense.WEIGHT_MATRIX, new NDArray([[1.1, 1.2], [2.1, 2.2], [3.1, 3.2], [4.1, 4.2]]));
 
     const layerBackpropOutput = new DeferredInputCollection();
 

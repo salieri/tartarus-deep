@@ -11,6 +11,7 @@ import {
 
 import { NDArray, Vector } from '../../math';
 import { KeyNotFoundError } from '../../error';
+import { Dense } from './dense';
 
 
 export type ConcatOutputTraverseFunction =
@@ -40,7 +41,6 @@ export class Concat extends Layer<ConcatParams> {
 
   public async backwardExec(): Promise<void> {
     const v = this.backpropInput.getValue(Layer.DERIVATIVE) as Vector;
-    const loss = this.backpropInput.getValue(Layer.LOSS);
 
     let curPos = 0;
 
@@ -55,7 +55,6 @@ export class Concat extends Layer<ConcatParams> {
 
         const derivative = v.slice([curPos], field.countElements());
 
-        coll.setValue(Layer.LOSS, loss);
         coll.setValue(Layer.DERIVATIVE, derivative);
 
         curPos += field.countElements();
@@ -220,8 +219,8 @@ export class Concat extends Layer<ConcatParams> {
 
         const bpOutput = this.rawBackpropOutputs.get(layerKey).getCollection();
 
-        if (!bpOutput.has(Layer.LOSS)) {
-          bpOutput.declare(Layer.LOSS, 1);
+        if (!bpOutput.has(Dense.WEIGHT_MATRIX)) {
+          bpOutput.declare(Dense.WEIGHT_MATRIX, 1);
         }
 
         if (!bpOutput.has(Layer.DERIVATIVE)) {

@@ -14,8 +14,8 @@ export class NodeBackpropInputConnector extends NodeConnector {
   }
 
 
-  public getSharedInputs(): DeferredInputCollection {
-    return this.graph.getRawBackpropInputs();
+  public getSharedInputs(): DeferredInputCollection|null {
+    return null; // return this.graph.getRawBackpropInputs();
   }
 
 
