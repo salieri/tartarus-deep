@@ -81,3 +81,8 @@ fastlane/README.md
 
 
 docs/
+
+src/**/*.js
+test/**/*.js
+!test/typescriptify.js
+

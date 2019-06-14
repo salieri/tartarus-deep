@@ -40,110 +40,40 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * @link https://www.youtube.com/watch?v=x_Eamf8MHwU
    */
   protected async backwardExec(): Promise<void> {
-    let trainData;
-
-    try {
-      trainData = this.train.getDefaultValue();
-    } catch (err) {
-      if (!(err instanceof KeyNotFoundError)) {
-        throw err;
-      }
-    }
-
-
-    if (trainData) {
-      this.calculateDerivativeFromLabel();
-    } else {
-      this.calculateDerivativeFromChain();
-    }
+    this.calculateDerivative();
   }
 
 
-  protected calculateDerivativeFromLabel(): void {
+  protected calculateLayerErrorFromLabel(): NDArray {
     const yHat = new Vector(this.output.getDefaultValue());
     const y = new Vector(this.train.getDefaultValue());
-    const activated = this.output.getValue(Dense.ACTIVATED_OUTPUT);
-    const linear = this.output.getValue(Dense.LINEAR_OUTPUT);
-    const weight = new Matrix(this.optimizer.getValue(Dense.WEIGHT_MATRIX));
 
-    // (a[last layer] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
-    const dETotalOverDOutput = yHat.sub(y);
-
-    // dOutput / dLinear
-    const dOutputOverDLinear = this.derivative(
-      activated,
-      linear,
-      y,
-    );
-
-    // dLinear / dWeight = 1 * prevActivated * weight^(1-1) + 0 + 0 = prevActivated
-    const dLinearOverDWeight = this.input.getDefaultValue();
-
-    const layerError = dETotalOverDOutput.mul(dOutputOverDLinear);
-
-    this.backpropOutput.setValue(Layer.DERIVATIVE, layerError);
-
-    const dETotalOverWeight = layerError.mul(dLinearOverDWeight);
-
-console.log(`
-dETotal / DOutput ${dETotalOverDOutput.getDims()}
-dOutput / DLinear ${dOutputOverDLinear.getDims()}
-dLinear / DWeight ${dLinearOverDWeight.getDims()}
-nodeDelta ${layerError.getDims()}
-dETotal / DWeight ${dETotalOverWeight.getDims()}
-`);
-//    this.backpropOutput.setValue(Layer.DERIVATIVE, dETotalOverWeight);
-    this.backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.optimizer.getValue(Dense.WEIGHT_MATRIX));
+    // layerError = (a - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
+    return yHat.sub(y);
   }
 
 
-  protected calculateDerivativeFromChain(): void {
-    let y;
+  protected calculateLayerErrorFromChain(): NDArray {
+    const y = this.train.hasDefaultValue() ? this.train.getDefaultValue() : undefined;
+    const layerErrorNext = new Vector(this.backpropInput.getValue(Layer.DERIVATIVE));
+    const weightNext = new Matrix(this.backpropInput.getValue(Dense.WEIGHT_MATRIX));
+    const activated = this.output.getValue(Dense.ACTIVATED_OUTPUT);
+    const linear = this.output.getValue(Dense.LINEAR_OUTPUT);
+    const derivativeOutput  = this.derivative(activated, linear, y);
 
-    try {
-      y = this.train.getDefaultValue();
-    } catch (err) {
-      if (!(err instanceof KeyNotFoundError)) {
-        throw err;
-      }
-    }
+    // layerError = (wNext)T dNext .* g'(z)
+    return weightNext.transpose().vecmul(layerErrorNext).mul(derivativeOutput);
+  }
 
 
-    // console.log(`\n\nDER LA ${this.getName()}`);
+  protected calculateDerivative(): void {
+    const layerError = this.train.hasDefaultValue() ? this.calculateLayerErrorFromLabel() : this.calculateLayerErrorFromChain();
 
-    const derivativeOutput  = this.derivative(
-      this.output.getValue(Dense.ACTIVATED_OUTPUT),
-      this.output.getValue(Dense.LINEAR_OUTPUT),
-      y,
-    );
-
-    const wNext = new Matrix(this.backpropInput.getValue(Dense.WEIGHT_MATRIX));
-    const dNext = new Vector(this.backpropInput.getValue(Layer.DERIVATIVE));
-
-    // (wNext)T dNext .* g'(z)
-    const v1 = wNext.transpose().vecmul(dNext);
-    const v2 = new Vector(derivativeOutput);
-
-    // console.log(`DIMS
-    //     input ${this.input.getDefault().getDims()}
-    //     output ${this.output.getDefault().getDims()}
-    //     weights ${this.optimizer.get(Dense.WEIGHT_MATRIX).getDims()}
-    //     backpropInput ${this.backpropInput.get(Layer.DERIVATIVE).getDims()}
-    //     backpropOutput ${this.backpropOutput.get(Layer.DERIVATIVE).getDims()}
-    //     v1 ${v1.getDims()}
-    //     v2 ${v2.getDims()}
-    // `);
-    // console.log(`WEIGHT ${wNext.data}`);
-    // console.log(`DNEXT ${dNext.data}`);
-    // console.log(`V1 ${v1.data}`);
-    // console.log(`V2: ${v2.data}`);
-
-    const dCurrent = v1.mul(v2);
-
-    // console.log(`DCURRENT ${dCurrent.data}`);
-
-    this.backpropOutput.setValue(Layer.DERIVATIVE, dCurrent);
+    this.backpropOutput.setValue(Layer.DERIVATIVE, layerError);
     this.backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.optimizer.getValue(Dense.WEIGHT_MATRIX));
+
+    // const dLinearOverDWeight = this.input.getDefaultValue();
+    // const dETotalOverWeight = layerError.mul(dLinearOverDWeight);
   }
 
 

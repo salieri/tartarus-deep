@@ -44,6 +44,16 @@ export class DeferredCollectionWrapper {
   }
 
 
+  public has(key: string): boolean {
+    return this.collection.has(key);
+  }
+
+
+  public hasDefaultValue(): boolean {
+    return this.collection.has(this.collection.getDefaultKey());
+  }
+
+
   public getDefaultKey(): string {
     return this.collection.getDefaultKey();
   }
