@@ -24,11 +24,11 @@ export interface DenseParamsCoerced extends DenseParamsInput {
 export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   public static readonly WEIGHT_MATRIX = 'weight';
 
-  protected static readonly BIAS_MATRIX = 'bias';
+  public static readonly BIAS_VECTOR = 'bias';
 
-  protected static readonly LINEAR_OUTPUT = 'linear';
+  public static readonly LINEAR_OUTPUT = 'linear';
 
-  protected static readonly ACTIVATED_OUTPUT = 'activated';
+  public static readonly ACTIVATED_OUTPUT = 'activated';
 
 
   protected derivative(a: NDArray, z: NDArray, y?: NDArray): NDArray {
@@ -62,21 +62,59 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   protected calculateDerivativeFromLabel(): void {
     const yHat = new Vector(this.output.getDefaultValue());
     const y = new Vector(this.train.getDefaultValue());
+    const activated = this.output.getValue(Dense.ACTIVATED_OUTPUT);
+    const linear = this.output.getValue(Dense.LINEAR_OUTPUT);
+    const weight = new Matrix(this.optimizer.getValue(Dense.WEIGHT_MATRIX));
 
     // (a[last layer] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
     const dETotalOverDOutput = yHat.sub(y);
 
-    this.backpropOutput.setValue(Layer.DERIVATIVE, dETotalOverDOutput);
+    // dOutput / dLinear
+    const dOutputOverDLinear = this.derivative(
+      activated,
+      linear,
+      y,
+    );
+
+    // dLinear / dWeight = 1 * prevActivated * weight^(1-1) + 0 + 0 = prevActivated
+    const dLinearOverDWeight = this.input.getDefaultValue();
+
+    const layerError = dETotalOverDOutput.mul(dOutputOverDLinear);
+
+    this.backpropOutput.setValue(Layer.DERIVATIVE, layerError);
+
+    const dETotalOverWeight = layerError.mul(dLinearOverDWeight);
+
+console.log(`
+dETotal / DOutput ${dETotalOverDOutput.getDims()}
+dOutput / DLinear ${dOutputOverDLinear.getDims()}
+dLinear / DWeight ${dLinearOverDWeight.getDims()}
+nodeDelta ${layerError.getDims()}
+dETotal / DWeight ${dETotalOverWeight.getDims()}
+`);
+//    this.backpropOutput.setValue(Layer.DERIVATIVE, dETotalOverWeight);
     this.backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.optimizer.getValue(Dense.WEIGHT_MATRIX));
   }
 
 
   protected calculateDerivativeFromChain(): void {
+    let y;
+
+    try {
+      y = this.train.getDefaultValue();
+    } catch (err) {
+      if (!(err instanceof KeyNotFoundError)) {
+        throw err;
+      }
+    }
+
+
     // console.log(`\n\nDER LA ${this.getName()}`);
 
     const derivativeOutput  = this.derivative(
       this.output.getValue(Dense.ACTIVATED_OUTPUT),
       this.output.getValue(Dense.LINEAR_OUTPUT),
+      y,
     );
 
     const wNext = new Matrix(this.backpropInput.getValue(Dense.WEIGHT_MATRIX));
@@ -127,7 +165,9 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     let output = weight.vecmul(new Vector(input.flatten()));
 
     if (this.params.bias) {
-      output = output.add(new Vector(this.optimizer.getValue(Dense.BIAS_MATRIX))) as Vector;
+      const bias = this.optimizer.getValue(Dense.BIAS_VECTOR).getAt([0]);
+
+      output = output.add(bias) as Vector;
     }
 
     return output;
@@ -204,7 +244,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     this.optimizer.declare(Dense.WEIGHT_MATRIX, [units, inputUnits]);
 
     if (this.params.bias) {
-      this.optimizer.declare(Dense.BIAS_MATRIX, [units]);
+      this.optimizer.declare(Dense.BIAS_VECTOR, 1);
     }
 
     this.output.declare(Dense.LINEAR_OUTPUT, [units]);
@@ -243,7 +283,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
     if (this.params.bias) {
       const bInit = this.params.biasInitializer;
-      const bias = this.optimizer.get(Dense.BIAS_MATRIX);
+      const bias = this.optimizer.get(Dense.BIAS_VECTOR);
 
       bias.set(await bInit.initialize(new NDArray(...bias.getDims())));
     }

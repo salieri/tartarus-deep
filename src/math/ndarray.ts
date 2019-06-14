@@ -259,20 +259,24 @@ export class NDArray {
   /**
    * Get value from specific position
    */
-  public getAt(positionPath: NDArrayPosition): number {
-    this.validatePosition(positionPath);
+  public getAt(positionPath: NDArrayPosition|number): number {
+    const finalPosition = _.castArray(positionPath);
 
-    return _.get(this.data, _.join(positionPath, '.'));
+    this.validatePosition(finalPosition);
+
+    return _.get(this.data, _.join(finalPosition, '.'));
   }
 
 
   /**
    * Set value at specific position
    */
-  public setAt(positionPath: NDArrayPosition, value: number): void {
-    this.validatePosition(positionPath);
+  public setAt(positionPath: NDArrayPosition|number, value: number): void {
+    const finalPosition = _.castArray(positionPath);
 
-    _.set(this.data, _.join(positionPath, '.'), value);
+    this.validatePosition(finalPosition);
+
+    _.set(this.data, _.join(finalPosition, '.'), value);
   }
 
 

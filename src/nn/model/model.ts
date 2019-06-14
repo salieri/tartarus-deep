@@ -85,6 +85,8 @@ export class Model
 
   protected evaluation?: EvaluationResult;
 
+  protected prediction?: DeferredInputCollection;
+
   protected logger: Logger = new MuteLogger();
 
 
@@ -356,9 +358,12 @@ export class Model
   // }
 
 
-  public async evaluate(input: RelaxedDeclarationCollectionDefinition, expectedOutput: RelaxedDataCollectionDefinition):
-    Promise<EvaluationResult> {
+  public async evaluate(
+    input: RelaxedDeclarationCollectionDefinition,
+    expectedOutput: RelaxedDataCollectionDefinition,
+  ): Promise<EvaluationResult> {
     const output = await this.predict(input);
+
     const coercedExpectedOutput = Model.coerceData(expectedOutput);
 
     if (!_.isEqual(output.getKeys().sort(), coercedExpectedOutput.getKeys().sort())) {
@@ -444,6 +449,9 @@ export class Model
 
 
   public async predict(input: RelaxedDataCollectionDefinition): Promise<DeferredInputCollection> {
+    delete this.prediction;
+    delete this.evaluation;
+
     const preparedInput = Model.coerceData(input); // coerceOutput / RelaxedOutputCollectionDefinition is correct
 
     this.graph.unsetIterationValues();
@@ -452,7 +460,9 @@ export class Model
 
     await this.forward();
 
-    return this.getRawOutputs().snapshot();
+    this.prediction = this.getRawOutputs().snapshot();
+
+    return this.prediction;
   }
 
 
