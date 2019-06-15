@@ -31,15 +31,6 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   public static readonly ACTIVATED_OUTPUT = 'activated';
 
 
-  public constructor(params: DenseParamsInput = {} as any, name?: string) {
-    super(params, name);
-
-    this.raw.trainingLabels.setDefault(this.data.train);
-    this.raw.backpropOutputs.setDefault(this.data.backpropOutput);
-    this.raw.outputs.setDefault(this.data.output);
-  }
-
-
   protected derivative(): NDArray {
     const output = this.data.output;
     const train = this.data.train;
@@ -205,6 +196,13 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
   protected countInputUnits(): number {
     return this.data.input.getDefault().countElements();
+  }
+
+
+  protected async compileInitialization(): Promise<void> {
+    this.raw.trainingLabels.setDefault(this.data.train);
+    this.raw.backpropOutputs.setDefault(this.data.backpropOutput);
+    this.raw.outputs.setDefault(this.data.output);
   }
 
 

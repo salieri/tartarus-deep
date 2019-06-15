@@ -10,7 +10,7 @@ import {
 
 import { NDArray, Vector } from '../../math';
 import { KeyNotFoundError } from '../../error';
-import { Dense, DenseParamsInput } from './dense';
+import { Dense } from './dense';
 
 
 export type ConcatOutputTraverseFunction =
@@ -35,14 +35,8 @@ export interface ConcatParams extends LayerParams {
 export class Concat extends Layer<ConcatParams> {
   public static readonly CONCATENATED: string = 'concatenated';
 
-  public constructor(params: ConcatParams = {} as any, name?: string) {
-    super(params, name);
 
-    this.raw.outputs.setDefault(this.data.output);
-  }
-
-
-  public async backwardExec(): Promise<void> {
+  protected async backwardExec(): Promise<void> {
     const v = this.data.backpropInput.getValue(Layer.DERIVATIVE) as Vector;
 
     let curPos = 0;
@@ -66,7 +60,7 @@ export class Concat extends Layer<ConcatParams> {
   }
 
 
-  public async forwardExec(): Promise<void> {
+  protected async forwardExec(): Promise<void> {
     let result: NDArray|undefined;
 
     this.traverse(
@@ -194,7 +188,12 @@ export class Concat extends Layer<ConcatParams> {
   }
 
 
-  public async compileForwardPropagation(): Promise<void> {
+  protected async compileInitialization(): Promise<void> {
+    this.raw.outputs.setDefault(this.data.output);
+  }
+
+
+  protected async compileForwardPropagation(): Promise<void> {
     this.verifyInputLayers();
 
     this.data.output.declare(Concat.CONCATENATED, this.determineOutputSize());
@@ -213,7 +212,7 @@ export class Concat extends Layer<ConcatParams> {
   }
 
 
-  public async compileBackPropagation(): Promise<void> {
+  protected async compileBackPropagation(): Promise<void> {
     this.traverse(
       (field: DeferredValue, fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string): void => {
         if (layerOutput.getDefaultKey() !== fieldKey) {
@@ -234,7 +233,7 @@ export class Concat extends Layer<ConcatParams> {
   }
 
 
-  public async initializeExec(): Promise<void> {
+  protected async initializeExec(): Promise<void> {
     // do nothing
   }
 
