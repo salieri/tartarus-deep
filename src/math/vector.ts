@@ -68,7 +68,7 @@ export class Vector extends NDArray {
       ((direction === VectorDirection.Row) && (rows !== this.getSize()))
       || ((direction === VectorDirection.Col) && (cols !== this.getSize()))
     ) {
-      throw new Error('Vector does not fit the shape of the matrix');
+      throw new Error(`Vector does not fit the shape of the matrix (matrix: [${rows}, ${cols}], size: ${this.getSize()})`);
     }
 
     let tPos = 0;
@@ -214,5 +214,24 @@ export class Vector extends NDArray {
     }
 
     return index;
+  }
+
+
+  /**
+   * Outer product
+   * u (x) v, where u = this
+   */
+  public outer(v: Vector): Matrix {
+    /* tslint:disable-next-line */
+    const u = this;
+    const m = new Matrix(u.getSize(), v.getSize());
+
+    for (let ui = 0; ui < u.getSize(); ui += 1) {
+      for (let vj = 0; vj < v.getSize(); vj += 1) {
+        m.setAt([ui, vj], u.getAt(ui) * v.getAt(vj));
+      }
+    }
+
+    return m;
   }
 }

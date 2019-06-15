@@ -1,7 +1,7 @@
 import { Layer, LayerParams } from './layer';
 import { Activation } from '../activation';
 import { JoiEx, JoiExSchema } from '../../util';
-import { Matrix, NDArray, Vector } from '../../math';
+import { Matrix, NDArray, Vector, VectorDirection } from '../../math';
 import { Initializer } from '../initializer';
 import { KeyNotFoundError } from '../../error';
 
@@ -31,8 +31,12 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   public static readonly ACTIVATED_OUTPUT = 'activated';
 
 
-  protected derivative(a: NDArray, z: NDArray, y?: NDArray): NDArray {
-    return this.params.activation.derivative(a, z, y);
+  protected derivative(): NDArray {
+    const activated = this.output.getValue(Dense.ACTIVATED_OUTPUT);
+    const linear = this.output.getValue(Dense.LINEAR_OUTPUT);
+    const y = this.train.hasDefaultValue() ? this.train.getDefaultValue() : undefined;
+
+    return this.params.activation.derivative(activated, linear, y);
   }
 
 
@@ -40,40 +44,51 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * @link https://www.youtube.com/watch?v=x_Eamf8MHwU
    */
   protected async backwardExec(): Promise<void> {
-    this.calculateDerivative();
+    this.calculateBackward();
   }
 
 
-  protected calculateLayerErrorFromLabel(): NDArray {
+  /**
+   * @link https://brilliant.org/wiki/backpropagation/
+   */
+  protected calculateErrorTermFromLabel(): NDArray {
     const yHat = new Vector(this.output.getDefaultValue());
     const y = new Vector(this.train.getDefaultValue());
 
-    // layerError = (a - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
-    return yHat.sub(y);
+    // (a[final] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
+    // layerError = g'(a[final])(yHat - y)
+    return new Vector(this.derivative().mul(yHat.sub(y)));
   }
 
 
-  protected calculateLayerErrorFromChain(): NDArray {
-    const y = this.train.hasDefaultValue() ? this.train.getDefaultValue() : undefined;
+  protected calculateErrorTermFromChain(): NDArray {
     const layerErrorNext = new Vector(this.backpropInput.getValue(Layer.DERIVATIVE));
     const weightNext = new Matrix(this.backpropInput.getValue(Dense.WEIGHT_MATRIX));
-    const activated = this.output.getValue(Dense.ACTIVATED_OUTPUT);
-    const linear = this.output.getValue(Dense.LINEAR_OUTPUT);
-    const derivativeOutput  = this.derivative(activated, linear, y);
 
     // layerError = (wNext)T dNext .* g'(z)
-    return weightNext.transpose().vecmul(layerErrorNext).mul(derivativeOutput);
+    return new Vector(weightNext.transpose().vecmul(layerErrorNext).mul(this.derivative()));
   }
 
 
-  protected calculateDerivative(): void {
-    const layerError = this.train.hasDefaultValue() ? this.calculateLayerErrorFromLabel() : this.calculateLayerErrorFromChain();
+  protected calculateBackward(): void {
+    const errorTerm = new Vector(this.train.hasDefaultValue() ? this.calculateErrorTermFromLabel() : this.calculateErrorTermFromChain());
 
-    this.backpropOutput.setValue(Layer.DERIVATIVE, layerError);
+    this.backpropOutput.setValue(Layer.DERIVATIVE, errorTerm);
     this.backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.optimizer.getValue(Dense.WEIGHT_MATRIX));
+  }
 
-    // const dLinearOverDWeight = this.input.getDefaultValue();
-    // const dETotalOverWeight = layerError.mul(dLinearOverDWeight);
+
+  protected calculateWeightDerivative(errorTerm: Vector): NDArray {
+    const inputVector = new Vector(this.input.getDefaultValue());
+    const dInputOverWeight = inputVector.expandToMatrix(this.countInputUnits(), this.countOutputUnits(), VectorDirection.Row);
+    const dErrorTerm = errorTerm.expandToMatrix(this.countInputUnits(), this.countOutputUnits(), VectorDirection.Col);
+
+    return dInputOverWeight.mul(dErrorTerm);
+  }
+
+
+  protected calculateBiasDerivative(errorTerm: Vector): number {
+    return errorTerm.sum();
   }
 
 
@@ -163,13 +178,23 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   }
 
 
+  protected countOutputUnits(): number {
+    return this.params.units;
+  }
+
+
+  protected countInputUnits(): number {
+    return this.input.getDefault().countElements();
+  }
+
+
   protected async compileForwardPropagation(): Promise<void> {
     this.resolveInput();
 
     this.input.requireDefault();
 
-    const inputUnits = this.input.getDefault().countElements();
-    const units = this.params.units;
+    const inputUnits = this.countInputUnits();
+    const units = this.countOutputUnits();
 
     this.optimizer.declare(Dense.WEIGHT_MATRIX, [units, inputUnits]);
 
@@ -191,7 +216,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     if (this.rawBackpropInputs.count() === 0) {
       const trainColl  = this.train.getCollection();
 
-      trainColl.declare(Layer.TRAINING_LABEL, this.params.units);
+      trainColl.declare(Layer.TRAINING_LABEL, this.countOutputUnits());
       trainColl.setDefaultKey(Layer.TRAINING_LABEL);
     } else {
       this.resolveBackpropInput();
@@ -200,7 +225,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
       this.backpropInput.require(Dense.WEIGHT_MATRIX);
     }
 
-    this.backpropOutput.declare(Layer.DERIVATIVE, this.params.units);
+    this.backpropOutput.declare(Layer.DERIVATIVE, this.countOutputUnits());
     this.backpropOutput.declare(Dense.WEIGHT_MATRIX, this.optimizer.get(Dense.WEIGHT_MATRIX).getDims());
   }
 

@@ -2,7 +2,7 @@ import { Dense2x } from '../../examples';
 import { Model } from '../../src';
 
 
-describe.only(
+describe(
   'Dense Network Lifecycle',
   () => {
     const generator = new Dense2x();

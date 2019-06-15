@@ -58,7 +58,7 @@ describe(
         const bias = optimizer.getValue('bias');
         const weight = optimizer.getValue('weight');
 
-        bias.countElements().should.equal(2);
+        bias.countElements().should.equal(1);
         weight.countElements().should.equal(2 * data.getDefault().getDefault().countElements());
 
         bias.getAt([0]).should.equal(0);

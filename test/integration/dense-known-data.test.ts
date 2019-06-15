@@ -1,7 +1,10 @@
 import { Dense, Layer, Model } from '../../src/nn';
 import { Matrix, Vector } from '../../src/math';
 
-describe.only(
+/**
+ * @link https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
+ */
+describe(
   'Dense Model with Known (Precalculated) Data',
   () => {
     const m = new Model();
@@ -58,8 +61,17 @@ describe.only(
         const oBack = o.backpropOutput.getValue(Layer.DERIVATIVE);
         const hBack = h.backpropOutput.getValue(Layer.DERIVATIVE);
 
-        oBack.getAt(0).should.be.closeTo(0.186815, 0.00001);
+        oBack.getAt(0).should.be.closeTo(0.1384985, 0.00001);
 
+        const odWeight = o.calculateWeightDerivative(new Vector(oBack));
+
+        odWeight.getDims().should.deep.equal([2, 2]);
+        odWeight.getAt([0, 0]).should.be.closeTo(0.082167041, 0.000001);
+
+        const hdWeight = h.calculateWeightDerivative(new Vector(hBack));
+
+        hdWeight.getDims().should.deep.equal([2, 2]);
+        hdWeight.getAt([0, 0]).should.be.closeTo(0.000438568, 0.0000001);
       },
     );
   },
