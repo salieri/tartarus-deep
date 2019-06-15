@@ -37,7 +37,7 @@ export class Concat extends Layer<ConcatParams> {
 
 
   protected async backwardExec(): Promise<void> {
-    const v = this.data.backpropInput.getValue(Layer.DERIVATIVE) as Vector;
+    const v = this.data.backpropInput.getValue(Layer.ERROR_TERM) as Vector;
 
     let curPos = 0;
 
@@ -52,7 +52,7 @@ export class Concat extends Layer<ConcatParams> {
 
         const derivative = v.slice([curPos], field.countElements());
 
-        coll.setValue(Layer.DERIVATIVE, derivative);
+        coll.setValue(Layer.ERROR_TERM, derivative);
 
         curPos += field.countElements();
       },
@@ -225,8 +225,8 @@ export class Concat extends Layer<ConcatParams> {
           bpOutput.declare(Dense.WEIGHT_MATRIX, 1);
         }
 
-        if (!bpOutput.has(Layer.DERIVATIVE)) {
-          bpOutput.declare(Layer.DERIVATIVE, field.getDims());
+        if (!bpOutput.has(Layer.ERROR_TERM)) {
+          bpOutput.declare(Layer.ERROR_TERM, field.getDims());
         }
       },
     );

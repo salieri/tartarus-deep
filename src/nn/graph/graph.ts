@@ -355,7 +355,7 @@ export class Graph {
         const output = rawOutputs.get(key).getDefault();
         const coll = new DeferredCollection();
 
-        coll.declare(Layer.DERIVATIVE, output.getDims());
+        coll.declare(Layer.ERROR_TERM, output.getDims());
 
         backpropInputs.set(key, coll);
       },

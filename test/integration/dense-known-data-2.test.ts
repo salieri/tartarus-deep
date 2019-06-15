@@ -8,8 +8,8 @@ describe(
   'Dense Model with Known (Precalculated) Data 2',
   () => {
     const m = new Model();
-    const h = new Dense({ units: 2, activation: 'sigmoid' });
-    const o = new Dense({ units: 2, activation: 'sigmoid' });
+    const h = new Dense({ units: 2, activation: 'sigmoid' }, 'hidden');
+    const o = new Dense({ units: 2, activation: 'sigmoid' }, 'output');
 
     it(
       'should declare and compile a model',
@@ -58,8 +58,8 @@ describe(
 
         await m.fit([1, 4, 5], [0.1, 0.05]);
 
-        const oBack = o.data.backpropOutput.getValue(Layer.DERIVATIVE);
-        const hBack = h.data.backpropOutput.getValue(Layer.DERIVATIVE);
+        const oBack = o.data.backpropOutput.getValue(Layer.ERROR_TERM);
+        const hBack = h.data.backpropOutput.getValue(Layer.ERROR_TERM);
 
         oBack.getDims().should.deep.equal([2]);
         oBack.getAt(0).should.be.closeTo(0.0775735, 0.00001);
@@ -79,7 +79,7 @@ describe(
         odWeight.getAt([0, 1]).should.be.closeTo(0.1183, 0.0001);
         odWeight.getAt([1, 0]).should.be.closeTo(0.0772, 0.0001);
         odWeight.getAt([1, 1]).should.be.closeTo(0.1193, 0.0001);
-        odBias.should.be.closeTo(0.1975, 0.001);
+        odBias.getAt(0).should.be.closeTo(0.1975, 0.001);
 
         // @ts-ignore
         const hdWeight = h.calculateWeightDerivative(new Vector(hBack));
@@ -93,7 +93,7 @@ describe(
         hdWeight.getAt([0, 1]).should.be.closeTo(0.0004, 0.0001);
         hdWeight.getAt([1, 1]).should.be.closeTo(0.0016, 0.0001);
         hdWeight.getAt([2, 1]).should.be.closeTo(0.0020, 0.0001);
-        // hdBias.should.be.closeTo(0.0008, 0.0001);
+        hdBias.getAt(0).should.be.closeTo(0.0008, 0.0001);
       },
     );
   },

@@ -127,5 +127,20 @@ export class Matrix extends NDArray {
 
     return result;
   }
+
+
+  public pickDiagonal(): Vector {
+    if (this.getCols() !== this.getRows()) {
+      throw new Error('Cannot pick diagonally across a matrix which columns and rows are not equal size');
+    }
+
+    const v = new Vector(this.getCols());
+
+    for (let n = 0; n < this.getCols(); n += 1) {
+      v.setAt(n, this.getAt([n, n]));
+    }
+
+    return v;
+  }
 }
 

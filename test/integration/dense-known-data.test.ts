@@ -58,8 +58,8 @@ describe(
 
         await m.fit([0.05, 0.10], [0.01, 0.99]);
 
-        const oBack = o.data.backpropOutput.getValue(Layer.DERIVATIVE);
-        const hBack = h.data.backpropOutput.getValue(Layer.DERIVATIVE);
+        const oBack = o.data.backpropOutput.getValue(Layer.ERROR_TERM);
+        const hBack = h.data.backpropOutput.getValue(Layer.ERROR_TERM);
 
         oBack.getAt(0).should.be.closeTo(0.1384985, 0.00001);
 

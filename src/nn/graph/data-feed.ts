@@ -1,4 +1,5 @@
 import { DeferredCollection, DeferredCollectionWrapper } from '../symbols';
+import { Vector } from '../../math';
 
 
 export class GraphDataFeed {
@@ -13,6 +14,8 @@ export class GraphDataFeed {
   public readonly optimizer = new DeferredCollection();
 
   public readonly train = new DeferredCollectionWrapper();
+
+  public activationDerivative?: Vector;
 
 
   public unsetIterationValues(): void {

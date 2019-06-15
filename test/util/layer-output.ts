@@ -50,8 +50,8 @@ export class LayerOutputUtil {
   public static createBackpropOutput(): DeferredInputCollection {
     const output = new DeferredCollection();
 
-    output.declare(Layer.DERIVATIVE, 4);
-    output.setValue(Layer.DERIVATIVE, new NDArray([0.4, 0.3, 0.2, 0.1]));
+    output.declare(Layer.ERROR_TERM, 4);
+    output.setValue(Layer.ERROR_TERM, new NDArray([0.4, 0.3, 0.2, 0.1]));
 
     output.declare(Dense.WEIGHT_MATRIX, [4, 2]);
     output.setValue(Dense.WEIGHT_MATRIX, new NDArray([[1.1, 1.2], [2.1, 2.2], [3.1, 3.2], [4.1, 4.2]]));
