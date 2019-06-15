@@ -31,10 +31,22 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   public static readonly ACTIVATED_OUTPUT = 'activated';
 
 
+  public constructor(params: DenseParamsInput = {} as any, name?: string) {
+    super(params, name);
+
+    this.raw.trainingLabels.setDefault(this.data.train);
+    this.raw.backpropOutputs.setDefault(this.data.backpropOutput);
+    this.raw.outputs.setDefault(this.data.output);
+  }
+
+
   protected derivative(): NDArray {
-    const activated = this.output.getValue(Dense.ACTIVATED_OUTPUT);
-    const linear = this.output.getValue(Dense.LINEAR_OUTPUT);
-    const y = this.train.hasDefaultValue() ? this.train.getDefaultValue() : undefined;
+    const output = this.data.output;
+    const train = this.data.train;
+
+    const activated = output.getValue(Dense.ACTIVATED_OUTPUT);
+    const linear = output.getValue(Dense.LINEAR_OUTPUT);
+    const y = train.hasDefaultValue() ? train.getDefaultValue() : undefined;
 
     return this.params.activation.derivative(activated, linear, y);
   }
@@ -51,9 +63,9 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   /**
    * @link https://brilliant.org/wiki/backpropagation/
    */
-  protected calculateErrorTermFromLabel(): NDArray {
-    const yHat = new Vector(this.output.getDefaultValue());
-    const y = new Vector(this.train.getDefaultValue());
+  protected calculateErrorTermFromLabel(): Vector {
+    const yHat = new Vector(this.data.output.getDefaultValue());
+    const y = new Vector(this.data.train.getDefaultValue());
 
     // (a[final] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
     // layerError = g'(a[final])(yHat - y)
@@ -61,9 +73,10 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   }
 
 
-  protected calculateErrorTermFromChain(): NDArray {
-    const layerErrorNext = new Vector(this.backpropInput.getValue(Layer.DERIVATIVE));
-    const weightNext = new Matrix(this.backpropInput.getValue(Dense.WEIGHT_MATRIX));
+  protected calculateErrorTermFromChain(): Vector {
+    const backpropInput = this.data.backpropInput;
+    const layerErrorNext = new Vector(backpropInput.getValue(Layer.DERIVATIVE));
+    const weightNext = new Matrix(backpropInput.getValue(Dense.WEIGHT_MATRIX));
 
     // layerError = (wNext)T dNext .* g'(z)
     return new Vector(weightNext.transpose().vecmul(layerErrorNext).mul(this.derivative()));
@@ -71,15 +84,16 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected calculateBackward(): void {
-    const errorTerm = new Vector(this.train.hasDefaultValue() ? this.calculateErrorTermFromLabel() : this.calculateErrorTermFromChain());
+    const backpropOutput = this.data.backpropOutput;
+    const errorTerm = this.data.train.hasDefaultValue() ? this.calculateErrorTermFromLabel() : this.calculateErrorTermFromChain();
 
-    this.backpropOutput.setValue(Layer.DERIVATIVE, errorTerm);
-    this.backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.optimizer.getValue(Dense.WEIGHT_MATRIX));
+    backpropOutput.setValue(Layer.DERIVATIVE, errorTerm);
+    backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.data.optimizer.getValue(Dense.WEIGHT_MATRIX));
   }
 
 
   protected calculateWeightDerivative(errorTerm: Vector): NDArray {
-    const inputVector = new Vector(this.input.getDefaultValue());
+    const inputVector = new Vector(this.data.input.getDefaultValue());
 
     return inputVector.outer(errorTerm);
   }
@@ -91,11 +105,12 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected async forwardExec(): Promise<void> {
-    const linearOutput      = this.calculate(this.input.getDefault().get());
-    const activatedOutput   = this.activate(linearOutput);
+    const output = this.data.output;
+    const linearOutput = this.calculate(this.data.input.getDefault().get());
+    const activatedOutput = this.activate(linearOutput);
 
-    this.output.setValue(Dense.LINEAR_OUTPUT, linearOutput);
-    this.output.setValue(Dense.ACTIVATED_OUTPUT, activatedOutput);
+    output.setValue(Dense.LINEAR_OUTPUT, linearOutput);
+    output.setValue(Dense.ACTIVATED_OUTPUT, activatedOutput);
   }
 
 
@@ -103,12 +118,13 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * Z = A_prev * W + b
    */
   protected calculate(input: NDArray): NDArray {
-    const weight = new Matrix(this.optimizer.getValue(Dense.WEIGHT_MATRIX));
+    const optimizer = this.data.optimizer;
+    const weight = new Matrix(optimizer.getValue(Dense.WEIGHT_MATRIX));
 
     let output = weight.vecmul(new Vector(input.flatten()));
 
     if (this.params.bias) {
-      const bias = this.optimizer.getValue(Dense.BIAS_VECTOR).getAt([0]);
+      const bias = optimizer.getValue(Dense.BIAS_VECTOR).getAt([0]);
 
       output = output.add(bias) as Vector;
     }
@@ -128,10 +144,13 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected resolveBackpropInput(): void {
+    const backpropInput = this.data.backpropInput;
+    const rawBackpropInputs = this.raw.backpropInputs;
+
     // This needs rewriting to deal with cases where a layer has multiple outputs
     // This needs rewriting to deal with bias, not just weight
     try {
-      this.backpropInput.setCollection(this.rawBackpropInputs.getDefault());
+      backpropInput.setCollection(rawBackpropInputs.getDefault());
       return;
     } catch (err) {
       if (!(err instanceof KeyNotFoundError)) {
@@ -139,24 +158,27 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
       }
     }
 
-    if (this.rawBackpropInputs.count() < 1) {
+    if (rawBackpropInputs.count() < 1) {
       throw new Error(`Missing input for dense layer '${this.getName()}'`);
     }
 
-    if (this.rawBackpropInputs.count() > 1) {
+    if (rawBackpropInputs.count() > 1) {
       // throw new Error(`Too many inputs for a dense layer '${this.getName()}'`);
       // DO SOMETHING
     }
 
-    this.backpropInput.setCollection(this.rawBackpropInputs.first());
+    backpropInput.setCollection(rawBackpropInputs.first());
   }
 
 
   protected resolveInput(): void {
-    try {
-      const defaultInput = this.rawInputs.getDefault();
+    const input = this.data.input;
+    const rawInputs = this.raw.inputs;
 
-      this.input.setCollection(defaultInput);
+    try {
+      const defaultInput = rawInputs.getDefault();
+
+      input.setCollection(defaultInput);
       return;
     } catch (err) {
       if (!(err instanceof KeyNotFoundError)) {
@@ -164,15 +186,15 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
       }
     }
 
-    if (this.rawInputs.count() < 1) {
+    if (rawInputs.count() < 1) {
       throw new Error(`Missing input for dense layer '${this.getName()}'`);
     }
 
-    if (this.rawInputs.count() > 1) {
+    if (rawInputs.count() > 1) {
       throw new Error(`Too many inputs for a dense layer '${this.getName()}'`);
     }
 
-    this.input.setCollection(this.rawInputs.first());
+    input.setCollection(rawInputs.first());
   }
 
 
@@ -182,61 +204,72 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected countInputUnits(): number {
-    return this.input.getDefault().countElements();
+    return this.data.input.getDefault().countElements();
   }
 
 
   protected async compileForwardPropagation(): Promise<void> {
     this.resolveInput();
 
-    this.input.requireDefault();
+    this.data.input.requireDefault();
+
+    const optimizer = this.data.optimizer;
+    const output = this.data.output;
 
     const inputUnits = this.countInputUnits();
     const units = this.countOutputUnits();
 
-    this.optimizer.declare(Dense.WEIGHT_MATRIX, [units, inputUnits]);
+    optimizer.declare(Dense.WEIGHT_MATRIX, [units, inputUnits]);
 
     if (this.params.bias) {
-      this.optimizer.declare(Dense.BIAS_VECTOR, 1);
+      optimizer.declare(Dense.BIAS_VECTOR, 1);
     }
 
-    this.output.declare(Dense.LINEAR_OUTPUT, [units]);
-    this.output.declare(Dense.ACTIVATED_OUTPUT, [units]);
+    output.declare(Dense.LINEAR_OUTPUT, [units]);
+    output.declare(Dense.ACTIVATED_OUTPUT, [units]);
 
-    this.output.setDefaultKey(Dense.ACTIVATED_OUTPUT);
+    output.setDefaultKey(Dense.ACTIVATED_OUTPUT);
   }
 
 
   protected async compileBackPropagation(): Promise<void> {
-    // const inputUnits = this.input.getDefault().countElements(); // input is correct
-    this.train.setCollection(this.rawTrainingLabels.getDefault());
+    const train = this.data.train;
+    const backpropInput = this.data.backpropInput;
+    const backpropOutput = this.data.backpropOutput;
+    const optimizer = this.data.optimizer;
 
-    if (this.rawBackpropInputs.count() === 0) {
-      const trainColl  = this.train.getCollection();
+    const rawTrainingLabels = this.raw.trainingLabels;
+    const rawBackpropInputs = this.raw.backpropInputs;
+
+    train.setCollection(rawTrainingLabels.getDefault());
+
+    if (rawBackpropInputs.count() === 0) {
+      const trainColl  = train.getCollection();
 
       trainColl.declare(Layer.TRAINING_LABEL, this.countOutputUnits());
       trainColl.setDefaultKey(Layer.TRAINING_LABEL);
     } else {
       this.resolveBackpropInput();
 
-      this.backpropInput.require(Layer.DERIVATIVE);
-      this.backpropInput.require(Dense.WEIGHT_MATRIX);
+      backpropInput.require(Layer.DERIVATIVE);
+      backpropInput.require(Dense.WEIGHT_MATRIX);
     }
 
-    this.backpropOutput.declare(Layer.DERIVATIVE, this.countOutputUnits());
-    this.backpropOutput.declare(Dense.WEIGHT_MATRIX, this.optimizer.get(Dense.WEIGHT_MATRIX).getDims());
+    backpropOutput.declare(Layer.DERIVATIVE, this.countOutputUnits());
+    backpropOutput.declare(Dense.WEIGHT_MATRIX, optimizer.get(Dense.WEIGHT_MATRIX).getDims());
   }
 
 
   protected async initializeExec(): Promise<void> {
+    const optimizer = this.data.optimizer;
     const wInit = this.params.weightInitializer;
-    const weight = this.optimizer.get(Dense.WEIGHT_MATRIX);
+    const weight = optimizer.get(Dense.WEIGHT_MATRIX);
 
     weight.set(await wInit.initialize(new NDArray(...weight.getDims())));
 
     if (this.params.bias) {
       const bInit = this.params.biasInitializer;
-      const bias = this.optimizer.get(Dense.BIAS_VECTOR);
+      const bias = optimizer.get(Dense.BIAS_VECTOR);
 
       bias.set(await bInit.initialize(new NDArray(...bias.getDims())));
     }

@@ -1,7 +1,5 @@
 import _ from 'lodash';
 
-import { DeferredCollection, DeferredInputCollection, DeferredCollectionWrapper } from '../symbols';
-
 import {
   JoiEx,
   JoiExSchema,
@@ -14,7 +12,13 @@ import { Parameterized, Parameters } from '../../generic';
 
 
 import { Session } from '../session';
-import { CompilationStage, GraphEntity } from '../graph';
+
+import {
+  CompilationStage,
+  GraphEntity,
+  GraphDataFeed,
+  GraphRawFeed,
+} from '../graph';
 
 
 export enum LayerState {
@@ -47,33 +51,21 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
 
   public static readonly TRAINING_LABEL: string = 'train';
 
-  public readonly output = new DeferredCollection();
+  private static layerCounter: number = 0;
 
-  public readonly backpropOutput = new DeferredCollection();
 
-  public readonly optimizer = new DeferredCollection();
+  public readonly raw = new GraphRawFeed();
+
+  public readonly data = new GraphDataFeed();
+
 
   protected readonly name: string;
-
-  private static layerCounter: number = 0;
 
   protected state: LayerState = LayerState.Created;
 
   protected session?: Session;
 
-  protected readonly input: DeferredCollectionWrapper = new DeferredCollectionWrapper();
-
-  protected readonly backpropInput: DeferredCollectionWrapper = new DeferredCollectionWrapper();
-
-  protected rawInputs: DeferredInputCollection = new DeferredInputCollection();
-
-  protected rawBackpropInputs: DeferredInputCollection = new DeferredInputCollection();
-
   protected logger: Logger = new MuteLogger();
-
-  protected train: DeferredCollectionWrapper = new DeferredCollectionWrapper();
-
-  protected rawTrainingLabels: DeferredInputCollection = new DeferredInputCollection(this.train);
 
 
   public constructor(params: TInput = {} as any, name?: string) {
@@ -129,6 +121,7 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   protected async compileBackPropagation(): Promise<void> { /* empty */ }
 
   protected async compileFinalization(): Promise<void> { /* empty */ }
+
 
   protected async compileAsMember(stage: CompilationStage): Promise<void> {
     this.requireState(LayerState.Created);
@@ -203,88 +196,10 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  public setRawInputs(inputs: DeferredInputCollection): void {
-    this.rawInputs = inputs;
-  }
-
-
-  public getRawOutputs(): DeferredInputCollection {
-    const out = new DeferredInputCollection();
-
-    out.setDefault(this.output);
-
-    return out;
-  }
-
-
-  public getRawInputs(): DeferredInputCollection {
-    return this.rawInputs;
-  }
-
-
-  public setRawBackpropInputs(inputs: DeferredInputCollection): void {
-    this.rawBackpropInputs = inputs;
-  }
-
-
-  public getRawBackpropOutputs(): DeferredInputCollection {
-    const out = new DeferredInputCollection();
-
-    out.setDefault(this.backpropOutput);
-
-    return out;
-  }
-
-
-  public getRawBackpropInputs(): DeferredInputCollection {
-    return this.rawBackpropInputs;
-  }
-
-
-  public getOptimizer(): DeferredCollectionWrapper {
-    return new DeferredCollectionWrapper(this.optimizer);
-  }
-
-
   protected requireState(state: LayerState): void {
     if (this.state !== state) {
       throw new Error(`Unexpected state: ${LayerState[this.state]}`);
     }
-  }
-
-
-  public unsetOutputValues(): void {
-    this.output.unsetValues();
-  }
-
-
-  public unsetInputValues(): void {
-    this.input.unsetValues();
-  }
-
-
-  public unsetBackpropOutputValues(): void {
-    this.backpropOutput.unsetValues();
-  }
-
-
-  public unsetBackpropInputValues(): void {
-    this.backpropInput.unsetValues();
-  }
-
-
-  public unsetTrainingLabelValues(): void {
-    this.train.unsetValues();
-  }
-
-
-  public assignTrainingLabels(labels: DeferredInputCollection): void {
-    this.train.assign(labels.getDefault());
-  }
-
-
-  public getRawTrainingLabels(): DeferredInputCollection {
-    return this.rawTrainingLabels;
   }
 }
 

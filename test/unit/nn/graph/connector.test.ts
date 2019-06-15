@@ -69,17 +69,17 @@ describe(
         const v2 = new NDArray([4, 5, 6, 7]);
 
         // @ts-ignore
-        d1.input.getDefault().get().should.equal(initialInput);
+        d1.data.input.getDefault().get().should.equal(initialInput);
 
-        d1.output.setDefaultValue(v1);
-
-        // @ts-ignore
-        d2.input.getDefault().get().should.equal(v1);
-
-        d2.output.setDefaultValue(v2);
+        d1.data.output.setDefaultValue(v1);
 
         // @ts-ignore
-        d3.input.getDefault().get().should.equal(v2);
+        d2.data.input.getDefault().get().should.equal(v1);
+
+        d2.data.output.setDefaultValue(v2);
+
+        // @ts-ignore
+        d3.data.input.getDefault().get().should.equal(v2);
       },
     );
 

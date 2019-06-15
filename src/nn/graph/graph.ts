@@ -536,28 +536,8 @@ export class Graph {
   }
 
 
-  public unsetOutputValues(): void {
-    _.each(this.nodes, (node: GraphNode) => node.unsetOutputValues());
-  }
-
-
-  public unsetInputValues(): void {
-    _.each(this.nodes, (node: GraphNode) => node.unsetInputValues());
-  }
-
-
-  public unsetBackpropOutputValues(): void {
-    _.each(this.nodes, (node: GraphNode) => node.unsetBackpropOutputValues());
-  }
-
-
-  public unsetBackpropInputValues(): void {
-    _.each(this.nodes, (node: GraphNode) => node.unsetBackpropInputValues());
-  }
-
-
-  public unsetTrainingLabelValues(): void {
-    _.each(this.nodes, (node: GraphNode) => node.unsetTrainingLabelValues());
+  public unsetIterationValues(): void {
+    _.each(this.nodes, (node: GraphNode) => node.unsetIterationValues());
   }
 
 
@@ -602,17 +582,6 @@ export class Graph {
 
   public getLogger(): Logger {
     return this.logger;
-  }
-
-
-  public unsetIterationValues(): void {
-    this.unsetBackpropInputValues();
-    this.unsetBackpropOutputValues();
-
-    this.unsetInputValues();
-    this.unsetOutputValues();
-
-    this.unsetTrainingLabelValues();
   }
 }
 

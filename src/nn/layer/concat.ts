@@ -5,13 +5,12 @@ import { JoiEx, JoiExSchema } from '../../util';
 import {
   DeferredValue,
   DeferredCollectionWrapper,
-  DeferredInputCollection,
   DeferredCollection,
 } from '../symbols';
 
 import { NDArray, Vector } from '../../math';
 import { KeyNotFoundError } from '../../error';
-import { Dense } from './dense';
+import { Dense, DenseParamsInput } from './dense';
 
 
 export type ConcatOutputTraverseFunction =
@@ -36,11 +35,15 @@ export interface ConcatParams extends LayerParams {
 export class Concat extends Layer<ConcatParams> {
   public static readonly CONCATENATED: string = 'concatenated';
 
-  protected rawBackpropOutputs = new DeferredInputCollection();
+  public constructor(params: ConcatParams = {} as any, name?: string) {
+    super(params, name);
+
+    this.raw.outputs.setDefault(this.data.output);
+  }
 
 
   public async backwardExec(): Promise<void> {
-    const v = this.backpropInput.getValue(Layer.DERIVATIVE) as Vector;
+    const v = this.data.backpropInput.getValue(Layer.DERIVATIVE) as Vector;
 
     let curPos = 0;
 
@@ -51,7 +54,7 @@ export class Concat extends Layer<ConcatParams> {
           return; // only default output will have a derivative
         }
 
-        const coll = this.rawBackpropOutputs.get(layerKey).getCollection();
+        const coll = this.raw.backpropOutputs.get(layerKey).getCollection();
 
         const derivative = v.slice([curPos], field.countElements());
 
@@ -78,17 +81,17 @@ export class Concat extends Layer<ConcatParams> {
       throw new Error('No layers to concatenate');
     }
 
-    this.output.setDefaultValue(result);
+    this.data.output.setDefaultValue(result);
   }
 
 
   protected getInputInOrder(): ConcatLayerDefinition[] {
-    return this.params.fields ? this.params.fields : this.rawInputs.getKeys();
+    return this.params.fields ? this.params.fields : this.raw.inputs.getKeys();
   }
 
 
   protected verifyInputLayers(): void {
-    const allKeys = this.rawInputs.getKeys();
+    const allKeys = this.raw.inputs.getKeys();
     // const orderedKeys = this.getInputKeysInOrder();
 
     const definedLayerKeys: string[] = [];
@@ -164,7 +167,7 @@ export class Concat extends Layer<ConcatParams> {
           fieldKey = layerSections[1];
         }
 
-        const layerOutput = this.rawInputs.get(layerKey);
+        const layerOutput = this.raw.inputs.get(layerKey);
 
         if (!fieldKey) {
           fieldKey = _.isString(layer) ? layerOutput.getDefaultKey() : (layer.field || layerOutput.getDefaultKey());
@@ -194,8 +197,8 @@ export class Concat extends Layer<ConcatParams> {
   public async compileForwardPropagation(): Promise<void> {
     this.verifyInputLayers();
 
-    this.output.declare(Concat.CONCATENATED, this.determineOutputSize());
-    this.output.setDefaultKey(Concat.CONCATENATED);
+    this.data.output.declare(Concat.CONCATENATED, this.determineOutputSize());
+    this.data.output.setDefaultKey(Concat.CONCATENATED);
 
     this.prepareForBackprop();
   }
@@ -206,7 +209,7 @@ export class Concat extends Layer<ConcatParams> {
 
     this.traverseKeys((fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string) => layers.push(layerKey));
 
-    _.each(_.uniq(layers), (layer: string) => this.rawBackpropOutputs.set(layer, new DeferredCollection()));
+    _.each(_.uniq(layers), (layer: string) => this.raw.backpropOutputs.set(layer, new DeferredCollection()));
   }
 
 
@@ -217,7 +220,7 @@ export class Concat extends Layer<ConcatParams> {
           return; // Only default output will have a derivative
         }
 
-        const bpOutput = this.rawBackpropOutputs.get(layerKey).getCollection();
+        const bpOutput = this.raw.backpropOutputs.get(layerKey).getCollection();
 
         if (!bpOutput.has(Dense.WEIGHT_MATRIX)) {
           bpOutput.declare(Dense.WEIGHT_MATRIX, 1);
@@ -228,16 +231,6 @@ export class Concat extends Layer<ConcatParams> {
         }
       },
     );
-  }
-
-
-  public getRawBackpropOutputs(): DeferredInputCollection {
-    return this.rawBackpropOutputs;
-  }
-
-
-  public unsetBackpropOutputValues(): void {
-    this.rawBackpropOutputs.unsetValues();
   }
 
 

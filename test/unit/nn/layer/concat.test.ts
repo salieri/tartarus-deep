@@ -15,13 +15,13 @@ describe(
 
         const data = LayerOutputUtil.createManyOutputs();
 
-        concat.setRawInputs(data);
+        concat.raw.inputs = data;
 
         await concat.compile();
         await concat.initialize();
         await concat.forward();
 
-        const result = concat.output.getDefault();
+        const result = concat.data.output.getDefault();
 
         const expectedSize = data.get('layer-1').getDefault().countElements()
           + data.get('layer-2').getDefault().countElements();
@@ -42,13 +42,13 @@ describe(
 
         const data = LayerOutputUtil.createManyOutputs();
 
-        concat.setRawInputs(data);
+        concat.raw.inputs = data;
 
         await concat.compile();
         await concat.initialize();
         await concat.forward();
 
-        const result = concat.output.getDefault();
+        const result = concat.data.output.getDefault();
 
         const expectedSize = data.get('layer-1').get('secondField').countElements()
           + data.get('layer-2').getDefault().countElements();
@@ -68,13 +68,13 @@ describe(
         const concat = new Concat({ fields: ['layer-1', 'layer-2'] });
         const data = LayerOutputUtil.createManyOutputs();
 
-        concat.setRawInputs(data);
+        concat.raw.inputs = data;
 
         await concat.compile();
         await concat.initialize();
         await concat.forward();
 
-        const result = concat.output.getDefault();
+        const result = concat.data.output.getDefault();
 
         const expectedSize = data.get('layer-1').getDefault().countElements()
           + data.get('layer-2').getDefault().countElements();
@@ -95,13 +95,13 @@ describe(
 
         const data = LayerOutputUtil.createManyOutputs();
 
-        concat.setRawInputs(data);
+        concat.raw.inputs = data;
 
         await concat.compile();
         await concat.initialize();
         await concat.forward();
 
-        const result = concat.output.getDefault();
+        const result = concat.data.output.getDefault();
 
         const expectedSize = data.get('layer-1').getDefault().countElements()
           + data.get('layer-2').getDefault().countElements();
@@ -137,13 +137,13 @@ describe(
 
         const data = LayerOutputUtil.createManyOutputs();
 
-        concat.setRawInputs(data);
+        concat.raw.inputs = data;
 
         await concat.compile();
         await concat.initialize();
         await concat.forward();
 
-        const result = concat.output.getDefault();
+        const result = concat.data.output.getDefault();
 
         const expectedSize = data.get('layer-1').get('secondField').countElements()
           + data.get('layer-1').get('firstField').countElements()
@@ -174,7 +174,7 @@ describe(
         const concat = new Concat({ fields: ['layer-1.nonExistentField', 'layer-2'] });
         const data = LayerOutputUtil.createManyOutputs();
 
-        concat.setRawInputs(data);
+        concat.raw.inputs = data;
 
         await concat.compile().should.be.rejectedWith(/Concat layer .* requires field .* from layer .* which has not been declared/);
       },
@@ -187,7 +187,7 @@ describe(
         const concat = new Concat({ fields: ['missing-layer'] });
         const data = LayerOutputUtil.createManyOutputs();
 
-        concat.setRawInputs(data);
+        concat.raw.inputs = data;
 
         await concat.compile().should.be.rejectedWith(/Concat layer .* expects input from layer .* which is not linked to this layer/);
       },
@@ -200,7 +200,7 @@ describe(
         const concat = new Concat({ fields: ['layer-1'] });
         const data = LayerOutputUtil.createManyOutputs();
 
-        concat.setRawInputs(data);
+        concat.raw.inputs = data;
 
         await concat.compile().should.be.rejectedWith(/Concat layer .* has more input layers than defined in the .* parameter/);
       },

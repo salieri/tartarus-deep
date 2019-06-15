@@ -10,7 +10,7 @@ describe(
         const data = LayerOutputUtil.createManyOutputs();
         const dense = new Dense({ units: 1 });
 
-        dense.setRawInputs(data);
+        dense.raw.inputs = data;
 
         await dense.compile().should.be.rejectedWith(/Too many inputs for a dense layer/);
       },
@@ -47,13 +47,14 @@ describe(
         const session = new Session('hello-world');
 
         dense.setSession(session);
-        dense.setRawInputs(data);
-        dense.setRawBackpropInputs(backpropData);
+
+        dense.raw.inputs = data;
+        dense.raw.backpropInputs = backpropData;
 
         await dense.compile();
         await dense.initialize();
 
-        const optimizer = dense.getOptimizer();
+        const optimizer = dense.data.optimizer;
 
         const bias = optimizer.getValue('bias');
         const weight = optimizer.getValue('weight');
@@ -85,14 +86,15 @@ describe(
         const session = new Session('hello-world');
 
         dense.setSession(session);
-        dense.setRawInputs(data);
-        dense.setRawBackpropInputs(backpropData);
+
+        dense.raw.inputs = data;
+        dense.raw.backpropInputs = backpropData;
 
         await dense.compile();
         await dense.initialize();
         await dense.forward();
 
-        const out = dense.getRawOutputs().getDefault();
+        const out = dense.raw.outputs.getDefault();
 
         const linear = out.get('linear').get();
         const activated = out.get('activated').get();

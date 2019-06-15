@@ -309,11 +309,6 @@ export class Model
   }
 
 
-  public unsetTrainingLabelValues(): void {
-    this.graph.unsetTrainingLabelValues();
-  }
-
-
   public assignTrainingLabels(labels: DeferredInputCollection): void {
     this.graph.assignTrainingLabels(labels);
   }
@@ -474,26 +469,6 @@ export class Model
 
   public async backward(): Promise<void> {
     await this.graph.backward();
-  }
-
-
-  public unsetOutputValues(): void {
-    this.graph.unsetOutputValues();
-  }
-
-
-  public unsetInputValues(): void {
-    this.graph.unsetInputValues();
-  }
-
-
-  public unsetBackpropOutputValues(): void {
-    this.graph.unsetBackpropOutputValues();
-  }
-
-
-  public unsetBackpropInputValues(): void {
-    this.graph.unsetBackpropInputValues();
   }
 
 

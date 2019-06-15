@@ -63,13 +63,8 @@ export class GraphNode {
   }
 
 
-  public overrideRawInputs(inputs: DeferredInputCollection): void {
-    this.rawInputs = inputs;
-  }
-
-
   public getRawOutputs(): DeferredInputCollection {
-    return this.entity.getRawOutputs();
+    return this.entity.raw.outputs;
   }
 
 
@@ -79,7 +74,7 @@ export class GraphNode {
 
 
   public getRawBackpropOutputs(): DeferredInputCollection {
-    return this.entity.getRawBackpropOutputs();
+    return this.entity.raw.backpropOutputs;
   }
 
 
@@ -89,37 +84,17 @@ export class GraphNode {
 
 
   public getRawTrainingLabels(): DeferredInputCollection {
-    return this.entity.getRawTrainingLabels();
+    return this.entity.raw.trainingLabels;
   }
 
 
-  public unsetOutputValues(): void {
-    this.getEntity().unsetOutputValues();
-  }
-
-
-  public unsetInputValues(): void {
-    this.getEntity().unsetInputValues();
-  }
-
-
-  public unsetBackpropOutputValues(): void {
-    this.getEntity().unsetBackpropOutputValues();
-  }
-
-
-  public unsetBackpropInputValues(): void {
-    this.getEntity().unsetBackpropInputValues();
-  }
-
-
-  public unsetTrainingLabelValues(): void {
-    this.getEntity().unsetTrainingLabelValues();
+  public unsetIterationValues(): void {
+    this.entity.data.unsetIterationValues();
   }
 
 
   public assignTrainingLabels(labels: DeferredInputCollection): void {
-    this.getEntity().assignTrainingLabels(labels);
+    this.entity.raw.trainingLabels.assign(labels);
   }
 
 
@@ -129,11 +104,11 @@ export class GraphNode {
         break;
 
       case CompilationStage.ForwardPropagation:
-        this.entity.setRawInputs(this.getRawInputs());
+        this.entity.raw.inputs = this.rawInputs;
         break;
 
       case CompilationStage.BackPropagation:
-        this.entity.setRawBackpropInputs(this.getRawBackpropInputs());
+        this.entity.raw.backpropInputs = this.rawBackpropInputs;
         break;
 
       case CompilationStage.Finalize:

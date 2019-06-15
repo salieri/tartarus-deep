@@ -27,16 +27,16 @@ describe(
     it(
       'should perform forward pass',
       async () => {
-        h.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
-        h.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
+        h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
+        h.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
 
-        o.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
-        o.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
+        o.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
+        o.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
 
         await m.predict([0.05, 0.10]);
 
-        const hOut = h.output.getDefaultValue();
-        const oOut = o.output.getDefaultValue();
+        const hOut = h.data.output.getDefaultValue();
+        const oOut = o.data.output.getDefaultValue();
 
         hOut.getAt([0]).should.be.closeTo(0.593269, 0.00001);
         hOut.getAt([1]).should.be.closeTo(0.596884, 0.00001);
@@ -50,16 +50,16 @@ describe(
     it(
       'should perform a backward pass and calculate weight derivatives',
       async () => {
-        h.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
-        h.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
+        h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
+        h.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
 
-        o.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
-        o.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
+        o.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
+        o.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
 
         await m.fit([0.05, 0.10], [0.01, 0.99]);
 
-        const oBack = o.backpropOutput.getValue(Layer.DERIVATIVE);
-        const hBack = h.backpropOutput.getValue(Layer.DERIVATIVE);
+        const oBack = o.data.backpropOutput.getValue(Layer.DERIVATIVE);
+        const hBack = h.data.backpropOutput.getValue(Layer.DERIVATIVE);
 
         oBack.getAt(0).should.be.closeTo(0.1384985, 0.00001);
 

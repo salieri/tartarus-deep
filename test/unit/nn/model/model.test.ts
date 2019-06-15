@@ -28,7 +28,7 @@ describe(
         outputs.count().should.equal(1);
 
         // @ts-ignore: TS24341
-        outputs.getDefault().collection.should.equal(lastLayer.output);
+        outputs.getDefault().collection.should.equal(lastLayer.data.output);
 
         const out = outputs.getDefault().getDefault();
 
@@ -138,10 +138,9 @@ describe(
 
         m.getRawOutputs().count().should.equal(1);
 
-
-        const layer1Out = layer1.getRawOutputs();
-        const layer2Out = layer2.getRawOutputs();
-        const anotherOut = anotherLayer.getRawOutputs();
+        const layer1Out = layer1.raw.outputs;
+        const layer2Out = layer2.raw.outputs;
+        const anotherOut = anotherLayer.raw.outputs;
 
         const layer1OutSize = layer1Out.getDefault().getDefault().countElements();
         const layer2OutSize = layer2Out.getDefault().getDefault().countElements();

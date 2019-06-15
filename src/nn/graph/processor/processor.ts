@@ -54,17 +54,10 @@ export class GraphProcessor {
   }
 
 
-  protected unsetOutput(): void {
-    _.each(this.nodes, (node: GraphProcessorNode) => node.unsetOutput(this.direction));
-  }
-
-
   public async process(
     callback: GraphNodeProcessorFunction,
     canProcessTest: GraphNodeTestFunction = GraphProcessorNode.canProcess,
   ): Promise<void> {
-    this.unsetOutput();
-
     let unprocessedCount = this.countUnprocessedNodes();
 
     while (unprocessedCount > 0) {

@@ -116,13 +116,16 @@ export abstract class NodeConnector {
         _.each(
           sourceNodes,
           (sourceNode: GraphNode) => {
-            curNodeRawInputs.merge(
-              this.getMergeableSourcesForNode(sourceNode, curNode),
-              sourceNode.getName(),
-              false,
-              (key: string) => ((key === curNode.getName()) ? sourceNode.getName() : key),
-            );
-            // detectedExternalInputNodes.push(sourceNode);
+            try {
+              curNodeRawInputs.merge(
+                this.getMergeableSourcesForNode(sourceNode, curNode),
+                sourceNode.getName(),
+                false,
+                (key: string) => ((key === curNode.getName()) ? sourceNode.getName() : key),
+              );
+            } catch (err) {
+              throw err;
+            }
           },
         );
 
