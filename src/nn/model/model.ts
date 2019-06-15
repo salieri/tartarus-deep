@@ -67,9 +67,7 @@ export interface EvaluationResult {
 }
 
 
-export class Model
-  extends Parameterized<ModelParamsInput, ModelParamsCoerced>
-  implements GraphEntity {
+export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   private static modelCounter: number = 0;
 
   protected state: ModelState = ModelState.Created;
@@ -319,39 +317,6 @@ export class Model
   }
 
 
-  // protected calculateTopLevelBackpropOutputs(expectedOutput: DeferredInputCollection): DeferredInputCollection {
-  //   const rawOutputs = this.getRawOutputs();
-  //   const backpropInputs = this.getRawBackpropInputs();
-  //
-  //   if (!this.evaluation) {
-  //     throw new Error('Derivatives cannot be calculated before forward propagation');
-  //   }
-  //
-  //   const evaluation = this.evaluation;
-  //
-  //   _.each(
-  //     backpropInputs.getKeys(),
-  //     (key: string) => {
-  //       const yHat = rawOutputs.get(key).getDefaultValue();
-  //       const y = expectedOutput.get(key).getDefaultValue();
-  //       const errorTotal = evaluation.losses.get(key).getDefaultValue();
-  //
-  //       // (a[last layer] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
-  //       const dETotalOverDOutput = yHat.sub(y);
-  //
-  //       const coll = backpropInputs.get(key).getCollection();
-  //
-  //       coll.setValue(Layer.DERIVATIVE, dETotalOverDOutput);
-  //       coll.setValue(Layer.LOSS, errorTotal);
-  //
-  //       backpropInputs.set(key, coll);
-  //     },
-  //   );
-  //
-  //   return backpropInputs.snapshot();
-  // }
-
-
   public async evaluate(
     input: RelaxedDeclarationCollectionDefinition,
     expectedOutput: RelaxedDataCollectionDefinition,
@@ -420,26 +385,6 @@ export class Model
 
     return 1.0;
   }
-
-
-  // protected static castInputArray(inputs: RelaxedInputCollectionDefinition|RelaxedInputCollectionDefinition[]):
-  //   RelaxedInputCollectionDefinition[] {
-  //   if (
-  //     (_.isArray(inputs))
-  //     && (
-  //       (inputs[0] instanceof NDArray)
-  //       || (inputs[0] instanceof DeferredInputCollection)
-  //       || (inputs[0] instanceof DeferredCollection)
-  //     )
-  //   ) {
-  //     return _.map(
-  //       inputs,
-  //       (input: RelaxedInputCollectionDefinition) => (Model.prepareInputCollection(input)),
-  //     );
-  //   }
-  //
-  //   return [Model.prepareInputCollection(inputs as RelaxedInputCollectionDefinition)];
-  // }
 
 
   public async predict(input: RelaxedDataCollectionDefinition): Promise<DeferredInputCollection> {
