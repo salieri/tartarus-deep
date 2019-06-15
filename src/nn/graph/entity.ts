@@ -24,27 +24,8 @@ export interface GraphEntity {
   data: GraphDataFeed;
   raw: GraphRawFeed;
 
-  /* getRawOutputs(): DeferredInputCollection;
-  getRawInputs(): DeferredInputCollection;
-  setRawInputs(inputs: DeferredInputCollection): void;
-
-  getRawBackpropOutputs(): DeferredInputCollection;
-  getRawBackpropInputs(): DeferredInputCollection;
-  setRawBackpropInputs(inputs: DeferredInputCollection): void;
-
-  getRawTrainingLabels(): DeferredInputCollection; */
-
   forward(): Promise<void>;
   backward(): Promise<void>;
-
-  /* unsetInputValues(): void;
-  unsetBackpropInputValues(): void;
-
-  unsetOutputValues(): void;
-  unsetBackpropOutputValues(): void;
-
-  assignTrainingLabels(labels: DeferredInputCollection): void;
-  unsetTrainingLabelValues(): void; */
 
   setSession(session: Session): void;
   setLogger(parentLogger: Logger): void;

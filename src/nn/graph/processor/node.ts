@@ -41,22 +41,6 @@ export class GraphProcessorNode {
   }
 
 
-  public unsetOutput(direction: GraphProcessorDirection): void {
-    switch (direction) {
-      case GraphProcessorDirection.Forward:
-        this.node.unsetOutputValues();
-        break;
-
-      case GraphProcessorDirection.Backward:
-        this.node.unsetBackpropOutputValues();
-        break;
-
-      default:
-        throw new Error('Unsupported direction');
-    }
-  }
-
-
   public getNode(): GraphNode {
     return this.node;
   }
