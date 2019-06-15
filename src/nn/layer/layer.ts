@@ -23,7 +23,6 @@ export enum LayerState {
   Initialized,
 }
 
-
 export type LayerParams = Parameters;
 
 

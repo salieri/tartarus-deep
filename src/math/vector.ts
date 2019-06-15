@@ -1,5 +1,13 @@
 import _ from 'lodash';
-import { IndexResult, NDArray, NDArrayConstructorType, NDArrayPosition, NumberTreeElement } from './ndarray';
+
+import {
+  IndexResult,
+  NDArray,
+  NDArrayConstructorType,
+  NDArrayPosition,
+  NumberTreeElement,
+} from './ndarray';
+
 import { Matrix } from './matrix';
 
 export enum VectorDirection {

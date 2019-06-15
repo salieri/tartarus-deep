@@ -1,11 +1,14 @@
 import { GraphNode } from '../node';
 import { GraphProcessorDirection } from './processor';
 
+/* eslint-disable-next-line */
+export type GraphProcessorResult = any;
+
 
 export class GraphProcessorNode {
   private node: GraphNode;
 
-  private result?: any;
+  private result?: GraphProcessorResult;
 
   private processed: boolean = false;
 
@@ -59,12 +62,12 @@ export class GraphProcessorNode {
   }
 
 
-  public getResult(): any {
+  public getResult(): GraphProcessorResult {
     return this.result;
   }
 
 
-  public setResult(result: any): void {
+  public setResult(result: GraphProcessorResult): void {
     this.result = result;
   }
 }

@@ -23,7 +23,6 @@ import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { Cost } from '../cost';
 import { Loss } from '../loss';
 import { Metric } from '../metric';
-import { Layer } from '../layer';
 
 
 export enum ModelState {
