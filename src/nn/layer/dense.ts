@@ -80,10 +80,8 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
   protected calculateWeightDerivative(errorTerm: Vector): NDArray {
     const inputVector = new Vector(this.input.getDefaultValue());
-    const dInputOverWeight = inputVector.expandToMatrix(this.countInputUnits(), this.countOutputUnits(), VectorDirection.Row);
-    const dErrorTerm = errorTerm.expandToMatrix(this.countInputUnits(), this.countOutputUnits(), VectorDirection.Col);
 
-    return dInputOverWeight.mul(dErrorTerm);
+    return inputVector.outer(errorTerm);
   }
 
 

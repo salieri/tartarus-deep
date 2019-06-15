@@ -75,6 +75,7 @@ Many ideas, designs, algorithms, and approaches have been shamelessly stolen fro
 *   <https://deepnotes.io/softmax-crossentropy>
 *   <https://cup-of-char.com/writing-activation-functions-from-mostly-scratch-in-python/>
 *   <https://www.youtube.com/watch?v=PPLop4L2eGk&list=PLLssT5z_DsK-h9vYZkQkYNWcItqhlRJLN>
+*   <https://www.anotsorandomwalk.com/backpropagation-example-with-numbers-step-by-step/>
 
 
 ## Glossary

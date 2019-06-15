@@ -48,7 +48,7 @@ describe(
 
 
     it(
-      'should perform backward pass',
+      'should perform a backward pass and calculate weight derivatives',
       async () => {
         h.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
         h.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
