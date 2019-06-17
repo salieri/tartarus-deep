@@ -1,6 +1,13 @@
 import _ from 'lodash';
-import { DeferredValue, DeferredValueType } from './value';
-import { NDArray, NDArrayCollection } from '../../../math';
+import { DeferredValue } from './value';
+
+import {
+  Matrix,
+  NDArray,
+  NDArrayCollection,
+  Vector,
+} from '../../../math';
+
 import { KeyNotFoundError } from '../../../error';
 
 
@@ -67,10 +74,10 @@ export class DeferredCollection {
   }
 
 
-  public getValue(key: string): DeferredValueType {
+  public getValue<NDType extends NDArray = NDArray>(key: string, type?: { new (val: NDArray|Matrix|Vector): NDType }): NDType {
     this.require(key);
 
-    return this.collection[key].get();
+    return this.collection[key].get(type);
   }
 
 
@@ -79,10 +86,10 @@ export class DeferredCollection {
   }
 
 
-  public setValue(key: string, value: DeferredValueType): void {
+  public setValue <NDType>(key: string, value: NDArray, type?: { new (val: NDArray|Matrix|Vector): NDType }): void {
     this.require(key);
 
-    this.collection[key].set(value);
+    this.collection[key].set(value, type);
   }
 
 
@@ -93,8 +100,8 @@ export class DeferredCollection {
   }
 
 
-  public setDefaultValue(value: DeferredValueType): void {
-    this.setValue(this.getDefaultKey(), value);
+  public setDefaultValue<NDType>(value: NDArray, type?: { new (val: NDArray|Matrix|Vector): NDType }): void {
+    this.setValue(this.getDefaultKey(), value, type);
   }
 
 
@@ -112,8 +119,8 @@ export class DeferredCollection {
   }
 
 
-  public getDefaultValue(): DeferredValueType {
-    return this.getDefault().get();
+  public getDefaultValue<NDType extends NDArray = NDArray>(type?: { new (val: NDArray|Matrix|Vector): NDType }): NDType {
+    return this.getDefault().get(type);
   }
 
 

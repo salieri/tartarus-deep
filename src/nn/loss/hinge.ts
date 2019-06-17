@@ -1,6 +1,6 @@
 import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
 import { Loss, LossParams } from './loss';
-import { Vector, NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 export interface HingeParams extends LossParams {
@@ -10,14 +10,13 @@ export interface HingeParams extends LossParams {
 
 export class Hinge extends Loss<HingeParams> {
   public calculate(yHat: Vector, y: Vector): number {
-    return NDArray.iterate(
+    return yHat.iterate(
       (values: number[]): number => {
         const yHatVal = values[0];
         const yVal = values[1];
 
         return Math.max(0, this.params.margin - yVal * yHatVal);
       },
-      yHat,
       y,
     ).mean();
   }

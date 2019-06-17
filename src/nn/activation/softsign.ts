@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 /**
@@ -7,13 +7,13 @@ import { NDArray } from '../../math';
  * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class Softsign extends Activation {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     // z / ( 1 + |z| )
     return z.div(z.abs().add(1.0));
   }
 
 
-  public derivative(a: NDArray, z: NDArray): NDArray {
+  public derivative(a: Vector, z: Vector): Vector {
     const one = z.set(1);
 
     // 1 / ((1 + |z|)^2)

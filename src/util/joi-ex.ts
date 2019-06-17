@@ -10,6 +10,7 @@ import * as losses from '../nn/loss';
 import * as metrics from '../nn/metric';
 import * as initializers from '../nn/initializer';
 import * as randomizers from '../math/randomizer';
+import * as optimizers from '../nn/optimizer';
 
 
 /* eslint-disable @typescript-eslint/no-explicit-any, no-underscore-dangle */
@@ -54,6 +55,7 @@ declare namespace ExtendedJoi {
   export function loss(): Joi.AnySchema;
   export function metric(): Joi.AnySchema;
   export function randomizer(): Joi.AnySchema;
+  export function optimizer(): Joi.AnySchema;
 }
 
 
@@ -74,6 +76,7 @@ const customJoi = joify(Joi.extend(
     createCMExtension('loss', new ClassManager(losses, losses.Loss)),
     createCMExtension('metric', new ClassManager(metrics, metrics.Metric)),
     createCMExtension('randomizer', new ClassManager(randomizers, randomizers.Randomizer)),
+    createCMExtension('optimizer', new ClassManager(optimizers, optimizers.Optimizer)),
 
     // createCMExtension( 'regularizer', new ClassManager( regularizers, regularizers.Regularizer ) )
   ],

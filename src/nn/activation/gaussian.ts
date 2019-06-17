@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 /**
@@ -7,13 +7,13 @@ import { NDArray } from '../../math';
  * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class Gaussian extends Activation {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     // e^-(x^2)
     return z.pow(2).neg().exp();
   }
 
 
-  public derivative(a: NDArray, z: NDArray): NDArray {
+  public derivative(a: Vector, z: Vector): Vector {
     const two = z.set(2);
 
     // -2xe^(-x^2)

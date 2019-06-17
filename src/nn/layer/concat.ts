@@ -36,6 +36,11 @@ export class Concat extends Layer<ConcatParams> {
   public static readonly CONCATENATED: string = 'concatenated';
 
 
+  protected async optimizeExec(): Promise<void> {
+    // do nothing
+  }
+
+
   protected async backwardExec(): Promise<void> {
     const v = this.data.backpropInput.getValue(Layer.ERROR_TERM) as Vector;
 

@@ -1,9 +1,10 @@
 import { Layer, LayerParams } from './layer';
 import { Activation } from '../activation';
 import { JoiEx, JoiExSchema } from '../../util';
-import { Matrix, NDArray, Vector } from '../../math';
+import { Matrix, Vector } from '../../math';
 import { Initializer } from '../initializer';
 import { KeyNotFoundError } from '../../error';
+import { Optimizer } from '../optimizer';
 
 
 export interface DenseParamsInput extends LayerParams {
@@ -11,13 +12,17 @@ export interface DenseParamsInput extends LayerParams {
   activation?: Activation|string;
   bias?: boolean;
   biasInitializer?: Initializer|string;
+  biasOptimizer?: Optimizer|string;
   weightInitializer?: Initializer|string;
+  weightOptimizer?: Optimizer|string;
 }
 
 export interface DenseParamsCoerced extends DenseParamsInput {
   activation: Activation;
   biasInitializer: Initializer;
+  biasOptimizer: Optimizer;
   weightInitializer: Initializer;
+  weightOptimizer: Optimizer;
 }
 
 
@@ -31,15 +36,33 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   public static readonly ACTIVATED_OUTPUT = 'activated';
 
 
+  protected async optimizeExec(): Promise<void> {
+    const backpropOutput = this.data.backpropOutput;
+    const optimizer = this.data.optimizer;
+
+    const errorTerm = backpropOutput.getValue(Layer.ERROR_TERM, Vector);
+
+    const weightError = this.calculateWeightDerivative(errorTerm);
+    const weights = optimizer.getValue(Dense.WEIGHT_MATRIX, Matrix);
+
+    optimizer.setValue(Dense.WEIGHT_MATRIX, this.params.weightOptimizer.optimize(weights, weightError), Matrix);
+
+    const biasError = this.calculateBiasDerivative(errorTerm);
+    const bias = optimizer.getValue(Dense.BIAS_VECTOR, Vector);
+
+    optimizer.setValue(Dense.BIAS_VECTOR, this.params.biasOptimizer.optimize(bias, biasError), Vector);
+  }
+
+
   protected calculateActivationDerivative(): void {
     const output = this.data.output;
     const train = this.data.train;
 
-    const activated = output.getValue(Dense.ACTIVATED_OUTPUT);
-    const linear = output.getValue(Dense.LINEAR_OUTPUT);
-    const y = train.hasDefaultValue() ? train.getDefaultValue() : undefined;
+    const activated = output.getValue(Dense.ACTIVATED_OUTPUT, Vector);
+    const linear = output.getValue(Dense.LINEAR_OUTPUT, Vector);
+    const y = train.hasDefaultValue() ? train.getDefaultValue(Vector) : undefined;
 
-    this.data.activationDerivative = new Vector(this.params.activation.derivative(activated, linear, y));
+    this.data.activationDerivative = this.params.activation.derivative(activated, linear, y);
   }
 
 
@@ -56,7 +79,14 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * @link https://www.youtube.com/watch?v=x_Eamf8MHwU
    */
   protected async backwardExec(): Promise<void> {
-    this.calculateBackward();
+    const backpropOutput = this.data.backpropOutput;
+
+    this.calculateActivationDerivative();
+
+    const errorTerm = this.calculateErrorTerm();
+
+    backpropOutput.setValue(Layer.ERROR_TERM, errorTerm, Vector);
+    backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.data.optimizer.getValue(Dense.WEIGHT_MATRIX, Matrix), Matrix);
   }
 
 
@@ -64,24 +94,24 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * @link https://brilliant.org/wiki/backpropagation/
    */
   protected calculateErrorTermFromLabel(): Vector {
-    const yHat = new Vector(this.data.output.getDefaultValue());
-    const y = new Vector(this.data.train.getDefaultValue());
+    const yHat = this.data.output.getDefaultValue(Vector);
+    const y = this.data.train.getDefaultValue(Vector);
     const derivative = this.getActivationDerivative();
 
     // (a[final] - y) = (yHat - y) = -(y - yHat) = dErrorTotal / dOutput
     // layerError = g'(a[final])(yHat - y)
-    return new Vector(derivative.mul(yHat.sub(y)));
+    return derivative.mul(yHat.sub(y));
   }
 
 
   protected calculateErrorTermFromChain(): Vector {
     const backpropInput = this.data.backpropInput;
-    const layerErrorNext = new Vector(backpropInput.getValue(Layer.ERROR_TERM));
-    const weightNext = new Matrix(backpropInput.getValue(Dense.WEIGHT_MATRIX));
+    const layerErrorNext = backpropInput.getValue(Layer.ERROR_TERM, Vector);
+    const weightNext = backpropInput.getValue(Dense.WEIGHT_MATRIX, Matrix);
     const derivative = this.getActivationDerivative();
 
     // layerError = (wNext)T dNext .* g'(z)
-    return new Vector(weightNext.transpose().vecmul(layerErrorNext).mul(derivative));
+    return weightNext.transpose().vecmul(layerErrorNext).mul(derivative);
   }
 
 
@@ -90,22 +120,10 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   }
 
 
-  protected calculateBackward(): void {
-    const backpropOutput = this.data.backpropOutput;
-
-    this.calculateActivationDerivative();
-
-    const weightErrorTerm = this.calculateErrorTerm();
-
-    backpropOutput.setValue(Layer.ERROR_TERM, weightErrorTerm);
-    backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.data.optimizer.getValue(Dense.WEIGHT_MATRIX));
-  }
-
-
   protected calculateWeightDerivative(errorTerm: Vector): Matrix {
-    const inputVector = new Vector(this.data.input.getDefaultValue());
+    const inputVector = this.data.input.getDefaultValue(Vector);
 
-    return inputVector.outer(errorTerm);
+    return inputVector.outer(errorTerm).transpose();
   }
 
 
@@ -115,8 +133,8 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     }
 
     const backpropInput = this.data.backpropInput;
-    const layerErrorNext = new Vector(backpropInput.getValue(Layer.ERROR_TERM));
-    const weightNext = new Matrix(backpropInput.getValue(Dense.WEIGHT_MATRIX));
+    const layerErrorNext = backpropInput.getValue(Layer.ERROR_TERM, Vector);
+    const weightNext = backpropInput.getValue(Dense.WEIGHT_MATRIX, Matrix);
     const diagonalWeights = weightNext.pickDiagonal();
     const derivative = this.getActivationDerivative();
 
@@ -126,27 +144,27 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
   protected async forwardExec(): Promise<void> {
     const output = this.data.output;
-    const linearOutput = this.calculate(this.data.input.getDefault().get());
+    const linearOutput = this.calculate(this.data.input.getDefaultValue(Vector));
     const activatedOutput = this.activate(linearOutput);
 
-    output.setValue(Dense.LINEAR_OUTPUT, linearOutput);
-    output.setValue(Dense.ACTIVATED_OUTPUT, activatedOutput);
+    output.setValue(Dense.LINEAR_OUTPUT, linearOutput, Vector);
+    output.setValue(Dense.ACTIVATED_OUTPUT, activatedOutput, Vector);
   }
 
 
   /**
    * Z = A_prev * W + b
    */
-  protected calculate(input: NDArray): NDArray {
+  protected calculate(input: Vector): Vector {
     const optimizer = this.data.optimizer;
-    const weight = new Matrix(optimizer.getValue(Dense.WEIGHT_MATRIX));
+    const weight = optimizer.getValue(Dense.WEIGHT_MATRIX, Matrix);
 
     let output = weight.vecmul(new Vector(input.flatten()));
 
     if (this.params.bias) {
-      const bias = optimizer.getValue(Dense.BIAS_VECTOR).getAt([0]);
+      const bias = optimizer.getValue(Dense.BIAS_VECTOR, Vector).getAt([0]);
 
-      output = output.add(bias) as Vector;
+      output = output.add(bias);
     }
 
     return output;
@@ -156,8 +174,8 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   /**
    * A = g(Z)
    */
-  protected activate(linearOutput: NDArray): NDArray {
-    const activation = this.params.activation as Activation;
+  protected activate(linearOutput: Vector): Vector {
+    const activation = this.params.activation;
 
     return activation.calculate(linearOutput);
   }
@@ -292,13 +310,13 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     const wInit = this.params.weightInitializer;
     const weight = optimizer.get(Dense.WEIGHT_MATRIX);
 
-    weight.set(await wInit.initialize(new NDArray(...weight.getDims())));
+    weight.set(await wInit.initialize(new Matrix(...weight.getDims())), Matrix);
 
     if (this.params.bias) {
       const bInit = this.params.biasInitializer;
       const bias = optimizer.get(Dense.BIAS_VECTOR);
 
-      bias.set(await bInit.initialize(new NDArray(...bias.getDims())));
+      bias.set(await bInit.initialize(new Vector(...bias.getDims())), Vector);
     }
   }
 
@@ -311,11 +329,13 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
         bias: JoiEx.boolean().default(true).description('Apply bias'),
         biasInitializer: JoiEx.initializer().default('zero').description('Bias initializer'),
+        biasOptimizer: JoiEx.optimizer().default('stochastic').description('Bias optimizer'),
 
         // biasRegularizer : JoiEx.regularizer().default( null ).description( 'Bias regularizer' ),
         // biasConstraint : JoiEx.constraint().default( null ).description( 'Bias constraint' ),
 
         weightInitializer: JoiEx.initializer().default('random-uniform').description('Weight initializer'),
+        weightOptimizer: JoiEx.optimizer().default('stochastic').description('Weight optimizer'),
 
         // kernelRegularizer : JoiEx.regularizer().default( 'l2' ).description( 'Kernel regularizer' ),
         // kernelConstraint : JoiEx.constraint().default( 'max-norm' ).description( 'Kernel constraint' ),

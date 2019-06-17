@@ -132,6 +132,11 @@ export class GraphNode {
   }
 
 
+  public async optimize(): Promise<void> {
+    await this.getEntity().optimize();
+  }
+
+
   public async initialize(): Promise<void> {
     await this.getEntity().initialize();
   }

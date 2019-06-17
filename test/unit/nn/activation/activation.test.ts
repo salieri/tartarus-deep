@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 import * as activations from '../../../../src/nn/activation';
 import { Activation } from '../../../../src/nn/activation';
-import { NDArray } from '../../../../src/math';
+import { Vector } from '../../../../src/math';
 
 describe(
   'Activation',
@@ -23,9 +23,9 @@ describe(
             }
 
             const instance = new A();
-            const data = new NDArray([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]);
+            const data = new Vector([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5]);
 
-            instance.calculate(data).should.be.instanceOf(NDArray);
+            instance.calculate(data).should.be.instanceOf(Vector);
 
             instanceCount += 1;
           },

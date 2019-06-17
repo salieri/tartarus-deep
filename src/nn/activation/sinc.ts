@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 /**
@@ -7,14 +7,14 @@ import { NDArray } from '../../math';
  * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class Sinc extends Activation {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     return z.apply(
       (val: number): number => (((val === 0) || (val === 0.0)) ? 1.0 : Math.sin(val) / val),
     );
   }
 
 
-  public derivative(a: NDArray, z: NDArray): NDArray {
+  public derivative(a: Vector, z: Vector): Vector {
     return z.apply(
       (val: number) => {
         if (val === 0) {

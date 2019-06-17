@@ -9,6 +9,7 @@ import * as layer from './layer';
 import * as loss from './loss';
 import * as metric from './metric';
 import * as model from './model';
+import * as optimizer from './optimizer';
 import * as session from './session';
 import * as symbols from './symbols';
 
@@ -20,6 +21,7 @@ import { Layer, Concat, Dense } from './layer';
 import { Loss } from './loss';
 import { Metric } from './metric';
 import { Model } from './model';
+import { Optimizer } from './optimizer';
 import { Session } from './session';
 import { DeferredCollection, DeferredInputCollection } from './symbols';
 
@@ -33,6 +35,7 @@ export {
   loss,
   metric,
   model,
+  optimizer,
   session,
   symbols,
 
@@ -48,6 +51,7 @@ export {
   Loss,
   Metric,
   Model,
+  Optimizer,
   Session,
 };
 

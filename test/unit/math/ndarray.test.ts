@@ -493,9 +493,8 @@ describe(
         const nd2 = new NDArray([2, 2, 2, 2]);
         const nd3 = new NDArray([3, 3, 3, 3]);
 
-        const result = NDArray.iterate(
+        const result = nd1.iterate(
           (vals: number[]): number => ((vals[0] + vals[1]) * vals[2]),
-          nd1,
           nd2,
           nd3,
         );

@@ -114,6 +114,15 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
+  protected abstract async optimizeExec(): Promise<void>;
+
+  public async optimize(): Promise<void> {
+    this.requireState(LayerState.Initialized);
+
+    await this.optimizeExec();
+  }
+
+
   protected async compileInitialization(): Promise<void> { /* empty */ }
 
   protected async compileForwardPropagation(): Promise<void> { /* empty */ }

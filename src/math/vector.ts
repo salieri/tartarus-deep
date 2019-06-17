@@ -50,19 +50,6 @@ export class Vector extends NDArray {
 
 
   /**
-   * Clone a vector
-   * @param { Vector } [targetObj=null]
-   * @returns { Vector }
-   * @public
-   */
-  public clone(targetObj?: Vector): Vector {
-    const target = targetObj || new Vector(...this.dimensions);
-
-    return super.clone(target) as Vector;
-  }
-
-
-  /**
    * Expand vector into a matrix of the specified size, cloning the context of the vector on each row or column
    * @param {int} rows
    * @param {int} cols
@@ -241,5 +228,10 @@ export class Vector extends NDArray {
     }
 
     return m;
+  }
+
+
+  protected instantiate<T extends NDArray>(this: T, ...dimensions: number[]): T {
+    return new Vector(...dimensions) as unknown as T;
   }
 }

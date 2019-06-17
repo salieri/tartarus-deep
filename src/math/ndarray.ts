@@ -197,12 +197,17 @@ export class NDArray {
   }
 
 
+  protected instantiate<T extends NDArray>(this: T, ...dimensions: number[]): T {
+    return new NDArray(...dimensions) as T;
+  }
+
+
   /**
    * Clone an NDArray
    */
-  public clone(targetObj?: NDArray): NDArray {
+  public clone<T extends NDArray>(this: T, targetObj?: T): T {
     /* eslint-disable-next-line */
-    const target = (targetObj || new NDArray(...this.dimensions)) as any;
+    const target = ((targetObj) || (this.instantiate(...this.dimensions))) as any;
 
     _.each(
       this,
@@ -215,7 +220,7 @@ export class NDArray {
 
     target.id = NDArray.idCounter;
 
-    return target;
+    return target as T;
   }
 
 
@@ -225,7 +230,7 @@ export class NDArray {
    * @param max (exclusive)
    * @param randomizer Randomizer instance to use; uses Math.random() if none provided
    */
-  public rand(min: number = 0.0, max: number = 1.0, randomizer?: Randomizer): NDArray {
+  public rand<T extends NDArray>(this: T, min: number = 0.0, max: number = 1.0, randomizer?: Randomizer): T {
     return this.apply(
       (): number => (randomizer ? randomizer.floatBetween(min, max) : (min + Math.random() * (max - min))),
     );
@@ -235,7 +240,7 @@ export class NDArray {
   /**
    * Set all values to zero
    */
-  public zero(): NDArray {
+  public zero<T extends NDArray>(this: T): T {
     return this.set(0);
   }
 
@@ -243,7 +248,7 @@ export class NDArray {
   /**
    * Set all values to the specified value
    */
-  public set(value: number): NDArray {
+  public set<T extends NDArray>(this: T, value: number): T {
     return this.apply(() => (value));
   }
 
@@ -388,7 +393,7 @@ export class NDArray {
   }
 
 
-  public apply(valCallback: NDArrayTraverseElementCallback): NDArray {
+  public apply<T extends NDArray>(this: T, valCallback: NDArrayTraverseElementCallback): T {
     const clone = this.clone();
 
     clone.traverse(valCallback);
@@ -406,7 +411,7 @@ export class NDArray {
    * @param opName
    * @protected
    */
-  protected elementwiseOp(b: NDArray | number, operationCb: NDArrayElementwiseOpCallback, opName: string): NDArray {
+  protected elementwiseOp<T extends NDArray>(this: T, b: NDArray | number, operationCb: NDArrayElementwiseOpCallback, opName: string): T {
     if (b instanceof NDArray) {
       if (!_.isEqual(this.getDims(), b.getDims())) {
         throw new Error(`Cannot do elementwise ${opName} on NDArrays with differing dimensions (a: ${this.getDims()}, b: ${b.getDims()})`);
@@ -437,7 +442,7 @@ export class NDArray {
    * Elementwise subtract
    * @param subtrahend Value(s) to be subtracted
    */
-  public sub(subtrahend: NDArray | number): NDArray {
+  public sub<T extends NDArray>(this: T, subtrahend: NDArray | number): T {
     return this.elementwiseOp(
       subtrahend,
       (aVal: number, bVal: number): number => (aVal - bVal),
@@ -450,7 +455,7 @@ export class NDArray {
    * Elementwise addition
    * @param addend Value(s) to be added
    */
-  public add(addend: NDArray | number): NDArray {
+  public add<T extends NDArray>(this: T, addend: NDArray | number): T {
     return this.elementwiseOp(
       addend,
       (aVal: number, bVal: number): number => (aVal + bVal),
@@ -463,7 +468,7 @@ export class NDArray {
    * Elementwise multiplication
    * @param multiplicand Value(s) to be multiplied by
    */
-  public mul(multiplicand: NDArray | number): NDArray {
+  public mul<T extends NDArray>(this: T, multiplicand: NDArray | number): T {
     return this.elementwiseOp(
       multiplicand,
       (aVal: number, bVal: number): number => (aVal * bVal),
@@ -476,7 +481,7 @@ export class NDArray {
    * Elementwise division
    * @param divisor Value(s) to be divided by
    */
-  public div(divisor: NDArray | number): NDArray {
+  public div<T extends NDArray>(this: T, divisor: NDArray | number): T {
     return this.elementwiseOp(
       divisor,
       (aVal: number, bVal: number): number => (aVal / bVal),
@@ -489,7 +494,7 @@ export class NDArray {
    * Elementwise exponent (element^exponent)
    * @param exponent Value(s) to be exponented by
    */
-  public pow(exponent: NDArray | number): NDArray {
+  public pow<T extends NDArray>(this: T, exponent: NDArray | number): T {
     return this.elementwiseOp(
       exponent,
       (aVal: number, bVal: number): number => (aVal ** bVal),
@@ -501,7 +506,7 @@ export class NDArray {
   /**
    * Elementwise abs
    */
-  public abs(): NDArray {
+  public abs<T extends NDArray>(this: T): T {
     return this.apply(Math.abs);
   }
 
@@ -509,7 +514,7 @@ export class NDArray {
   /**
    * Elementwise log
    */
-  public log(): NDArray {
+  public log<T extends NDArray>(this: T): T {
     return this.apply(Math.log);
   }
 
@@ -517,7 +522,7 @@ export class NDArray {
   /**
    * Elementwise exp
    */
-  public exp(): NDArray {
+  public exp<T extends NDArray>(this: T): T {
     return this.apply(Math.exp);
   }
 
@@ -525,7 +530,7 @@ export class NDArray {
   /**
    * Elementwise negate values
    */
-  public neg(): NDArray {
+  public neg<T extends NDArray>(this: T): T {
     return this.apply((val: number): number => (-val));
   }
 
@@ -533,7 +538,7 @@ export class NDArray {
   /**
    * Elementwise sin
    */
-  public sin(): NDArray {
+  public sin<T extends NDArray>(this: T): T {
     return this.apply(Math.sin);
   }
 
@@ -541,7 +546,7 @@ export class NDArray {
   /**
    * Elementwise cos
    */
-  public cos(): NDArray {
+  public cos<T extends NDArray>(this: T): T {
     return this.apply(Math.cos);
   }
 
@@ -549,7 +554,7 @@ export class NDArray {
   /**
    * Elementwise tan
    */
-  public tan(): NDArray {
+  public tan<T extends NDArray>(this: T): T {
     return this.apply(Math.tan);
   }
 
@@ -557,7 +562,7 @@ export class NDArray {
   /**
    * Elementwise tanh
    */
-  public tanh(): NDArray {
+  public tanh<T extends NDArray>(this: T): T {
     return this.apply(Math.tanh);
   }
 
@@ -565,7 +570,7 @@ export class NDArray {
   /**
    * Elementwise arc sin
    */
-  public asin(): NDArray {
+  public asin<T extends NDArray>(this: T): T {
     return this.apply(Math.asin);
   }
 
@@ -573,7 +578,7 @@ export class NDArray {
   /**
    * Elementwise arc cos
    */
-  public acos(): NDArray {
+  public acos<T extends NDArray>(this: T): T {
     return this.apply(Math.acos);
   }
 
@@ -581,7 +586,7 @@ export class NDArray {
   /**
    * Elementwise arc tan
    */
-  public atan(): NDArray {
+  public atan<T extends NDArray>(this: T): T {
     return this.apply(Math.atan);
   }
 
@@ -589,7 +594,7 @@ export class NDArray {
   /**
    * Elementwise square root
    */
-  public sqrt(): NDArray {
+  public sqrt<T extends NDArray>(this: T): T {
     return this.apply(Math.sqrt);
   }
 
@@ -597,7 +602,7 @@ export class NDArray {
   /**
    * Elementwise round
    */
-  public round(): NDArray {
+  public round<T extends NDArray>(this: T): T {
     return this.apply(Math.round);
   }
 
@@ -606,8 +611,8 @@ export class NDArray {
    * Elementwise binary equals
    * Resulting NDArray contains 1s where both arrays equal, 0s otherwise
    */
-  public equal(anotherArray: NDArray): NDArray {
-    return NDArray.iterate(
+  public equal<T extends NDArray>(this: T, anotherArray: T): T {
+    return this.iterate(
       (values: number[]): number => (values[0] === values[1] ? 1 : 0),
       this,
       anotherArray,
@@ -662,7 +667,7 @@ export class NDArray {
   /**
    * Elementwise clamping
    */
-  public clamp(minVal: number, maxVal: number): NDArray {
+  public clamp<T extends NDArray>(this: T, minVal: number, maxVal: number): T {
     return this.apply(
       (v: number): number => Math.min(Math.max(v, minVal), maxVal),
     );
@@ -693,7 +698,7 @@ export class NDArray {
   /**
    * Normalize elements
    */
-  public normalize(): NDArray {
+  public normalize<T extends NDArray>(this: T): T {
     const expSum = Math.sqrt(this.sum((val: number): number => (val ** 2)));
 
     return this.apply((val: number): number => (val / expSum));
@@ -764,8 +769,8 @@ export class NDArray {
    * @param callback
    * @param arrays
    */
-  public static iterate(callback: NDArrayIterationCallback, ...arrays: NDArray[]): NDArray {
-    const clone = arrays[0].clone();
+  public iterate<T extends NDArray>(this: T, callback: NDArrayIterationCallback, ...arrays: NDArray[]): T {
+    const clone = this.clone();
 
     clone.traverse(
       (val: number, pos: NDArrayPosition): number => {
@@ -773,6 +778,8 @@ export class NDArray {
           arrays,
           (arr: NDArray) => (arr.getAt(pos)),
         );
+
+        vals.unshift(this.getAt(pos));
 
         return callback(vals, pos);
       },

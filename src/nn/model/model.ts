@@ -304,6 +304,7 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
     this.assignTrainingLabels(coercedExpectedOutput);
 
     await this.backward();
+    await this.optimize();
   }
 
 
@@ -414,6 +415,11 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
 
   public async backward(): Promise<void> {
     await this.graph.backward();
+  }
+
+
+  public async optimize(): Promise<void> {
+    await this.graph.optimize();
   }
 
 

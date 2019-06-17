@@ -536,6 +536,15 @@ export class Graph {
   }
 
 
+  public async optimize(): Promise<void> {
+    this.requireState(GraphState.Initialized);
+
+    await Promise.all(
+      _.map(this.nodes, async (node: GraphNode) => node.optimize()),
+    );
+  }
+
+
   public unsetIterationValues(): void {
     _.each(this.nodes, (node: GraphNode) => node.unsetIterationValues());
   }

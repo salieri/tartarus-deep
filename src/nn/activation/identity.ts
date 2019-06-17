@@ -1,17 +1,17 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 /**
  * Identity
  */
 export class Identity extends Activation {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     return z;
   }
 
 
-  public derivative(a: NDArray): NDArray {
+  public derivative(a: Vector): Vector {
     return a.set(1);
   }
 }

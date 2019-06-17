@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { DeferredCollection } from './collection';
 import { DeferredCollectionWrapper } from './collection-wrapper';
 import { KeyNotFoundError } from '../../../error';
-import { NDArray } from '../../../math';
+import { Matrix, NDArray, Vector } from '../../../math';
 
 export type KeyReassignCallback = (key: string) => string;
 
@@ -172,8 +172,8 @@ export class DeferredInputCollection {
   }
 
 
-  public getDefaultValue(): NDArray {
-    return this.getDefault().getDefault().get();
+  public getDefaultValue<NDType extends NDArray = NDArray>(type?: { new (val: NDArray|Matrix|Vector): NDType }): NDType {
+    return this.getDefault().getDefault().get(type);
   }
 
 

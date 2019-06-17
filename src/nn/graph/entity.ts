@@ -26,6 +26,7 @@ export interface GraphEntity {
 
   forward(): Promise<void>;
   backward(): Promise<void>;
+  optimize(): Promise<void>;
 
   setSession(session: Session): void;
   setLogger(parentLogger: Logger): void;
