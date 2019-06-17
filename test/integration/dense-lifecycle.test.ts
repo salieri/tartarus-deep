@@ -1,8 +1,11 @@
+import _ from 'lodash';
+
 import { Dense2x } from '../../examples';
 import { Model } from '../../src';
+import { GraphNode } from '../../src/nn/graph';
 
 
-describe(
+describe.only(
   'Dense Network Lifecycle',
   () => {
     const generator = new Dense2x();
@@ -10,7 +13,7 @@ describe(
     let model: Model;
 
 
-    it(
+    it.only(
       'should generate a model which can learn how to multiply a value by 2x',
       async () => {
         model = generator.model();
@@ -55,12 +58,39 @@ describe(
     );
 
 
-    it(
+    it.only(
       'should train the model with 100 samples',
       async () => {
         // const data = generator.samples(100);
+        for (let i = 0; i < 10; i += 1) {
+          const r = 3; // model.getSession().getRandomizer().intBetween(0, 10000);
 
-        await model.fit(4, 8);
+          const prediction = (await model.predict(r)).getDefaultValue().sum();
+
+
+console.log(`######################################## Round ${i} ########################################`);
+
+console.log(`Expected ${r * 2}`);
+console.log(`Predict: ${prediction}`);
+console.log('');
+
+_.each(
+  model.getGraph().getAllNodes(),
+  (node: GraphNode) => {
+          console.log(
+`${node.getName()}
+bias: ${node.getEntity().data.optimizer.getValue('bias').data}
+weight: ${node.getEntity().data.optimizer.getValue('weight').data}
+`);
+  }
+);
+
+
+          const result = await model.fit(r, r * 2);
+
+          const loss = model.evaluation.losses.getDefaultValue().sum();
+          const a = 1;
+        }
       },
     );
   },

@@ -15,7 +15,7 @@ export class Stochastic extends Optimizer<StochasticParams> {
   public getParamSchema(): Joi.Schema {
     return Joi.object().keys(
       {
-        rate: Joi.number().optional().default(0.1),
+        rate: Joi.number().optional().default(0.01),
       },
     );
   }

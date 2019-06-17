@@ -128,7 +128,9 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   protected calculateBiasDerivative(errorTerm: Vector): Vector {
-    if (this.data.train.hasDefaultValue()) {
+    return new Vector([errorTerm.sum()]);
+
+    /* if (this.data.train.hasDefaultValue()) {
       return new Vector([errorTerm.sum()]);
     }
 
@@ -138,7 +140,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     const diagonalWeights = weightNext.pickDiagonal();
     const derivative = this.getActivationDerivative();
 
-    return new Vector([layerErrorNext.mul(diagonalWeights).mul(derivative).sum()]);
+    return new Vector([layerErrorNext.mul(diagonalWeights).mul(derivative).sum()]); */
   }
 
 
