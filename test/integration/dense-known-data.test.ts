@@ -66,11 +66,13 @@ describe(
 
         oBack.getAt(0).should.be.closeTo(0.1384985, 0.00001);
 
+        // @ts-ignore
         const odWeight = o.calculateWeightDerivative(new Vector(oBack));
 
         odWeight.getDims().should.deep.equal([2, 2]);
         odWeight.getAt([0, 0]).should.be.closeTo(0.082167041, 0.000001);
 
+        // @ts-ignore
         const hdWeight = h.calculateWeightDerivative(new Vector(hBack));
 
         hdWeight.getDims().should.deep.equal([2, 2]);
