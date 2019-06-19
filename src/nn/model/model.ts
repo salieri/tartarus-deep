@@ -23,6 +23,8 @@ import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { Cost } from '../cost';
 import { Loss } from '../loss';
 import { Metric } from '../metric';
+import { FitterParams, ModelFitter } from './fitter';
+import { DeferredInputFeed, DeferredMemoryInputFeed } from '../../feed';
 
 
 export enum ModelState {
@@ -314,6 +316,16 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   }
 
 
+  public async fitBetter(
+    params: FitterParams = {},
+    data: DeferredInputFeed,
+  ): Promise<void> {
+    const fitter = new ModelFitter(this, data, params);
+
+    await fitter.fit();
+  }
+
+
   public assignTrainingLabels(labels: DeferredInputCollection): void {
     this.graph.assignTrainingLabels(labels);
   }
@@ -327,19 +339,12 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   public async iterate(
     input: DeferredInputCollection,
     expectedOutput: DeferredInputCollection,
-  ): Promise<IterationResult> {
-    const prediction = await this.predict(input);
-
-    await this.backward();
+  ): Promise<void> {
+    await this.predict(input);
 
     this.assignTrainingLabels(expectedOutput);
 
-    const optimizer = this.graph.getOptimizerSnapshot();
-
-    return {
-      prediction,
-      optimizer,
-    };
+    await this.backward();
   }
 
 

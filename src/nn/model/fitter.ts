@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { JoiEx, JoiExSchema } from '../../util';
+import { ContextLogger, JoiEx, JoiExSchema } from '../../util';
 import { Parameters, Parameterized } from '../../generic';
 import { Model } from './model';
 import { DeferredInputFeed } from '../../feed';
@@ -26,6 +26,8 @@ export class ModelFitter extends Parameterized<FitterParams> {
 
   protected feed: DeferredInputFeed;
 
+  protected logger: ContextLogger;
+
 
   public constructor(model: Model, feed: DeferredInputFeed, params: FitterParams) {
     super(params);
@@ -36,6 +38,8 @@ export class ModelFitter extends Parameterized<FitterParams> {
 
     this.model = model;
     this.feed = feed;
+
+    this.logger = new ContextLogger(model.getSession().getLogger(), 'connector');
   }
 
 
@@ -43,12 +47,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
     let result: DeferredInputCollection|undefined;
     let iterations: number;
 
-    for (iterations = 0; (iterations < this.params.batchSize); iterations += 1) {
-      if (!this.feed.hasMore()) {
-        /* eslint-disable-next-line no-await-in-loop */
-        await this.feed.seek(0);
-      }
-
+    for (iterations = 0; (iterations < this.params.batchSize) && (this.feed.hasMore()); iterations += 1) {
       /* eslint-disable-next-line no-await-in-loop */
       const data = await this.feed.next();
 
@@ -69,6 +68,11 @@ export class ModelFitter extends Parameterized<FitterParams> {
       // dWTotal += dW[iteration]
       // dbTotal += db[iteration]
       result = this.sumResults(result, iterationBackpropFit);
+
+      this.logger.debug(
+        'fit.epoch.batch.iteration',
+        () => ({ curIteration: (iterations + 1), totalIterations: this.params.batchSize }),
+      );
     }
 
     if (!result) {
@@ -91,6 +95,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
     }
 
     totalResults.eachValue(
+      /* eslint-disable-next-line arrow-parens */
       <T extends NDArray> (curVal: T, collectionKey: string, fieldKey: string): T => {
         const iterationVal = iterationResult.get(collectionKey).getValue(fieldKey);
 
@@ -104,6 +109,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
 
   protected reassignFitValues(result: DeferredInputCollection): void {
     result.eachValue(
+      /* eslint-disable-next-line arrow-parens */
       <T extends NDArray> (val: T, collectionKey: string, fieldKey: string): void => {
         const node = this.model.getGraph().find(collectionKey);
 
@@ -114,11 +120,20 @@ export class ModelFitter extends Parameterized<FitterParams> {
 
 
   protected async fitEpoch(): Promise<void> {
+    let batchCount = 0;
+
     await this.feed.seek(0);
 
     while (this.feed.hasMore()) {
       /* eslint-disable-next-line no-await-in-loop */
       await this.fitBatch();
+
+      this.logger.info(
+        'fit.epoch.batch',
+        () => ({ curBatch: (batchCount + 1) }),
+      );
+
+      batchCount += 1;
     }
   }
 
@@ -127,6 +142,8 @@ export class ModelFitter extends Parameterized<FitterParams> {
     for (let curEpoch = 0; curEpoch < this.params.epochs; curEpoch += 1) {
       /* eslint-disable-next-line no-await-in-loop */
       await this.fitEpoch();
+
+      this.logger.info('fit.epoch', () => ({ curEpoch: (curEpoch + 1), epochTotal: this.params.epochs }));
     }
   }
 

@@ -59,6 +59,24 @@ describe.only(
 
 
     it.only(
+      'should test the new fitter',
+      async () => {
+        const sampleCount = 200;
+        const samples = generator.samples(sampleCount);
+
+        await model.fitBetter(
+          {
+            epochs: 20,
+          },
+          samples,
+        );
+
+
+      },
+    );
+
+
+    it.only(
       'should train the model with 100 samples',
       async () => {
         // const data = generator.samples(100);

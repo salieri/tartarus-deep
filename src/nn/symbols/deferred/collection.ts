@@ -185,7 +185,7 @@ export class DeferredCollection {
       (value: DeferredValue) => value.clone(),
     );
 
-    copy.setDefaultKey(this.getDefaultKey());
+    copy.defaultKey = this.defaultKey;
 
     return copy;
   }
