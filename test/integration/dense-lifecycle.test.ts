@@ -62,7 +62,7 @@ describe.only(
       'should train the model with 100 samples',
       async () => {
         // const data = generator.samples(100);
-        for (let i = 0; i < 10; i += 1) {
+        for (let i = 0; i < 1000; i += 1) {
           const r = 3; // model.getSession().getRandomizer().intBetween(0, 10000);
 
           const prediction = (await model.predict(r)).getDefaultValue().sum();

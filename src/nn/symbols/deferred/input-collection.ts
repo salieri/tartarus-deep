@@ -201,6 +201,18 @@ export class DeferredInputCollection {
   }
 
 
+  public eachValue(cb: <T extends NDArray>(nd: T, collectionKey: string, fieldKey: string) => T|undefined|void): void {
+    _.each(
+      this.inputs,
+      (coll: DeferredCollectionWrapper, collectionKey: string) => {
+        coll.eachValue(
+          <T extends NDArray>(nd: T, fieldKey: string): T|undefined|void => cb(nd, collectionKey, fieldKey),
+        );
+      },
+    );
+  }
+
+
   /* public filter(matchList: string[], convertSingleToDefault: boolean = false): DeferredInputCollection {
     if (matchList.length === 0) {
       throw new Error('Empty match list');

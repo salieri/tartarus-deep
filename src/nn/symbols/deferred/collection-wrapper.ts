@@ -110,6 +110,11 @@ export class DeferredCollectionWrapper {
   }
 
 
+  public eachValue(cb: <T extends NDArray>(nd: T, fieldKey: string) => T|undefined|void): void {
+    return this.collection.eachValue(cb);
+  }
+
+
   public unsetValues(): void {
     this.collection.unsetValues();
   }

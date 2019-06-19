@@ -3,6 +3,7 @@ import { Session } from '../session';
 import { Logger } from '../../util';
 import { GraphDataFeed } from './data-feed';
 import { GraphRawFeed } from './raw-feed';
+import { DeferredInputCollection } from '../symbols/deferred';
 
 /* eslint-disable-next-line @typescript-eslint/no-empty-interface */
 export interface GraphEntityParams {}

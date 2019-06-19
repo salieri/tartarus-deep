@@ -175,4 +175,34 @@ export class DeferredCollection {
   public has(key: string): boolean {
     return (key in this.collection);
   }
+
+
+  public clone(): DeferredCollection {
+    const copy = new DeferredCollection();
+
+    copy.collection = _.mapValues(
+      this.collection,
+      (value: DeferredValue) => value.clone(),
+    );
+
+    copy.setDefaultKey(this.getDefaultKey());
+
+    return copy;
+  }
+
+
+  public eachValue(cb: <T extends NDArray>(nd: T, fieldKey: string) => T|undefined|void): void {
+    _.each(
+      this.collection,
+      (value: DeferredValue, fieldKey: string) => {
+        const curValue = value.get();
+
+        const result = cb(curValue, fieldKey);
+
+        if (result) {
+          value.set(result);
+        }
+      },
+    );
+  }
 }

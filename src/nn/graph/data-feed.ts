@@ -11,6 +11,8 @@ export class GraphDataFeed {
 
   public readonly backpropInput = new DeferredCollectionWrapper();
 
+  public readonly backpropFit = new DeferredCollection();
+
   public readonly optimizer = new DeferredCollection();
 
   public readonly train = new DeferredCollectionWrapper();

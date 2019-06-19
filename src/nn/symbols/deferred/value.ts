@@ -100,5 +100,23 @@ export class DeferredValue {
   public unset(): void {
     this.value = null;
   }
+
+
+  public clone(): DeferredValue {
+    this.mustBeDeclared();
+
+    const v = new DeferredValue(this.getDims());
+    let targetType = NDArray;
+
+    if (this.value instanceof Matrix) {
+      targetType = Matrix;
+    } else if (this.value instanceof Vector) {
+      targetType = Vector;
+    }
+
+    v.set(this.get().clone(), targetType);
+
+    return v;
+  }
 }
 

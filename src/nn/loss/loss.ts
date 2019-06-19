@@ -13,6 +13,8 @@ export type LossParams = Parameters;
 export abstract class Loss<T extends LossParams = LossParams> extends Parameterized<T> {
   public abstract calculate(yHat: Vector, y: Vector): number;
 
+  public abstract gradient(yHat: Vector, y: Vector): Vector;
+
 
   public getParamSchema(): Joi.Schema {
     return Joi.object();

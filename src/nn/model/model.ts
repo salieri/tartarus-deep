@@ -18,7 +18,7 @@ import {
 
 import { Session } from '../session';
 import { NDArray, Randomizer, Vector } from '../../math';
-import { Parameterized } from '../../generic';
+import { Parameterized, Parameters } from '../../generic';
 import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { Cost } from '../cost';
 import { Loss } from '../loss';
@@ -32,7 +32,7 @@ export enum ModelState {
 }
 
 
-export interface ModelParamsInput {
+export interface ModelParamsInput extends Parameters {
   seed?: string;
   cost?: Cost|string;
   loss?: Loss|string;
@@ -64,6 +64,12 @@ export interface MetricResultCollection {
 export interface EvaluationResult {
   metrics: MetricResultCollection;
   losses: DeferredInputCollection;
+}
+
+
+export interface IterationResult {
+  prediction: DeferredInputCollection;
+  optimizer: DeferredInputCollection;
 }
 
 
@@ -318,6 +324,25 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   }
 
 
+  public async iterate(
+    input: DeferredInputCollection,
+    expectedOutput: DeferredInputCollection,
+  ): Promise<IterationResult> {
+    const prediction = await this.predict(input);
+
+    await this.backward();
+
+    this.assignTrainingLabels(expectedOutput);
+
+    const optimizer = this.graph.getOptimizerSnapshot();
+
+    return {
+      prediction,
+      optimizer,
+    };
+  }
+
+
   public async evaluate(
     input: RelaxedDeclarationCollectionDefinition,
     expectedOutput: RelaxedDataCollectionDefinition,
@@ -441,5 +466,6 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
     return this.graph;
   }
 }
+
 
 export default Model;

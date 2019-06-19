@@ -592,5 +592,19 @@ export class Graph {
   public getLogger(): Logger {
     return this.logger;
   }
+
+
+  public getOptimizerSnapshot(): DeferredInputCollection {
+    const optimizer = new DeferredInputCollection();
+
+    _.each(
+      this.nodes,
+      (node: GraphNode) => {
+        optimizer.set(this.getName(), node.getEntity().data.optimizer.clone());
+      },
+    );
+
+    return optimizer;
+  }
 }
 

@@ -9,6 +9,7 @@ export interface StochasticParams {
 
 export class Stochastic extends Optimizer<StochasticParams> {
   public optimize<NType extends Matrix|Vector>(weights: NType, weightError: NType): NType {
+    // W - (dW*rate)
     return weights.sub(weightError.mul(this.params.rate)) as NType;
   }
 
