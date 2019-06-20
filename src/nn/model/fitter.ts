@@ -7,6 +7,8 @@ import { DeferredInputFeed } from '../../feed';
 import { DeferredInputCollection } from '../symbols/deferred';
 import { NDArray } from '../../math';
 import { GraphNode } from '../graph';
+import { MeanSquaredError } from '../loss';
+import { model } from '../index';
 
 export interface FitterParams extends Parameters {
   batchSize?: number;
@@ -58,16 +60,25 @@ export class ModelFitter extends Parameterized<FitterParams> {
       /* eslint-disable-next-line no-await-in-loop */
       await this.model.iterate(data.sample.raw, data.label.raw);
 
-      const iterationBackpropFit = new DeferredInputCollection();
+      const iterationFit = new DeferredInputCollection();
 
       _.each(
         this.model.getGraph().getAllNodes(),
-        (node: GraphNode) => iterationBackpropFit.set(node.getName(), node.getEntity().data.backpropFit.clone()),
+        (node: GraphNode) => iterationFit.set(node.getName(), node.getEntity().data.fitter.clone()),
       );
 
       // dWTotal += dW[iteration]
       // dbTotal += db[iteration]
-      result = this.sumResults(result, iterationBackpropFit);
+      result = this.sumResults(result, iterationFit);
+
+console.log('------------------- Iteration --------------------');
+console.log(`input: ${data.sample.raw.getDefaultValue().getAt(0)}`);
+console.log(`output: ${this.model.getGraph().find('output').getEntity().data.output.getDefaultValue().getAt(0)}`);
+console.log(`SUM weight-error: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').sum()}`);
+console.log(`weight-error: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').data}`);
+console.log(`SUM error-term: ${this.model.getGraph().find('output').getEntity().data.backpropOutput.getValue('error-term').sum()}`);
+console.log(`error-term: ${this.model.getGraph().find('output').getEntity().data.backpropOutput.getValue('error-term').data}`);
+console.log('');
 
       this.logger.debug(
         'fit.epoch.batch.iteration',
@@ -79,11 +90,29 @@ export class ModelFitter extends Parameterized<FitterParams> {
       throw new Error('Did not iterate over any data');
     }
 
+console.log('');
+console.log('================= Batch result ===================');
+
+console.log(`SUM result-total: ${result.get('output').getValue('weight-error').sum()}`);
+
+
+const loss = new MeanSquaredError();
+
+const avgLoss = loss.calculate(
+  this.model.getGraph().find('output').getEntity().data.output.getValue('activated'),
+  this.model.getGraph().find('output').getEntity().data.trainer.getDefaultValue(),
+);
+
     // dWTotal /= m, dbTotal /= m
     result.eachValue(<T extends NDArray> (val: T): T => val.div(iterations));
 
+
+console.log(`SUM result-divided: ${result.get('output').getValue('weight-error').sum()}`);
+
     // reassign dW, db
     this.reassignFitValues(result);
+
+console.log(`SUM weight-error-divided: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').sum()}`);
 
     await this.model.optimize();
   }
@@ -113,7 +142,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
       <T extends NDArray> (val: T, collectionKey: string, fieldKey: string): void => {
         const node = this.model.getGraph().find(collectionKey);
 
-        node.getEntity().data.backpropFit.setValue(fieldKey, val.clone());
+        node.getEntity().data.fitter.setValue(fieldKey, val.clone());
       },
     );
   }

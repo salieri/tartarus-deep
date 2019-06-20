@@ -36,7 +36,10 @@ function createCMExtension(name: string, cm: ClassManager): Function {
             }
           }
 
-          return cm.coerce(value || _.get(this, '_flags.default'), layer);
+          const isDefault = !!value;
+          const definition = value || _.get(this, '_flags.default');
+
+          return cm.coerce(definition, isDefault, layer);
         } catch (e) {
           // console.error(e);
           return (this as any).createError(`${name}.coerceFailure`, {}, state, options);

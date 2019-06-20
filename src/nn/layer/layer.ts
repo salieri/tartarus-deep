@@ -47,7 +47,7 @@ export type LayerParams = Parameters;
 export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced extends TInput = TInput>
   extends Parameterized<TInput, TCoerced>
   implements GraphEntity {
-  public static readonly ERROR_TERM: string = 'error';
+  public static readonly ERROR_TERM: string = 'error-term';
 
   public static readonly TRAINING_LABEL: string = 'train';
 

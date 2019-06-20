@@ -2,6 +2,15 @@ import { Dense, Layer, Model } from '../../src/nn';
 import { Matrix, Vector } from '../../src/math';
 import { Stochastic } from '../../src/nn/optimizer';
 
+function initWeights(h: Dense, o: Dense): void {
+  h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
+  h.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
+
+  o.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
+  o.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
+}
+
+
 /**
  * @link https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
  */
@@ -30,11 +39,7 @@ describe(
     it(
       'should perform forward pass',
       async () => {
-        h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
-        h.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
-
-        o.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
-        o.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
+        initWeights(h, o);
 
         await m.predict([0.05, 0.10]);
 
@@ -53,11 +58,7 @@ describe(
     it(
       'should perform a backward pass and calculate weight derivatives',
       async () => {
-        h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
-        h.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
-
-        o.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
-        o.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
+        initWeights(h, o);
 
         await m.fit([0.05, 0.10], [0.01, 0.99]);
 
@@ -65,6 +66,11 @@ describe(
         const hBack = h.data.backpropOutput.getValue(Layer.ERROR_TERM);
 
         oBack.getAt(0).should.be.closeTo(0.1384985, 0.00001);
+
+        // @ts-ignore
+        const dEOverA = h.calculateActivationErrorDerivativeFromChain();
+
+        dEOverA.getAt(0).should.be.closeTo(0.03635036, 0.00001);
 
         // @ts-ignore
         const odWeight = o.calculateWeightDerivative(new Vector(oBack));

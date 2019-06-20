@@ -13,7 +13,7 @@ function prepareWeights(h: Dense, o: Dense): void {
 /**
  * @link https://www.anotsorandomwalk.com/backpropagation-example-with-numbers-step-by-step/
  */
-describe.only(
+describe(
   'Dense Model with Known (Precalculated) Data 2',
   () => {
     const m = new Model();
@@ -112,7 +112,7 @@ describe.only(
 
         // Suspect that this value is wrong in the source document
         // hdBias.getAt(0).should.be.closeTo(0.0008, 0.0001);
-        hdBias.getAt(0).should.be.closeTo(0.00238, 0.0001);
+        hdBias.getAt(0).should.be.closeTo(0.0009919, 0.0001);
       },
     );
 

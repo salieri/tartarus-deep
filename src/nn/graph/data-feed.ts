@@ -11,11 +11,11 @@ export class GraphDataFeed {
 
   public readonly backpropInput = new DeferredCollectionWrapper();
 
-  public readonly backpropFit = new DeferredCollection();
+  public readonly fitter = new DeferredCollection();
 
   public readonly optimizer = new DeferredCollection();
 
-  public readonly train = new DeferredCollectionWrapper();
+  public readonly trainer = new DeferredCollectionWrapper();
 
   public activationDerivative?: Vector;
 
@@ -27,6 +27,7 @@ export class GraphDataFeed {
     this.backpropOutput.unsetValues();
     this.backpropInput.unsetValues();
 
-    this.train.unsetValues();
+    this.trainer.unsetValues();
+    this.fitter.unsetValues();
   }
 }
