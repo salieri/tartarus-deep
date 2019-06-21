@@ -86,9 +86,9 @@ describe(
         const hBack = h.data.backpropOutput.getValue(Layer.ERROR_TERM);
 
         // @ts-ignore
-        const odWeight = o.calculateWeightDerivative(new Vector(oBack));
+        const odWeight = o.calculateLinearWeightDerivative(new Vector(oBack));
         // @ts-ignore
-        const odBias = o.calculateBiasDerivative(new Vector(oBack));
+        const odBias = o.calculateLinearBiasDerivative(new Vector(oBack));
 
         odWeight.getDims().should.deep.equal([2, 2]);
         odWeight.getAt([0, 0]).should.be.closeTo(0.0765, 0.0001);
@@ -98,9 +98,9 @@ describe(
         odBias.getAt(0).should.be.closeTo(0.1975, 0.001);
 
         // @ts-ignore
-        const hdWeight = h.calculateWeightDerivative(new Vector(hBack));
+        const hdWeight = h.calculateLinearWeightDerivative(new Vector(hBack));
         // @ts-ignore
-        const hdBias = h.calculateBiasDerivative(new Vector(hBack));
+        const hdBias = h.calculateLinearBiasDerivative(new Vector(hBack));
 
         hdWeight.getDims().should.deep.equal([2, 3]);
         hdWeight.getAt([0, 0]).should.be.closeTo(0.002, 0.0001);

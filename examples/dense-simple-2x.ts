@@ -33,7 +33,7 @@ export class DenseSimple2x extends SampleGenerator {
 
   public samples(count: number): DeferredInputFeed {
     return DeferredMemoryInputFeed.factory(
-      _.times(count, n => ({ x: new NDArray([n]), y: new NDArray([n * 2]) })),
+      _.times(count, n => ({ x: new NDArray([(n + 1)]), y: new NDArray([(n + 1) * 2]) })),
     );
   }
 }

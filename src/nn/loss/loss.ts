@@ -13,6 +13,9 @@ export type LossParams = Parameters;
 export abstract class Loss<T extends LossParams = LossParams> extends Parameterized<T> {
   public abstract calculate(yHat: Vector, y: Vector): number;
 
+  /**
+   * @return (dLoss/dActivated)
+   */
   public abstract gradient(yHat: Vector, y: Vector): Vector;
 
 

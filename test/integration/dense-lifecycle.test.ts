@@ -67,6 +67,7 @@ describe(
         await model.fitBetter(
           {
             epochs,
+            batchSize: 2,
           },
           samples,
         );

@@ -65,26 +65,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
       _.each(
         this.model.getGraph().getAllNodes(),
         (node: GraphNode) => {
-          // iterationFit.set(node.getName(), node.getEntity().data.fitter.clone());
-
-          const dErrorOverLinear = node.getEntity().data.backpropOutput.getValue(Layer.ERROR_TERM, Vector);
-          const output = node.getEntity().data.output.getDefaultValue(Vector);
-
-          const tw = dErrorOverLinear.mul(output);
-          const tb = new Vector([dErrorOverLinear.sum()]);
-
-          const actualWE = node.getEntity().data.fitter.getValue(Dense.WEIGHT_ERROR);
-          const actualBE = node.getEntity().data.fitter.getValue(Dense.BIAS_ERROR);
-
-          const coll = new DeferredCollection();
-
-          coll.declare(Dense.WEIGHT_ERROR, actualWE.getDims());
-          coll.declare(Dense.BIAS_ERROR, actualBE.getDims());
-
-          coll.setValue(Dense.WEIGHT_ERROR, tw.expandToMatrix(1, 3, VectorDirection.Col).transpose());
-          coll.setValue(Dense.BIAS_ERROR, tb);
-
-          iterationFit.set(node.getName(), coll);
+          iterationFit.set(node.getName(), node.getEntity().data.fitter.clone());
         },
       );
 
@@ -95,10 +76,12 @@ export class ModelFitter extends Parameterized<FitterParams> {
 console.log('------------------- Iteration --------------------');
 console.log(`input: ${data.sample.raw.getDefaultValue().getAt(0)}`);
 console.log(`output: ${this.model.getGraph().find('output').getEntity().data.output.getDefaultValue().getAt(0)}`);
-console.log(`SUM weight-error: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').sum()}`);
-console.log(`weight-error: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').data}`);
-console.log(`SUM error-term: ${this.model.getGraph().find('output').getEntity().data.backpropOutput.getValue('error-term').sum()}`);
-console.log(`error-term: ${this.model.getGraph().find('output').getEntity().data.backpropOutput.getValue('error-term').data}`);
+console.log(`error: ${this.model.getGraph().find('output').getEntity().calculateLoss()}`);
+
+// console.log(`SUM weight-error: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').sum()}`);
+// console.log(`weight-error: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').data}`);
+// console.log(`SUM error-term: ${this.model.getGraph().find('output').getEntity().data.backpropOutput.getValue('error-term').sum()}`);
+// console.log(`error-term: ${this.model.getGraph().find('output').getEntity().data.backpropOutput.getValue('error-term').data}`);
 console.log('');
 
       this.logger.debug(
@@ -111,9 +94,7 @@ console.log('');
       throw new Error('Did not iterate over any data');
     }
 
-console.log('');
 console.log('================= Batch result ===================');
-
 console.log(`SUM result-total: ${result.get('output').getValue('weight-error').sum()}`);
 
 
@@ -134,7 +115,8 @@ console.log(`SUM result-divided: ${result.get('output').getValue('weight-error')
     this.reassignFitValues(result);
 
 console.log(`SUM weight-error-divided: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').sum()}`);
-
+console.log('');
+console.log('');
     await this.model.optimize();
   }
 
