@@ -7,6 +7,12 @@ export interface StochasticParams {
   rate?: number;
 }
 
+
+/**
+ * https://towardsdatascience.com/how-does-back-propagation-in-artificial-neural-networks-work-c7cad873ea7
+ * https://adventuresinmachinelearning.com/stochastic-gradient-descent/
+ */
+
 export class Stochastic extends Optimizer<StochasticParams> {
   public optimize<NType extends Matrix|Vector>(weights: NType, weightError: NType): NType {
     // W - (dW*rate)

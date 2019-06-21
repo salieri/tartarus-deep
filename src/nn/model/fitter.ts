@@ -4,11 +4,11 @@ import { ContextLogger, JoiEx, JoiExSchema } from '../../util';
 import { Parameters, Parameterized } from '../../generic';
 import { Model } from './model';
 import { DeferredInputFeed } from '../../feed';
-import { DeferredInputCollection } from '../symbols/deferred';
-import { NDArray } from '../../math';
+import { DeferredCollection, DeferredInputCollection } from '../symbols/deferred';
+import { NDArray, Vector, VectorDirection } from '../../math';
 import { GraphNode } from '../graph';
 import { MeanSquaredError } from '../loss';
-import { model } from '../index';
+import { Dense, Layer } from '../layer';
 
 export interface FitterParams extends Parameters {
   batchSize?: number;
@@ -64,7 +64,28 @@ export class ModelFitter extends Parameterized<FitterParams> {
 
       _.each(
         this.model.getGraph().getAllNodes(),
-        (node: GraphNode) => iterationFit.set(node.getName(), node.getEntity().data.fitter.clone()),
+        (node: GraphNode) => {
+          // iterationFit.set(node.getName(), node.getEntity().data.fitter.clone());
+
+          const dErrorOverLinear = node.getEntity().data.backpropOutput.getValue(Layer.ERROR_TERM, Vector);
+          const output = node.getEntity().data.output.getDefaultValue(Vector);
+
+          const tw = dErrorOverLinear.mul(output);
+          const tb = new Vector([dErrorOverLinear.sum()]);
+
+          const actualWE = node.getEntity().data.fitter.getValue(Dense.WEIGHT_ERROR);
+          const actualBE = node.getEntity().data.fitter.getValue(Dense.BIAS_ERROR);
+
+          const coll = new DeferredCollection();
+
+          coll.declare(Dense.WEIGHT_ERROR, actualWE.getDims());
+          coll.declare(Dense.BIAS_ERROR, actualBE.getDims());
+
+          coll.setValue(Dense.WEIGHT_ERROR, tw.expandToMatrix(1, 3, VectorDirection.Col).transpose());
+          coll.setValue(Dense.BIAS_ERROR, tb);
+
+          iterationFit.set(node.getName(), coll);
+        },
       );
 
       // dWTotal += dW[iteration]

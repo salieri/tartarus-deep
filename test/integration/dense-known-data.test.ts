@@ -23,8 +23,7 @@ describe(
     const h = new Dense({ units: 2, activation: 'sigmoid', biasOptimizer: optimizer, weightOptimizer: optimizer });
     const o = new Dense({ units: 2, activation: 'sigmoid', biasOptimizer: optimizer, weightOptimizer: optimizer });
 
-    it(
-      'should declare and compile a model',
+    before(
       async () => {
         m.input(2)
           .push(h)

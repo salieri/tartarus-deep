@@ -29,6 +29,9 @@ export interface DenseParamsCoerced extends DenseParamsInput {
 }
 
 
+/**
+ * @link https://ml-cheatsheet.readthedocs.io/en/latest/calculus.html
+ */
 export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   public static readonly WEIGHT_MATRIX = 'weight';
 

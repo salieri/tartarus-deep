@@ -57,10 +57,10 @@ describe(
     );
 
 
-    it(
+    it.only(
       'should test the new fitter',
       async () => {
-        const epochs = 2;
+        const epochs = 20;
         const sampleCount = 20;
         const samples = generator.samples(sampleCount);
 

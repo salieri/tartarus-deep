@@ -94,6 +94,17 @@ export class Matrix extends NDArray {
   }
 
 
+  public dot(b: Matrix|Vector): Matrix|Vector {
+    const dims = b.getDims();
+
+    if (dims.length === 1) {
+      return this.vecmul(new Vector(b));
+    }
+
+    return this.matmul(new Matrix(b));
+  }
+
+
   /**
    * Multiply matrix by a vector
    */

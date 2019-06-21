@@ -24,8 +24,8 @@ export class DenseSimple2x extends SampleGenerator {
 
     model
       .input(1)
-      .push(new Dense({ units: 3, activation: 'identity' }, 'hidden-1'))
-      .push(new Dense({ units: 1, activation: 'identity' }, 'output'));
+      .push(new Dense({ units: 3, activation: 'identity', loss: 'mean-squared-error' }, 'hidden-1'))
+      .push(new Dense({ units: 1, activation: 'identity', loss: 'mean-squared-error' }, 'output'));
 
     return model;
   }

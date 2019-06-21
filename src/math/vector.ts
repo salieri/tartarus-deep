@@ -87,10 +87,10 @@ export class Vector extends NDArray {
 
 
   /**
-   * Calculate dot product between two vectors
+   * Calculate inner product between two vectors
    * @param { Vector } b
    */
-  public dot(b: Vector): number {
+  public inner(b: Vector): number {
     let total = 0;
 
     this.traverse(
@@ -102,6 +102,11 @@ export class Vector extends NDArray {
     );
 
     return total;
+  }
+
+
+  public dot(b: Vector): number {
+    return this.inner(b);
   }
 
 
