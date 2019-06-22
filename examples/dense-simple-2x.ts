@@ -13,6 +13,7 @@ import {
   Dense,
   Model,
   NDArray,
+  Xoshiro128,
 } from '../src';
 
 import { SampleGenerator } from './sample-generator';
@@ -24,8 +25,8 @@ export class DenseSimple2x extends SampleGenerator {
 
     model
       .input(1)
-      .push(new Dense({ units: 3, activation: 'identity' }, 'hidden-1'))
-      .push(new Dense({ units: 1, activation: 'identity' }, 'output'));
+      .push(new Dense({ units: 3, activation: 'identity', bias: false }, 'hidden-1'))
+      .push(new Dense({ units: 1, activation: 'identity', bias: false }, 'output'));
 
     return model;
   }
@@ -33,7 +34,14 @@ export class DenseSimple2x extends SampleGenerator {
 
   public samples(count: number): DeferredInputFeed {
     return DeferredMemoryInputFeed.factory(
-      _.times(count, n => ({ x: new NDArray([(n + 1)]), y: new NDArray([(n + 1) * 2]) })),
+      _.times(
+        count,
+        (n: number) => {
+          const x = n % 10;
+
+          return { x: new NDArray([x]), y: new NDArray([x * 2]) };
+        },
+      ),
     );
   }
 }

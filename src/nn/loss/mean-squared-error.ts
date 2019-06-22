@@ -9,7 +9,7 @@ import { Vector } from '../../math';
 export class MeanSquaredError extends Loss {
   public calculate(yHat: Vector, y: Vector): number {
     // 0.5 * sum( ( yHat - y ) ^ 2 ) / y.size
-    return 0.5 * yHat.sub(y).pow(2).mean();
+    return yHat.sub(y).pow(2).mean();
   }
 
 

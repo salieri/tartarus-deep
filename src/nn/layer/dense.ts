@@ -46,9 +46,16 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
     const weightError = fitter.getValue(Dense.WEIGHT_ERROR, Matrix);
     const weights = optimizer.getValue(Dense.WEIGHT_MATRIX, Matrix);
-    const optimizedWeight = o.optimize(weights, weightError);
+    const optimizedWeights = o.optimize(weights, weightError);
 
-    optimizer.setValue(Dense.WEIGHT_MATRIX, optimizedWeight, Matrix);
+    // console.log(`    Layer ${this.getName()}`);
+    // console.log(`        weights ${weights}`);
+    // console.log(`        optimized ${optimizedWeights}`);
+    // console.log(`        change ${weights.sum() - optimizedWeights.sum()}`);
+    // console.log(`    Weight Error ${weightError}`);
+    // console.log(`    Weight adjustment ${optimizedWeight.sub(weights)}`);
+
+    optimizer.setValue(Dense.WEIGHT_MATRIX, optimizedWeights, Matrix);
 
     if (this.params.bias) {
       const biasError = fitter.getValue(Dense.BIAS_ERROR, Vector);
@@ -79,28 +86,38 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
 
   /**
-   * dError/dWeights
+   * dError/dWeights = dError/dLinear (o) dLinear/dWeights = errorTerm (o) dLinear/dWeights
    */
-  protected calculateWeightError(dErrorOverDActivated: Vector): Matrix {
+  protected calculateWeightError(dErrorOverDLinear: Vector): Matrix {
     // dActivated/dWeights
     const dActivatedOverDWeights = this.calculateActivatedWeightDerivative();
 
     // dError/dWeights
-    return dErrorOverDActivated.outer(dActivatedOverDWeights);
+    return dErrorOverDLinear.outer(dActivatedOverDWeights);
   }
 
 
   /**
-   * dError/dBias
-   * @param dErrorOverDActivated
+   * dLinear/dWeights = (dError/dLinear) (o) X
    */
-  protected calculateBiasError(dErrorOverDActivated: Vector): Vector {
+  protected calculateLinearWeightDerivative(errorTerm: Vector): Matrix {
+    const inputVector = this.data.input.getDefaultValue(Vector);
+
+    return errorTerm.outer(inputVector); // inputVector.outer(errorTerm).transpose();
+  }
+
+
+  /**
+   * dError/dBias = sum(dErrorOverDLinear) = sum(errorTerm)
+   * @param dErrorOverDLinear
+   */
+  protected calculateBiasError(dErrorOverDLinear: Vector): Vector {
     // dActivated/dBias
     // This is always [1], so omitted
     // const dActivatedOverDBias = this.calculateActivatedBiasDerivative();
 
     // dError/dBias
-    return new Vector([dErrorOverDActivated.sum()]); // .outer(dActivatedOverDBias);
+    return new Vector([dErrorOverDLinear.sum()]); // .outer(dActivatedOverDBias);
   }
 
 
@@ -129,7 +146,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     // const linearWeightError = this.calculateLinearWeightDerivative(errorTerm);
 
     // dError/dWeights
-    const weightError = this.calculateWeightError(dErrorOverDActivated);
+    const weightError = this.calculateLinearWeightDerivative(errorTerm); // this.calculateWeightError(errorTerm);
 
     backpropOutput.setValue(Layer.ERROR_TERM, errorTerm, Vector);
     backpropOutput.setValue(Dense.WEIGHT_MATRIX, this.data.optimizer.getValue(Dense.WEIGHT_MATRIX, Matrix), Matrix);
@@ -141,7 +158,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
       // const linearBiasError = this.calculateLinearBiasDerivative(errorTerm);
 
       // dError/dBias
-      const biasError = this.calculateBiasError(dErrorOverDActivated);
+      const biasError = this.calculateLinearBiasDerivative(errorTerm); // this.calculateBiasError(errorTerm);
 
       fitter.setValue(Dense.BIAS_ERROR, biasError, Vector);
     }
@@ -250,16 +267,6 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    */
   protected calculateActivatedBiasDerivative(): Vector {
     return new Vector([1]);
-  }
-
-
-  /**
-   * dLinear/dWeights = (dError/dLinear) (o) X
-   */
-  protected calculateLinearWeightDerivative(errorTerm: Vector): Matrix {
-    const inputVector = this.data.input.getDefaultValue(Vector);
-
-    return errorTerm.outer(inputVector); // inputVector.outer(errorTerm).transpose();
   }
 
 

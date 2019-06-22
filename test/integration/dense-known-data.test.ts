@@ -55,11 +55,14 @@ describe(
 
 
     it(
-      'should perform a backward pass and calculate weight derivatives',
+      'should perform an iteration and update weights',
       async () => {
         initWeights(h, o);
 
-        await m.fit([0.05, 0.10], [0.01, 0.99]);
+        const input = Model.coerceData([0.05, 0.10]);
+        const labels = Model.coerceData([0.01, 0.99]);
+
+        await m.iterate(input, labels);
 
         const oBack = o.data.backpropOutput.getValue(Layer.ERROR_TERM);
         const hBack = h.data.backpropOutput.getValue(Layer.ERROR_TERM);
@@ -83,7 +86,15 @@ describe(
         hdWeight.getDims().should.deep.equal([2, 2]);
         hdWeight.getAt([0, 0]).should.be.closeTo(0.000438568, 0.0000001);
 
+        odWeight.equals(o.data.fitter.getValue(Dense.WEIGHT_ERROR)).should.equal(true);
+        hdWeight.equals(h.data.fitter.getValue(Dense.WEIGHT_ERROR)).should.equal(true);
+
+        await m.optimize();
+
+        // @ts-ignore
         const hWeight = h.data.optimizer.getValue(Dense.WEIGHT_MATRIX);
+
+        // @ts-ignore
         const oWeight = o.data.optimizer.getValue(Dense.WEIGHT_MATRIX);
 
         oWeight.getAt([0, 0]).should.be.closeTo(0.35891648, 0.0000001);

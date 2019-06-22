@@ -151,15 +151,6 @@ describe(
 
         hBias.getAt(0).should.be.closeTo(0.5000, 0.0001);
         oBias.getAt(0).should.be.closeTo(0.4980, 0.0001);
-
-        // for (let a = 0; a < 20000; a++) {
-        //   await m.fit([1, 4, 5], [0.1, 0.05]);
-        //
-        //   console.log((await m.predict([1,4,5])).getDefaultValue().data);
-        //
-        // }
-        //
-        // const mm = 123;
       },
     );
   },

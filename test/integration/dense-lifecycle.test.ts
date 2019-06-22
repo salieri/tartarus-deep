@@ -57,56 +57,26 @@ describe(
     );
 
 
-    it.only(
-      'should test the new fitter',
+    it(
+      'should train the model with mini batches',
       async () => {
-        const epochs = 20;
-        const sampleCount = 200;
+        const epochs = 10;
+        const sampleCount = 24;
         const samples = generator.samples(sampleCount);
 
         await model.fitBetter(
           {
             epochs,
-            batchSize: 1,
+            batchSize: 8,
           },
           samples,
         );
-      },
-    );
 
 
-    it(
-      'should train the model with 100 samples',
-      async () => {
-        // const data = generator.samples(100);
-        for (let i = 0; i < 10; i += 1) {
-          const r = 3; // model.getSession().getRandomizer().intBetween(0, 10000);
+        for (let i = 100; i < 1000; i += 15) {
+          const result = await model.predict(i);
 
-          const prediction = (await model.predict(r)).getDefaultValue().sum();
-
-
-console.log(`######################################## Round ${i} ########################################`);
-
-console.log(`Expected ${r * 2}`);
-console.log(`Predict: ${prediction}`);
-console.log('');
-
-_.each(
-  model.getGraph().getAllNodes(),
-  (node: GraphNode) => {
-          console.log(
-`${node.getName()}
-bias: ${node.getEntity().data.optimizer.getValue('bias').data}
-weight: ${node.getEntity().data.optimizer.getValue('weight').data}
-`);
-  }
-);
-
-
-          const result = await model.fit(r, r * 2);
-
-          const loss = model.evaluation.losses.getDefaultValue().sum();
-          const a = 1;
+          result.getDefaultValue().getAt(0).should.be.closeTo(i * 2, 0.001);
         }
       },
     );

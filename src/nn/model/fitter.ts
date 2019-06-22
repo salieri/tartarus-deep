@@ -68,6 +68,8 @@ export class ModelFitter extends Parameterized<FitterParams> {
       /* eslint-disable-next-line no-await-in-loop */
       const iterationResult = await this.model.iterate(data.sample.raw, data.label.raw);
 
+      // console.log(`${data.sample.raw.getDefaultValue().sum()}  * 2 = ${iterationResult.prediction.getDefaultValue().sum()}`);
+
       const iterationFit = new DeferredInputCollection();
 
       _.each(
@@ -146,6 +148,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
 
   protected async fitEpoch(curEpoch: number): Promise<void> {
     let batchCount = 0;
+    let prevLoss = 10000000;
 
     await this.feed.seek(0);
 
@@ -153,7 +156,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
       /* eslint-disable-next-line no-await-in-loop */
       const result = await this.fitBatch();
 
-      console.log('AVGLoss', curEpoch, batchCount, result.avgLoss);
+      // console.log('AVGLoss', curEpoch, batchCount, result.avgLoss, Math.abs(result.avgLoss) < Math.abs(prevLoss) ? 'Better' : 'Worse');
 
       this.logger.info(
         'fit.epoch.batch',
@@ -167,6 +170,8 @@ export class ModelFitter extends Parameterized<FitterParams> {
       );
 
       batchCount += 1;
+
+      prevLoss = result.avgLoss;
     }
   }
 

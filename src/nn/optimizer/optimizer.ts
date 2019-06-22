@@ -6,7 +6,7 @@ export type OptimizerParams = Parameters;
 
 
 export abstract class Optimizer<T extends OptimizerParams = OptimizerParams> extends Parameterized<T> {
-  public abstract optimize<NType extends Matrix|Vector>(weights: NType, weightError: NType): NType;
+  public abstract optimize<NType extends Matrix|Vector>(weights: NType, dLossOverDWeights: NType): NType;
 
   public getParamSchema(): Joi.Schema {
     return Joi.object();
