@@ -61,13 +61,13 @@ describe(
       'should test the new fitter',
       async () => {
         const epochs = 20;
-        const sampleCount = 20;
+        const sampleCount = 200;
         const samples = generator.samples(sampleCount);
 
         await model.fitBetter(
           {
             epochs,
-            batchSize: 2,
+            batchSize: 1,
           },
           samples,
         );

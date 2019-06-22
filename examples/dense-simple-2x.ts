@@ -20,12 +20,12 @@ import { SampleGenerator } from './sample-generator';
 
 export class DenseSimple2x extends SampleGenerator {
   public model(): Model {
-    const model = new Model({ seed: this.params.seed });
+    const model = new Model({ seed: this.params.seed, loss: 'mean-squared-error' });
 
     model
       .input(1)
-      .push(new Dense({ units: 3, activation: 'identity', loss: 'mean-squared-error' }, 'hidden-1'))
-      .push(new Dense({ units: 1, activation: 'identity', loss: 'mean-squared-error' }, 'output'));
+      .push(new Dense({ units: 3, activation: 'identity' }, 'hidden-1'))
+      .push(new Dense({ units: 1, activation: 'identity' }, 'output'));
 
     return model;
   }

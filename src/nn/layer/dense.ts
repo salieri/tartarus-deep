@@ -4,8 +4,8 @@ import { JoiEx, JoiExSchema } from '../../util';
 import { Matrix, Vector } from '../../math';
 import { Initializer } from '../initializer';
 import { KeyNotFoundError } from '../../error';
-import { Optimizer } from '../optimizer';
 import { Loss } from '../loss';
+import { Optimizer } from '../optimizer';
 
 
 export interface DenseParamsInput extends LayerParams {
@@ -13,19 +13,13 @@ export interface DenseParamsInput extends LayerParams {
   activation?: Activation|string;
   bias?: boolean;
   biasInitializer?: Initializer|string;
-  biasOptimizer?: Optimizer|string;
   weightInitializer?: Initializer|string;
-  weightOptimizer?: Optimizer|string;
-  loss?: Loss|string;
 }
 
 export interface DenseParamsCoerced extends DenseParamsInput {
   activation: Activation;
   biasInitializer: Initializer;
-  biasOptimizer: Optimizer;
   weightInitializer: Initializer;
-  weightOptimizer: Optimizer;
-  loss: Loss;
 }
 
 
@@ -46,20 +40,20 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   public static readonly BIAS_ERROR = 'bias-error';
 
 
-  protected async optimizeExec(): Promise<void> {
+  protected async optimizeExec(o: Optimizer): Promise<void> {
     const fitter = this.data.fitter;
     const optimizer = this.data.optimizer;
 
     const weightError = fitter.getValue(Dense.WEIGHT_ERROR, Matrix);
     const weights = optimizer.getValue(Dense.WEIGHT_MATRIX, Matrix);
-    const optimizedWeight = this.params.weightOptimizer.optimize(weights, weightError);
+    const optimizedWeight = o.optimize(weights, weightError);
 
     optimizer.setValue(Dense.WEIGHT_MATRIX, optimizedWeight, Matrix);
 
     if (this.params.bias) {
       const biasError = fitter.getValue(Dense.BIAS_ERROR, Vector);
       const bias = optimizer.getValue(Dense.BIAS_VECTOR, Vector);
-      const optimizedBias = this.params.biasOptimizer.optimize(bias, biasError);
+      const optimizedBias = o.optimize(bias, biasError);
 
       optimizer.setValue(Dense.BIAS_VECTOR, optimizedBias, Vector);
     }
@@ -121,12 +115,12 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
    * Store:
    *  weight matrix (backprop output)
    */
-  protected async backwardExec(): Promise<void> {
+  protected async backwardExec(loss: Loss): Promise<void> {
     const backpropOutput = this.data.backpropOutput;
     const fitter = this.data.fitter;
 
     // dError/dActivated
-    const dErrorOverDActivated = this.calculateActivationErrorDerivative();
+    const dErrorOverDActivated = this.calculateActivationErrorDerivative(loss);
 
     // dError/dLinear
     const errorTerm = this.calculateErrorTerm(dErrorOverDActivated);
@@ -157,14 +151,17 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
   /**
    * dError/dActivated
    */
-  public calculateActivationErrorDerivative(): Vector {
+  public calculateActivationErrorDerivative(loss: Loss): Vector {
     return this.isOutputLayer()
-      ? this.calculateActivationErrorDerivativeFromLabel()
+      ? this.calculateActivationErrorDerivativeFromLabel(loss)
       : this.calculateActivationErrorDerivativeFromChain();
   }
 
 
-  public calculateLoss(): number {
+  /**
+   * errorTotal = L(yHat, y)
+   */
+  public calculateLoss(loss: Loss): number {
     if (!this.isOutputLayer()) {
       throw new Error('Cannot calculate loss for a layer that has no labels assigned to it');
     }
@@ -172,18 +169,18 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     const yHat = this.data.output.getDefaultValue(Vector);
     const y = this.data.trainer.getDefaultValue(Vector);
 
-    return this.params.loss.calculate(yHat, y);
+    return loss.calculate(yHat, y);
   }
 
 
   /**
    * dError/dActivated = L'(yHat, y)
    */
-  protected calculateActivationErrorDerivativeFromLabel(): Vector {
+  protected calculateActivationErrorDerivativeFromLabel(loss: Loss): Vector {
     const yHat = this.data.output.getDefaultValue(Vector);
     const y = this.data.trainer.getDefaultValue(Vector);
 
-    return this.params.loss.gradient(yHat, y);
+    return loss.gradient(yHat, y);
   }
 
 
@@ -471,15 +468,11 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
 
         bias: JoiEx.boolean().default(true).description('Apply bias'),
         biasInitializer: JoiEx.initializer().default('zero').description('Bias initializer'),
-        biasOptimizer: JoiEx.optimizer().default('stochastic').description('Bias optimizer'),
 
         // biasRegularizer : JoiEx.regularizer().default( null ).description( 'Bias regularizer' ),
         // biasConstraint : JoiEx.constraint().default( null ).description( 'Bias constraint' ),
 
         weightInitializer: JoiEx.initializer().default('random-uniform').description('Weight initializer'),
-        weightOptimizer: JoiEx.optimizer().default('stochastic').description('Weight optimizer'),
-
-        loss: JoiEx.loss().default('mean-squared-error').description('Loss function'),
 
         // kernelRegularizer : JoiEx.regularizer().default( 'l2' ).description( 'Kernel regularizer' ),
         // kernelConstraint : JoiEx.constraint().default( 'max-norm' ).description( 'Kernel constraint' ),

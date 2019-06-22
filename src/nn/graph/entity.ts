@@ -3,7 +3,8 @@ import { Session } from '../session';
 import { Logger } from '../../util';
 import { GraphDataFeed } from './data-feed';
 import { GraphRawFeed } from './raw-feed';
-import { DeferredInputCollection } from '../symbols/deferred';
+import { Optimizer } from '../optimizer';
+import { Loss } from '../loss';
 
 /* eslint-disable-next-line @typescript-eslint/no-empty-interface */
 export interface GraphEntityParams {}
@@ -26,8 +27,8 @@ export interface GraphEntity {
   raw: GraphRawFeed;
 
   forward(): Promise<void>;
-  backward(): Promise<void>;
-  optimize(): Promise<void>;
+  backward(loss: Loss): Promise<void>;
+  optimize(optimizer: Optimizer): Promise<void>;
 
   setSession(session: Session): void;
   setLogger(parentLogger: Logger): void;

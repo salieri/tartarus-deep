@@ -17,11 +17,11 @@ function initWeights(h: Dense, o: Dense): void {
 describe(
   'Dense Model with Known (Precalculated) Data',
   () => {
-    const m = new Model();
     const optimizer = new Stochastic({ rate: 0.5 });
+    const m = new Model({ optimizer });
 
-    const h = new Dense({ units: 2, activation: 'sigmoid', biasOptimizer: optimizer, weightOptimizer: optimizer });
-    const o = new Dense({ units: 2, activation: 'sigmoid', biasOptimizer: optimizer, weightOptimizer: optimizer });
+    const h = new Dense({ units: 2, activation: 'sigmoid' });
+    const o = new Dense({ units: 2, activation: 'sigmoid' });
 
     before(
       async () => {

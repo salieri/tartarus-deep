@@ -4,15 +4,21 @@ import { ContextLogger, JoiEx, JoiExSchema } from '../../util';
 import { Parameters, Parameterized } from '../../generic';
 import { Model } from './model';
 import { DeferredInputFeed } from '../../feed';
-import { DeferredCollection, DeferredInputCollection } from '../symbols/deferred';
-import { NDArray, Vector, VectorDirection } from '../../math';
+import { DeferredInputCollection } from '../symbols/deferred';
+import { NDArray } from '../../math';
 import { GraphNode } from '../graph';
-import { MeanSquaredError } from '../loss';
-import { Dense, Layer } from '../layer';
+
 
 export interface FitterParams extends Parameters {
   batchSize?: number;
   epochs?: number;
+}
+
+
+export interface BatchResult {
+  iterations: number;
+  avgLoss: number;
+  dError: DeferredInputCollection;
 }
 
 
@@ -21,6 +27,7 @@ export interface FitterParams extends Parameters {
  * @link https://www.youtube.com/watch?v=Zr5viAZGndE
  * @link https://www.youtube.com/watch?v=xClK__CqZnQ
  * @link https://stats.stackexchange.com/questions/154879/a-list-of-cost-functions-used-in-neural-networks-alongside-applications
+ * @link https://towardsdatascience.com/step-by-step-tutorial-on-linear-regression-with-stochastic-gradient-descent-1d35b088a843
  */
 
 export class ModelFitter extends Parameterized<FitterParams> {
@@ -45,9 +52,10 @@ export class ModelFitter extends Parameterized<FitterParams> {
   }
 
 
-  protected async fitBatch(): Promise<void> {
+  protected async fitBatch(): Promise<BatchResult> {
     let result: DeferredInputCollection|undefined;
     let iterations: number;
+    let totalLoss = 0;
 
     for (iterations = 0; (iterations < this.params.batchSize) && (this.feed.hasMore()); iterations += 1) {
       /* eslint-disable-next-line no-await-in-loop */
@@ -58,7 +66,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
       }
 
       /* eslint-disable-next-line no-await-in-loop */
-      await this.model.iterate(data.sample.raw, data.label.raw);
+      const iterationResult = await this.model.iterate(data.sample.raw, data.label.raw);
 
       const iterationFit = new DeferredInputCollection();
 
@@ -72,21 +80,17 @@ export class ModelFitter extends Parameterized<FitterParams> {
       // dWTotal += dW[iteration]
       // dbTotal += db[iteration]
       result = this.sumResults(result, iterationFit);
-
-console.log('------------------- Iteration --------------------');
-console.log(`input: ${data.sample.raw.getDefaultValue().getAt(0)}`);
-console.log(`output: ${this.model.getGraph().find('output').getEntity().data.output.getDefaultValue().getAt(0)}`);
-console.log(`error: ${this.model.getGraph().find('output').getEntity().calculateLoss()}`);
-
-// console.log(`SUM weight-error: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').sum()}`);
-// console.log(`weight-error: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').data}`);
-// console.log(`SUM error-term: ${this.model.getGraph().find('output').getEntity().data.backpropOutput.getValue('error-term').sum()}`);
-// console.log(`error-term: ${this.model.getGraph().find('output').getEntity().data.backpropOutput.getValue('error-term').data}`);
-console.log('');
+      totalLoss += iterationResult.loss.getDefaultValue().sum();
 
       this.logger.debug(
         'fit.epoch.batch.iteration',
-        () => ({ curIteration: (iterations + 1), totalIterations: this.params.batchSize }),
+        () => ({
+          curIteration: (iterations + 1),
+          batchSize: this.params.batchSize,
+          loss: iterationResult.loss,
+          input: data.sample.raw,
+          output: iterationResult.prediction,
+        }),
       );
     }
 
@@ -94,30 +98,19 @@ console.log('');
       throw new Error('Did not iterate over any data');
     }
 
-console.log('================= Batch result ===================');
-console.log(`SUM result-total: ${result.get('output').getValue('weight-error').sum()}`);
-
-
-const loss = new MeanSquaredError();
-
-const avgLoss = loss.calculate(
-  this.model.getGraph().find('output').getEntity().data.output.getValue('activated'),
-  this.model.getGraph().find('output').getEntity().data.trainer.getDefaultValue(),
-);
-
     // dWTotal /= m, dbTotal /= m
     result.eachValue(<T extends NDArray> (val: T): T => val.div(iterations));
-
-
-console.log(`SUM result-divided: ${result.get('output').getValue('weight-error').sum()}`);
 
     // reassign dW, db
     this.reassignFitValues(result);
 
-console.log(`SUM weight-error-divided: ${this.model.getGraph().find('output').getEntity().data.fitter.getValue('weight-error').sum()}`);
-console.log('');
-console.log('');
     await this.model.optimize();
+
+    return {
+      iterations,
+      avgLoss: totalLoss / iterations,
+      dError: result,
+    };
   }
 
 
@@ -151,18 +144,26 @@ console.log('');
   }
 
 
-  protected async fitEpoch(): Promise<void> {
+  protected async fitEpoch(curEpoch: number): Promise<void> {
     let batchCount = 0;
 
     await this.feed.seek(0);
 
     while (this.feed.hasMore()) {
       /* eslint-disable-next-line no-await-in-loop */
-      await this.fitBatch();
+      const result = await this.fitBatch();
+
+      console.log('AVGLoss', curEpoch, batchCount, result.avgLoss);
 
       this.logger.info(
         'fit.epoch.batch',
-        () => ({ curBatch: (batchCount + 1) }),
+        () => ({
+          curEpoch: (curEpoch + 1),
+          curBatch: (batchCount + 1),
+          avgLoss: result.avgLoss,
+          iterations: result.iterations,
+          dError: result.dError,
+        }),
       );
 
       batchCount += 1;
@@ -173,7 +174,7 @@ console.log('');
   public async fit(): Promise<void> {
     for (let curEpoch = 0; curEpoch < this.params.epochs; curEpoch += 1) {
       /* eslint-disable-next-line no-await-in-loop */
-      await this.fitEpoch();
+      await this.fitEpoch(curEpoch);
 
       this.logger.info('fit.epoch', () => ({ curEpoch: (curEpoch + 1), epochTotal: this.params.epochs }));
     }

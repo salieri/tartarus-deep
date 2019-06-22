@@ -19,6 +19,8 @@ import {
   GraphDataFeed,
   GraphRawFeed,
 } from '../graph';
+import { Loss } from '../loss';
+import { Optimizer } from '../optimizer';
 
 
 export enum LayerState {
@@ -96,12 +98,12 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  protected abstract async backwardExec(): Promise<void>;
+  protected abstract async backwardExec(loss: Loss): Promise<void>;
 
-  public async backward(): Promise<void> {
+  public async backward(loss: Loss): Promise<void> {
     this.requireState(LayerState.Initialized);
 
-    await this.backwardExec();
+    await this.backwardExec(loss);
   }
 
 
@@ -114,12 +116,12 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  protected abstract async optimizeExec(): Promise<void>;
+  protected abstract async optimizeExec(optimizer: Optimizer): Promise<void>;
 
-  public async optimize(): Promise<void> {
+  public async optimize(optimizer: Optimizer): Promise<void> {
     this.requireState(LayerState.Initialized);
 
-    await this.optimizeExec();
+    await this.optimizeExec(optimizer);
   }
 
 

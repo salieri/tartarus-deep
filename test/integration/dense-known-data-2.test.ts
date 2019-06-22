@@ -16,11 +16,11 @@ function prepareWeights(h: Dense, o: Dense): void {
 describe(
   'Dense Model with Known (Precalculated) Data 2',
   () => {
-    const m = new Model();
     const optimizer = new Stochastic({ rate: 0.01 });
+    const m = new Model({ optimizer });
 
-    const h = new Dense({ units: 2, activation: 'sigmoid', weightOptimizer: optimizer, biasOptimizer: optimizer }, 'hidden');
-    const o = new Dense({ units: 2, activation: 'sigmoid', weightOptimizer: optimizer, biasOptimizer: optimizer }, 'output');
+    const h = new Dense({ units: 2, activation: 'sigmoid' }, 'hidden');
+    const o = new Dense({ units: 2, activation: 'sigmoid' }, 'output');
 
     it(
       'should declare and compile a model',
