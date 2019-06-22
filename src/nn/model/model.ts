@@ -5,7 +5,7 @@ import {
   JoiExSchema,
   ContextLogger,
   Logger,
-  MuteLogger, ConsoleLogger,
+  MuteLogger,
 } from '../../util';
 
 import {
@@ -23,7 +23,7 @@ import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { Cost } from '../cost';
 import { Loss } from '../loss';
 import { Metric } from '../metric';
-import { FitterParams, ModelFitter } from './fitter';
+import { FitResult, FitterParams, ModelFitter } from './fitter';
 import { DeferredInputFeed } from '../../feed';
 import { Optimizer } from '../optimizer';
 
@@ -311,10 +311,10 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   public async fitBetter(
     params: FitterParams = {},
     data: DeferredInputFeed,
-  ): Promise<void> {
+  ): Promise<FitResult> {
     const fitter = new ModelFitter(this, data, params);
 
-    await fitter.fit();
+    return fitter.fit();
   }
 
 

@@ -22,19 +22,6 @@ export class Hinge extends Loss<HingeParams> {
   }
 
 
-  public gradient(yHat: Vector, y: Vector): Vector {
-    return yHat.iterate(
-      (values: number[]): number => {
-        const yHatVal = values[0];
-        const yVal = values[1];
-
-        return (v > 1) ? 0 : -yVal * yHatVal;
-      },
-      y
-    );
-  }
-
-
   public getParamSchema(): Joi.Schema {
     return Joi.object().keys(
       {

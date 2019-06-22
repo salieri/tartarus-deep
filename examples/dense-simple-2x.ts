@@ -13,15 +13,17 @@ import {
   Dense,
   Model,
   NDArray,
-  Xoshiro128,
 } from '../src';
 
 import { SampleGenerator } from './sample-generator';
+import { Stochastic } from '../src/nn/optimizer';
 
 
 export class DenseSimple2x extends SampleGenerator {
   public model(): Model {
-    const model = new Model({ seed: this.params.seed, loss: 'mean-squared-error' });
+    const optimizer = new Stochastic({ rate: 0.002 });
+
+    const model = new Model({ optimizer, seed: this.params.seed, loss: 'mean-squared-error' });
 
     model
       .input(1)
@@ -37,7 +39,7 @@ export class DenseSimple2x extends SampleGenerator {
       _.times(
         count,
         (n: number) => {
-          const x = n % 10;
+          const x = n % 25;
 
           return { x: new NDArray([x]), y: new NDArray([x * 2]) };
         },

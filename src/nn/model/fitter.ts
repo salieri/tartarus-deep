@@ -1,3 +1,5 @@
+/* eslint-disable no-loop-func, no-await-in-loop */
+
 import _ from 'lodash';
 
 import { ContextLogger, JoiEx, JoiExSchema } from '../../util';
@@ -15,10 +17,36 @@ export interface FitterParams extends Parameters {
 }
 
 
+export interface FitResult {
+  epochs: number;
+  batches: number;
+  iterations: number;
+  loss: LossResult;
+}
+
+
+export interface LossResult {
+  average: number;
+  final: number;
+  first: number;
+  min: number;
+  max: number;
+}
+
+
 export interface BatchResult {
   iterations: number;
-  avgLoss: number;
-  dError: DeferredInputCollection;
+  curEpoch: number;
+  curBatch: number;
+  loss: LossResult;
+}
+
+
+export interface EpochResult {
+  curEpoch: number;
+  batches: number;
+  iterations: number;
+  loss: LossResult;
 }
 
 
@@ -52,10 +80,15 @@ export class ModelFitter extends Parameterized<FitterParams> {
   }
 
 
-  protected async fitBatch(): Promise<BatchResult> {
+  protected async fitBatch(curEpoch: number, curBatch: number): Promise<BatchResult> {
     let result: DeferredInputCollection|undefined;
     let iterations: number;
     let totalLoss = 0;
+
+    let finalLoss = Number.MAX_VALUE;
+    let minLoss = Number.MAX_VALUE;
+    let maxLoss = Number.MIN_VALUE;
+    let firstLoss: number|undefined;
 
     for (iterations = 0; (iterations < this.params.batchSize) && (this.feed.hasMore()); iterations += 1) {
       /* eslint-disable-next-line no-await-in-loop */
@@ -82,7 +115,16 @@ export class ModelFitter extends Parameterized<FitterParams> {
       // dWTotal += dW[iteration]
       // dbTotal += db[iteration]
       result = this.sumResults(result, iterationFit);
-      totalLoss += iterationResult.loss.getDefaultValue().sum();
+
+      finalLoss = iterationResult.loss.getDefaultValue().sum();
+      minLoss = Math.min(minLoss, finalLoss);
+      maxLoss = Math.max(maxLoss, finalLoss);
+
+      totalLoss += finalLoss;
+
+      if (firstLoss === undefined) {
+        firstLoss = finalLoss;
+      }
 
       this.logger.debug(
         'fit.epoch.batch.iteration',
@@ -96,7 +138,7 @@ export class ModelFitter extends Parameterized<FitterParams> {
       );
     }
 
-    if (!result) {
+    if ((!result) || (iterations === 0)) {
       throw new Error('Did not iterate over any data');
     }
 
@@ -108,11 +150,22 @@ export class ModelFitter extends Parameterized<FitterParams> {
 
     await this.model.optimize();
 
-    return {
+    const batchResult: BatchResult = {
+      curEpoch,
+      curBatch,
       iterations,
-      avgLoss: totalLoss / iterations,
-      dError: result,
+      loss: {
+        first: firstLoss as number,
+        average: totalLoss / iterations,
+        min: minLoss,
+        max: maxLoss,
+        final: finalLoss,
+      },
     };
+
+    this.logger.info('fit.epoch.batch', batchResult);
+
+    return batchResult;
   }
 
 
@@ -146,43 +199,106 @@ export class ModelFitter extends Parameterized<FitterParams> {
   }
 
 
-  protected async fitEpoch(curEpoch: number): Promise<void> {
-    let batchCount = 0;
-    let prevLoss = 10000000;
+  protected async fitEpoch(curEpoch: number): Promise<EpochResult> {
+    let curBatch = 0;
+    let lastResult: BatchResult|undefined;
+
+    let totalAverageLoss = 0;
+    let minLoss = Number.MAX_VALUE;
+    let maxLoss = Number.MIN_VALUE;
+    let firstLoss: number|undefined;
+    let totalIterations = 0;
 
     await this.feed.seek(0);
 
     while (this.feed.hasMore()) {
       /* eslint-disable-next-line no-await-in-loop */
-      const result = await this.fitBatch();
+      lastResult = await this.fitBatch(curEpoch, curBatch);
+
+      totalAverageLoss += lastResult.loss.average;
+      totalIterations += lastResult.iterations;
+
+      if (firstLoss === undefined) {
+        firstLoss = lastResult.loss.average;
+      }
+
+      minLoss = Math.min(minLoss, lastResult.loss.average);
+      maxLoss = Math.max(maxLoss, lastResult.loss.average);
 
       // console.log('AVGLoss', curEpoch, batchCount, result.avgLoss, Math.abs(result.avgLoss) < Math.abs(prevLoss) ? 'Better' : 'Worse');
-
-      this.logger.info(
-        'fit.epoch.batch',
-        () => ({
-          curEpoch: (curEpoch + 1),
-          curBatch: (batchCount + 1),
-          avgLoss: result.avgLoss,
-          iterations: result.iterations,
-          dError: result.dError,
-        }),
-      );
-
-      batchCount += 1;
-
-      prevLoss = result.avgLoss;
+      curBatch += 1;
     }
+
+    if ((curBatch === 0) || (!lastResult)) {
+      throw new Error('Did not fit any batches');
+    }
+
+    const epochResult: EpochResult = {
+      curEpoch,
+      batches: curBatch,
+      iterations: totalIterations,
+      loss: {
+        first: firstLoss as number,
+        final: lastResult.loss.final as number,
+        average: totalAverageLoss / curBatch,
+        min: minLoss,
+        max: maxLoss,
+      },
+    };
+
+    this.logger.info('fit.epoch', epochResult);
+
+    return epochResult;
   }
 
+  public async fit(): Promise<FitResult> {
+    let totalBatches = 0;
+    let totalIterations = 0;
+    let totalAverageLoss = 0;
 
-  public async fit(): Promise<void> {
+    let minLoss = Number.MAX_VALUE;
+    let maxLoss = Number.MIN_VALUE;
+
+    let epochResult: EpochResult|undefined;
+    let firstLoss: number|undefined;
+
     for (let curEpoch = 0; curEpoch < this.params.epochs; curEpoch += 1) {
       /* eslint-disable-next-line no-await-in-loop */
-      await this.fitEpoch(curEpoch);
+      epochResult = await this.fitEpoch(curEpoch);
 
-      this.logger.info('fit.epoch', () => ({ curEpoch: (curEpoch + 1), epochTotal: this.params.epochs }));
+      totalBatches += epochResult.batches;
+      totalIterations += epochResult.iterations;
+      totalAverageLoss += epochResult.loss.average;
+
+      minLoss = Math.min(minLoss, epochResult.loss.min);
+      maxLoss = Math.max(maxLoss, epochResult.loss.max);
+
+      if (firstLoss === undefined) {
+        firstLoss = epochResult.loss.first;
+      }
     }
+
+
+    if (!epochResult) {
+      throw new Error('Did not fit any epochs');
+    }
+
+    const fitResult: FitResult = {
+      epochs: this.params.epochs,
+      batches: totalBatches,
+      iterations: totalIterations,
+      loss: {
+        first: firstLoss as number,
+        final: epochResult.loss.final,
+        average: totalAverageLoss / this.params.epochs,
+        min: minLoss,
+        max: maxLoss,
+      },
+    };
+
+    this.logger.info('fit', fitResult);
+
+    return fitResult;
   }
 
 

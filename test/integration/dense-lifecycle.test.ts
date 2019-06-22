@@ -1,8 +1,5 @@
-import _ from 'lodash';
-
 import { DenseSimple2x } from '../../examples';
 import { Model } from '../../src';
-import { GraphNode } from '../../src/nn/graph';
 
 
 describe(
@@ -61,22 +58,27 @@ describe(
       'should train the model with mini batches',
       async () => {
         const epochs = 10;
-        const sampleCount = 24;
+        const sampleCount = 64;
+        const batchSize = 8;
         const samples = generator.samples(sampleCount);
 
-        await model.fitBetter(
+        const fitResult = await model.fitBetter(
           {
             epochs,
-            batchSize: 8,
+            batchSize,
           },
           samples,
         );
 
+        fitResult.iterations.should.equal(epochs * sampleCount);
+        fitResult.batches.should.equal((epochs * sampleCount) / batchSize);
+        fitResult.epochs.should.equal(epochs);
 
         for (let i = 100; i < 1000; i += 15) {
+          /* eslint-disable-next-line no-await-in-loop */
           const result = await model.predict(i);
 
-          result.getDefaultValue().getAt(0).should.be.closeTo(i * 2, 0.001);
+          result.getDefaultValue().getAt(0).should.be.closeTo(i * 2, 0.000000001);
         }
       },
     );
