@@ -1,6 +1,7 @@
 import _ from 'lodash';
-import { DeferredValueType, DeferredValue } from './value';
+import { DeferredValue } from './value';
 import { DeferredCollection } from './collection';
+import { Matrix, Vector, NDArray } from '../../../math';
 
 
 export class DeferredCollectionWrapper {
@@ -29,8 +30,8 @@ export class DeferredCollectionWrapper {
   }
 
 
-  public getValue(key: string): DeferredValueType {
-    return this.collection.getValue(key);
+  public getValue<NDType extends NDArray = NDArray>(key: string, type?: { new (val: NDArray|Matrix|Vector): NDType }): NDType {
+    return this.collection.getValue(key, type);
   }
 
 
@@ -39,8 +40,8 @@ export class DeferredCollectionWrapper {
   }
 
 
-  public getDefaultValue(): DeferredValueType {
-    return this.collection.getDefaultValue();
+  public getDefaultValue<NDType extends NDArray = NDArray>(type?: { new (val: NDArray|Matrix|Vector): NDType }): NDType {
+    return this.collection.getDefaultValue(type);
   }
 
 
@@ -106,6 +107,11 @@ export class DeferredCollectionWrapper {
 
   public assign(collection: DeferredCollectionWrapper): void {
     this.collection.assign(collection.collection);
+  }
+
+
+  public eachValue(cb: <T extends NDArray>(nd: T, fieldKey: string) => T|undefined|void): void {
+    return this.collection.eachValue(cb);
   }
 
 

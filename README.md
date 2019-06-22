@@ -19,13 +19,13 @@
 *   Matrix operations ✔
 *   Backpropagation ✔
 *   Forward propagation ✔
-*   Optimization
-*   Logistic regression
-*   Gradient descent
+*   Optimization ✔
+*   Logistic regression ✔
+*   Gradient descent ✔
 *   Loss functions ✔
 *   Activation functions ✔
 *   Cost functions ✔
-*   Neural networks ⏳
+*   Neural networks ✔
 *   Acyclic networks ✔
 *   CNNs
 *   RNNs
@@ -34,7 +34,7 @@
 *   Chainable models ✔
 *   Randomization ✔
 *   Metrics ⏳
-*   Optimizers
+*   Optimizers ⏳
 
 
 

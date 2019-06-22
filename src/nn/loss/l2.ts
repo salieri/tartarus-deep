@@ -9,4 +9,9 @@ export class L2 extends Loss {
     // sum( ( yHat - y ) ^ 2 )
     return yHat.sub(y).pow(2).sum();
   }
+
+
+  public gradient(yHat: Vector, y: Vector, x: Vector): Vector {
+    return x.mul(2);
+  }
 }

@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 import { Sigmoid } from './sigmoid';
 
 
@@ -10,7 +10,7 @@ import { Sigmoid } from './sigmoid';
 export class SiLU extends Activation {
   private static sigmoid = new Sigmoid();
 
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     return z.mul(SiLU.sigmoid.calculate(z));
   }
 
@@ -19,7 +19,7 @@ export class SiLU extends Activation {
    * @param a activated value (result of this.calculate(z))
    * @param z linear value
    */
-  public derivative(a: NDArray, z: NDArray): NDArray {
+  public derivative(a: Vector, z: Vector): Vector {
     const one = a.set(1);
 
     return a.add(SiLU.sigmoid.calculate(z).mul(one.sub(a)));

@@ -19,6 +19,8 @@ import {
   GraphDataFeed,
   GraphRawFeed,
 } from '../graph';
+import { Loss } from '../loss';
+import { Optimizer } from '../optimizer';
 
 
 export enum LayerState {
@@ -47,7 +49,7 @@ export type LayerParams = Parameters;
 export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced extends TInput = TInput>
   extends Parameterized<TInput, TCoerced>
   implements GraphEntity {
-  public static readonly ERROR_TERM: string = 'error';
+  public static readonly ERROR_TERM: string = 'error-term';
 
   public static readonly TRAINING_LABEL: string = 'train';
 
@@ -96,12 +98,12 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
   }
 
 
-  protected abstract async backwardExec(): Promise<void>;
+  protected abstract async backwardExec(loss: Loss): Promise<void>;
 
-  public async backward(): Promise<void> {
+  public async backward(loss: Loss): Promise<void> {
     this.requireState(LayerState.Initialized);
 
-    await this.backwardExec();
+    await this.backwardExec(loss);
   }
 
 
@@ -111,6 +113,15 @@ export abstract class Layer <TInput extends LayerParams = LayerParams, TCoerced 
     this.requireState(LayerState.Initialized);
 
     await this.forwardExec();
+  }
+
+
+  protected abstract async optimizeExec(optimizer: Optimizer): Promise<void>;
+
+  public async optimize(optimizer: Optimizer): Promise<void> {
+    this.requireState(LayerState.Initialized);
+
+    await this.optimizeExec(optimizer);
   }
 
 

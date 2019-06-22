@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { CompilationStage, GraphEntity } from './entity';
 import { DeferredInputCollection } from '../symbols';
 import { DevParamCollection } from '../../util';
+import { Loss } from '../loss';
+import { Optimizer } from '../optimizer';
 
 
 export class GraphNode {
@@ -127,8 +129,13 @@ export class GraphNode {
   }
 
 
-  public async backward(): Promise<void> {
-    await this.getEntity().backward();
+  public async backward(loss: Loss): Promise<void> {
+    await this.getEntity().backward(loss);
+  }
+
+
+  public async optimize(optimizer: Optimizer): Promise<void> {
+    await this.getEntity().optimize(optimizer);
   }
 
 

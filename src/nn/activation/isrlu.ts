@@ -1,6 +1,6 @@
 import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
 import { Activation, ActivationParams } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 /* eslint-disable @typescript-eslint/interface-name-prefix */
@@ -14,7 +14,7 @@ export interface ISRLUParamsInput extends ActivationParams {
  * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class ISRLU extends Activation<ISRLUParamsInput> {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     return z.apply(
       (val: number): number => {
         if (val < 0) {
@@ -28,7 +28,7 @@ export class ISRLU extends Activation<ISRLUParamsInput> {
   }
 
 
-  public derivative(a: NDArray, z: NDArray): NDArray {
+  public derivative(a: Vector, z: Vector): Vector {
     return z.apply(
       (val: number): number => {
         if (val >= 0) {

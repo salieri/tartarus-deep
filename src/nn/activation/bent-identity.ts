@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 /**
@@ -7,7 +7,7 @@ import { NDArray } from '../../math';
  * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class BentIdentity extends Activation {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     // ( sqrt( z^2 + 1 ) - 1 ) / 2 + z
     return z.pow(2).add(1).sqrt().sub(1)
       .div(2)
@@ -15,7 +15,7 @@ export class BentIdentity extends Activation {
   }
 
 
-  public derivative(a: NDArray, z: NDArray): NDArray {
+  public derivative(a: Vector, z: Vector): Vector {
     const one = z.set(1);
     const two = z.set(2);
 

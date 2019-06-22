@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 import { Parameterized, Parameters } from '../../generic';
 
 
@@ -16,14 +16,14 @@ export type ActivationParams = Parameters;
 
 export abstract class Activation
   <TInput extends ActivationParams = ActivationParams, TCoerced extends TInput = TInput> extends Parameterized<TInput, TCoerced> {
-  public abstract calculate(z: NDArray): NDArray;
+  public abstract calculate(z: Vector): Vector;
 
   /**
    * @param a Activated output
    * @param z Linear output
-   * @param y Expected label
+   * @param y? Expected label
    */
-  public abstract derivative(a: NDArray, z: NDArray, y?: NDArray): NDArray;
+  public abstract derivative(a: Vector, z: Vector, y?: Vector): Vector;
 
   public getParamSchema(): Joi.Schema {
     return Joi.object();

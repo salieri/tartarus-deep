@@ -31,7 +31,7 @@ describe(
       'should instantiate any class in the module',
       () => {
         const cm        = new ClassManager(activations, Activation);
-        const activator = cm.factory('identity');
+        const activator = cm.factory('identity', false);
 
         activator.should.be.instanceOf(activations.Identity);
       },
@@ -42,7 +42,7 @@ describe(
       'should instantiate a class with parameters',
       () => {
         const cm        = new ClassManager(activations, Activation);
-        const activator = cm.factory('ReLU', undefined, { leak: 1.23 });
+        const activator = cm.factory('ReLU', false, undefined, { leak: 1.23 });
 
         activator.should.be.instanceOf(activations.ReLU);
         activator.params.leak.should.equal(1.23);
@@ -54,12 +54,12 @@ describe(
       'should return the instance, if one is passed to the coerce function',
       () => {
         const cm        = new ClassManager(activations, Activation);
-        const activator = cm.coerce('bent-identity');
+        const activator = cm.coerce('bent-identity', false);
 
         activator.should.be.instanceOf(activations.BentIdentity);
 
-        cm.coerce(activator).should.equal(activator);
-        cm.coerce('bent-identity').should.not.equal(activator);
+        cm.coerce(activator, false).should.equal(activator);
+        cm.coerce('bent-identity', false).should.not.equal(activator);
       },
     );
 

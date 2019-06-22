@@ -27,9 +27,9 @@ export class Dense2x extends SampleGenerator {
      */
     model
       .input(1)
-      .push(new Dense({ units: 4, activation: 'identity' }))
-      .push(new Dense({ units: 5, activation: 'identity' }))
-      .push(new Dense({ units: 1, activation: 'identity' }, 'result'));
+      .push(new Dense({ units: 4, activation: 'identity' }, 'hidden-1'))
+      .push(new Dense({ units: 5, activation: 'identity' }, 'hidden-2'))
+      .push(new Dense({ units: 1, activation: 'identity' }, 'output'));
 
     // .output('result'); /* will be automatically set to the last node, unless you choose to declare it */
 

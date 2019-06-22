@@ -2,7 +2,7 @@ export * from './cosine-proximity';
 export * from './cross-entropy';
 export * from './hinge';
 export * from './huber';
-export * from './kl-divergence';
+export * from './generalized-kl-divergence';
 export * from './l1';
 export * from './l2';
 export * from './loss';

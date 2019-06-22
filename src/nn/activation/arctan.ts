@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 /**
@@ -7,11 +7,11 @@ import { NDArray } from '../../math';
  * @link https://en.wikipedia.org/wiki/Activation_function
  */
 export class ArcTan extends Activation {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     return z.atan();
   }
 
-  public derivative(a: NDArray, z: NDArray): NDArray {
+  public derivative(a: Vector, z: Vector): Vector {
     const one = z.set(1);
 
     return one.div(one.add(z.pow(2)));

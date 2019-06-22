@@ -1,5 +1,15 @@
 import { Dense, Layer, Model } from '../../src/nn';
 import { Matrix, Vector } from '../../src/math';
+import { Stochastic } from '../../src/nn/optimizer';
+
+function initWeights(h: Dense, o: Dense): void {
+  h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
+  h.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
+
+  o.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
+  o.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
+}
+
 
 /**
  * @link https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
@@ -7,12 +17,13 @@ import { Matrix, Vector } from '../../src/math';
 describe(
   'Dense Model with Known (Precalculated) Data',
   () => {
-    const m = new Model();
+    const optimizer = new Stochastic({ rate: 0.5 });
+    const m = new Model({ optimizer });
+
     const h = new Dense({ units: 2, activation: 'sigmoid' });
     const o = new Dense({ units: 2, activation: 'sigmoid' });
 
-    it(
-      'should declare and compile a model',
+    before(
       async () => {
         m.input(2)
           .push(h)
@@ -27,11 +38,7 @@ describe(
     it(
       'should perform forward pass',
       async () => {
-        h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
-        h.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
-
-        o.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
-        o.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
+        initWeights(h, o);
 
         await m.predict([0.05, 0.10]);
 
@@ -48,30 +55,57 @@ describe(
 
 
     it(
-      'should perform a backward pass and calculate weight derivatives',
+      'should perform an iteration and update weights',
       async () => {
-        h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.15, 0.20], [0.25, 0.30]]));
-        h.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.35]));
+        initWeights(h, o);
 
-        o.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.40, 0.45], [0.50, 0.55]]));
-        o.data.optimizer.setValue(Dense.BIAS_VECTOR, new Vector([0.60]));
+        const input = Model.coerceData([0.05, 0.10]);
+        const labels = Model.coerceData([0.01, 0.99]);
 
-        await m.fit([0.05, 0.10], [0.01, 0.99]);
+        await m.iterate(input, labels);
 
         const oBack = o.data.backpropOutput.getValue(Layer.ERROR_TERM);
         const hBack = h.data.backpropOutput.getValue(Layer.ERROR_TERM);
 
         oBack.getAt(0).should.be.closeTo(0.1384985, 0.00001);
 
-        const odWeight = o.calculateWeightDerivative(new Vector(oBack));
+        // @ts-ignore
+        const dEOverA = h.calculateActivationErrorDerivativeFromChain();
+
+        dEOverA.getAt(0).should.be.closeTo(0.03635036, 0.00001);
+
+        // @ts-ignore
+        const odWeight = o.calculateLinearWeightDerivative(new Vector(oBack));
 
         odWeight.getDims().should.deep.equal([2, 2]);
         odWeight.getAt([0, 0]).should.be.closeTo(0.082167041, 0.000001);
 
-        const hdWeight = h.calculateWeightDerivative(new Vector(hBack));
+        // @ts-ignore
+        const hdWeight = h.calculateLinearWeightDerivative(new Vector(hBack));
 
         hdWeight.getDims().should.deep.equal([2, 2]);
         hdWeight.getAt([0, 0]).should.be.closeTo(0.000438568, 0.0000001);
+
+        odWeight.equals(o.data.fitter.getValue(Dense.WEIGHT_ERROR)).should.equal(true);
+        hdWeight.equals(h.data.fitter.getValue(Dense.WEIGHT_ERROR)).should.equal(true);
+
+        await m.optimize();
+
+        // @ts-ignore
+        const hWeight = h.data.optimizer.getValue(Dense.WEIGHT_MATRIX);
+
+        // @ts-ignore
+        const oWeight = o.data.optimizer.getValue(Dense.WEIGHT_MATRIX);
+
+        oWeight.getAt([0, 0]).should.be.closeTo(0.35891648, 0.0000001);
+        oWeight.getAt([0, 1]).should.be.closeTo(0.40866618, 0.0000001);
+        oWeight.getAt([1, 0]).should.be.closeTo(0.51130127, 0.0000001);
+        oWeight.getAt([1, 1]).should.be.closeTo(0.56137012, 0.0000001);
+
+        hWeight.getAt([0, 0]).should.be.closeTo(0.14978071, 0.0000001);
+        hWeight.getAt([0, 1]).should.be.closeTo(0.19956143, 0.0000001);
+        hWeight.getAt([1, 0]).should.be.closeTo(0.24975114, 0.0000001);
+        hWeight.getAt([1, 1]).should.be.closeTo(0.29950229, 0.0000001);
       },
     );
   },

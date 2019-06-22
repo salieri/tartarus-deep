@@ -64,17 +64,6 @@ export class Matrix extends NDArray {
 
 
   /**
-   * Clone a matrix
-   * @public
-   */
-  public clone(targetObj?: Matrix): Matrix {
-    const to = targetObj || new Matrix(...this.dimensions);
-
-    return super.clone(to) as Matrix;
-  }
-
-
-  /**
    * Matrix multiplication
    */
   public matmul(b: Matrix): Matrix {
@@ -105,6 +94,17 @@ export class Matrix extends NDArray {
   }
 
 
+  public dot(b: Matrix|Vector): Matrix|Vector {
+    const dims = b.getDims();
+
+    if (dims.length === 1) {
+      return this.vecmul(new Vector(b));
+    }
+
+    return this.matmul(new Matrix(b));
+  }
+
+
   /**
    * Multiply matrix by a vector
    */
@@ -131,7 +131,9 @@ export class Matrix extends NDArray {
 
   public pickDiagonal(): Vector {
     if (this.getCols() !== this.getRows()) {
-      throw new Error('Cannot pick diagonally across a matrix which columns and rows are not equal size');
+      throw new Error(
+        `Cannot pick diagonally across a matrix which columns and rows are not equal size (${this.getCols()} cols, ${this.getRows()} rows)`,
+      );
     }
 
     const v = new Vector(this.getCols());
@@ -141,6 +143,11 @@ export class Matrix extends NDArray {
     }
 
     return v;
+  }
+
+
+  protected instantiate<T extends NDArray>(this: T, ...dimensions: number[]): T {
+    return new Matrix(...dimensions) as unknown as T;
   }
 }
 

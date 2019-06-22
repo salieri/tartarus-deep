@@ -5,7 +5,7 @@ import {
   JoiExSchema,
   ContextLogger,
   Logger,
-  MuteLogger,
+  MuteLogger, ConsoleLogger,
 } from '../../util';
 
 import {
@@ -18,11 +18,14 @@ import {
 
 import { Session } from '../session';
 import { NDArray, Randomizer, Vector } from '../../math';
-import { Parameterized } from '../../generic';
+import { Parameterized, Parameters } from '../../generic';
 import { DeferredCollection, DeferredInputCollection } from '../symbols';
 import { Cost } from '../cost';
 import { Loss } from '../loss';
 import { Metric } from '../metric';
+import { FitterParams, ModelFitter } from './fitter';
+import { DeferredInputFeed } from '../../feed';
+import { Optimizer } from '../optimizer';
 
 
 export enum ModelState {
@@ -32,11 +35,12 @@ export enum ModelState {
 }
 
 
-export interface ModelParamsInput {
+export interface ModelParamsInput extends Parameters {
   seed?: string;
   cost?: Cost|string;
   loss?: Loss|string;
   metrics?: Metric[]|string[];
+  optimizer?: Optimizer|string;
 }
 
 
@@ -44,6 +48,7 @@ export interface ModelParamsCoerced extends ModelParamsInput {
   cost: Cost;
   loss: Loss;
   metrics: Metric[];
+  optimizer: Optimizer;
 }
 
 
@@ -64,6 +69,12 @@ export interface MetricResultCollection {
 export interface EvaluationResult {
   metrics: MetricResultCollection;
   losses: DeferredInputCollection;
+}
+
+
+export interface IterationResult {
+  prediction: DeferredInputCollection;
+  loss: DeferredInputCollection;
 }
 
 
@@ -107,17 +118,6 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
     }
 
     return name;
-  }
-
-
-  public getParamSchema(): JoiExSchema {
-    return JoiEx.object().keys(
-      {
-        seed: JoiEx.string().optional().default('tartarus-random-seed').min(2),
-        cost: JoiEx.cost().optional().default('mean'),
-        loss: JoiEx.loss().optional().default('mean-squared-error'),
-      },
-    );
   }
 
 
@@ -304,6 +304,17 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
     this.assignTrainingLabels(coercedExpectedOutput);
 
     await this.backward();
+    await this.optimize();
+  }
+
+
+  public async fitBetter(
+    params: FitterParams = {},
+    data: DeferredInputFeed,
+  ): Promise<void> {
+    const fitter = new ModelFitter(this, data, params);
+
+    await fitter.fit();
   }
 
 
@@ -314,6 +325,25 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
 
   public getRawTrainingLabels(): DeferredInputCollection {
     return new DeferredInputCollection(); // fake fake fake kludge kluge
+  }
+
+
+  public async iterate(
+    input: DeferredInputCollection,
+    expectedOutput: DeferredInputCollection,
+  ): Promise<IterationResult> {
+    const prediction = await this.predict(input);
+
+    this.assignTrainingLabels(expectedOutput);
+
+    await this.backward();
+
+    const loss = this.calculateOutputScores(prediction, expectedOutput, this.params.loss);
+
+    return {
+      prediction,
+      loss,
+    };
   }
 
 
@@ -413,7 +443,12 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
 
 
   public async backward(): Promise<void> {
-    await this.graph.backward();
+    await this.graph.backward(this.params.loss);
+  }
+
+
+  public async optimize(): Promise<void> {
+    await this.graph.optimize(this.params.optimizer);
   }
 
 
@@ -434,6 +469,19 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   public getGraph() : Graph {
     return this.graph;
   }
+
+
+  public getParamSchema(): JoiExSchema {
+    return JoiEx.object().keys(
+      {
+        seed: JoiEx.string().optional().default('tartarus-random-seed').min(2),
+        cost: JoiEx.cost().optional().default('mean'),
+        loss: JoiEx.loss().optional().default('mean-squared-error'),
+        optimizer: JoiEx.optimizer().optional().default('stochastic'),
+      },
+    );
+  }
 }
+
 
 export default Model;

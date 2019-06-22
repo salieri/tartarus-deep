@@ -49,6 +49,14 @@ export abstract class DeferredInputFeed {
 
 
   /**
+   * Has more records
+   */
+  public hasMore(): boolean {
+    return this.offset() < this.count();
+  }
+
+
+  /**
    * Determine whether sample data contains labels
    */
   public abstract hasLabels(): boolean;

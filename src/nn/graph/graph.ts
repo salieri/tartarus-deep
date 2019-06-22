@@ -7,6 +7,8 @@ import { NodeBackpropInputConnector, NodeInputConnector } from './connector';
 import { Layer } from '../layer';
 import { Session } from '../session';
 import { ContextLogger, Logger, MuteLogger } from '../../util';
+import { Loss } from '../loss';
+import { Optimizer } from '../optimizer';
 
 
 export enum GraphState {
@@ -522,16 +524,25 @@ export class Graph {
   }
 
 
-  public async backward(): Promise<void> {
+  public async backward(loss: Loss): Promise<void> {
     this.requireState(GraphState.Initialized);
 
     const processor = new GraphProcessor(this, GraphProcessorDirection.Backward);
 
     await processor.process(
       async (node: GraphNode) => {
-        await node.backward();
+        await node.backward(loss);
       },
 
+    );
+  }
+
+
+  public async optimize(optimizer: Optimizer): Promise<void> {
+    this.requireState(GraphState.Initialized);
+
+    await Promise.all(
+      _.map(this.nodes, async (node: GraphNode) => node.optimize(optimizer)),
     );
   }
 
@@ -582,6 +593,20 @@ export class Graph {
 
   public getLogger(): Logger {
     return this.logger;
+  }
+
+
+  public getOptimizerSnapshot(): DeferredInputCollection {
+    const optimizer = new DeferredInputCollection();
+
+    _.each(
+      this.nodes,
+      (node: GraphNode) => {
+        optimizer.set(this.getName(), node.getEntity().data.optimizer.clone());
+      },
+    );
+
+    return optimizer;
   }
 }
 

@@ -2,7 +2,6 @@ import { Activation } from './activation';
 
 import {
   Matrix,
-  NDArray,
   NDArrayPosition,
   Vector,
 } from '../../math';
@@ -17,7 +16,7 @@ import {
  * @link https://math.stackexchange.com/questions/2843505/derivative-of-softmax-without-cross-entropy
  */
 export class Softmax extends Activation {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     const max = z.max(); // numerically stable softmax
     const exp = z.sub(max).exp();
 
@@ -25,7 +24,7 @@ export class Softmax extends Activation {
   }
 
 
-  public derivative(a: NDArray, z: NDArray, y: NDArray): NDArray {
+  public derivative(a: Vector, z: Vector, y?: Vector): Vector {
     if (!y) {
       throw new Error('Expected training label to be defined');
     }
@@ -48,7 +47,7 @@ export class Softmax extends Activation {
     );
 
 
-    const entropyDerivatives = new Vector(y.neg().div(a));
+    const entropyDerivatives = y.neg().div(a);
 
     return grad.vecmul(entropyDerivatives);
   }

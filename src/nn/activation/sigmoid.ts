@@ -1,5 +1,5 @@
 import { Activation } from './activation';
-import { NDArray } from '../../math';
+import { Vector } from '../../math';
 
 
 /**
@@ -7,7 +7,7 @@ import { NDArray } from '../../math';
  * @link https://ml-cheatsheet.readthedocs.io/en/latest/activation_functions.html
  */
 export class Sigmoid extends Activation {
-  public calculate(z: NDArray): NDArray {
+  public calculate(z: Vector): Vector {
     // S(z) = 1 / ( 1 + e^(-z) )
     const one = z.set(1.0);
 
@@ -15,7 +15,7 @@ export class Sigmoid extends Activation {
   }
 
 
-  public derivative(a: NDArray): NDArray {
+  public derivative(a: Vector): Vector {
     const one = a.set(1);
 
     // S'(z) = S(z) * (1 - S(z))

@@ -1,17 +1,19 @@
-import { Dense2x } from '../../examples';
+import _ from 'lodash';
+
+import { DenseSimple2x } from '../../examples';
 import { Model } from '../../src';
+import { GraphNode } from '../../src/nn/graph';
 
 
 describe(
   'Dense Network Lifecycle',
   () => {
-    const generator = new Dense2x();
+    const generator = new DenseSimple2x();
 
     let model: Model;
 
 
-    it(
-      'should generate a model which can learn how to multiply a value by 2x',
+    before(
       async () => {
         model = generator.model();
 
@@ -56,11 +58,26 @@ describe(
 
 
     it(
-      'should train the model with 100 samples',
+      'should train the model with mini batches',
       async () => {
-        // const data = generator.samples(100);
+        const epochs = 10;
+        const sampleCount = 24;
+        const samples = generator.samples(sampleCount);
 
-        await model.fit(4, 8);
+        await model.fitBetter(
+          {
+            epochs,
+            batchSize: 8,
+          },
+          samples,
+        );
+
+
+        for (let i = 100; i < 1000; i += 15) {
+          const result = await model.predict(i);
+
+          result.getDefaultValue().getAt(0).should.be.closeTo(i * 2, 0.001);
+        }
       },
     );
   },

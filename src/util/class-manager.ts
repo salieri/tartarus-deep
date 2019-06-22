@@ -72,7 +72,7 @@ export class ClassManager {
   }
 
 
-  public coerce(instanceDefinition: string | object, layer?: LayerLike, params?: InstanceParams): any {
+  public coerce(instanceDefinition: string | object, isDefault: boolean, layer?: LayerLike, params?: InstanceParams): any {
     if ((layer) && (!ClassManager.hasPrototypeCalled(layer, 'Layer'))) {
       throw new Error('Layer object is not an instance of \'Layer\'');
     }
@@ -85,15 +85,18 @@ export class ClassManager {
       throw new Error('Cannot coerce: Invalid data');
     }
 
-    return this.factory(instanceDefinition as string, layer, params);
+    return this.factory(instanceDefinition as string, isDefault, layer, params);
   }
 
 
-  public factory(className: string, layer?: LayerLike, params?: InstanceParams): any {
+  public factory(className: string, isDefault: boolean, layer?: LayerLike, params?: InstanceParams): any {
     // tslint:disable-next-line
     const ClassSpec = this.find(className);
 
     const instance = new ClassSpec(params);
+
+    instance.setDefaultInstantiationFlag(isDefault);
+    instance.setInstantiatedFlag(true);
 
     if ((layer) && (ClassManager.hasPrototypeCalled(layer, 'Layer'))) {
       if (instance.attachLayer) {
