@@ -9,8 +9,7 @@ import { DeferredInputFeed } from '../../feed';
 import { DeferredInputCollection } from '../symbols/deferred';
 import { NDArray } from '../../math';
 import { GraphNode } from '../graph';
-import { LossTracker } from './loss-tracker';
-import { Loss } from '../loss';
+import { LossTracker, LossResult } from './loss-tracker';
 
 
 export interface FitterParams extends Parameters {
@@ -50,8 +49,6 @@ export interface EpochResult {
  * @link https://stats.stackexchange.com/questions/154879/a-list-of-cost-functions-used-in-neural-networks-alongside-applications
  * @link https://towardsdatascience.com/step-by-step-tutorial-on-linear-regression-with-stochastic-gradient-descent-1d35b088a843
  */
-
-
 
 
 export class ModelFitter extends Parameterized<FitterParams> {
