@@ -91,8 +91,6 @@ export class Concat extends Layer<ConcatParams> {
 
   protected verifyInputLayers(): void {
     const allKeys = this.raw.inputs.getKeys();
-    // const orderedKeys = this.getInputKeysInOrder();
-
     const definedLayerKeys: string[] = [];
 
     try {
@@ -130,13 +128,6 @@ export class Concat extends Layer<ConcatParams> {
         `Concat layer '${this.getName()}' has more input layers than defined in the 'fields' parameter: ${_.join(differenceAllKeys)}`,
       );
     }
-
-    // if (differenceOrderedKeys.length > 0) {
-    //   throw new Error(
-    //     `Concat layer ${this.getName()} 'fields' parameter defines layers which output is `
-    //     + `not linked to the layer: ${_.join(differenceOrderedKeys)}`,
-    //   );
-    // }
   }
 
 

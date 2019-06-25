@@ -311,7 +311,15 @@ export class Graph {
         throw new Error(`Unknown compilation stage: ${stage}`);
     }
 
+    await this.processCompilationStep(stage);
 
+    if (stage === CompilationStage.Finalize) {
+      this.state = GraphState.Compiled;
+    }
+  }
+
+
+  protected async processCompilationStep(stage: CompilationStage): Promise<void> {
     const processor = new GraphProcessor(
       this,
       (stage !== CompilationStage.BackPropagation) ? GraphProcessorDirection.Forward : GraphProcessorDirection.Backward,
@@ -332,11 +340,6 @@ export class Graph {
         }
       },
     );
-
-
-    if (stage === CompilationStage.Finalize) {
-      this.state = GraphState.Compiled;
-    }
   }
 
 

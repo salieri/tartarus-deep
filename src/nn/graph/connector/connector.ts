@@ -113,21 +113,7 @@ export abstract class NodeConnector {
         }
 
         // Feed linked sources to the node
-        _.each(
-          sourceNodes,
-          (sourceNode: GraphNode) => {
-            try {
-              curNodeRawInputs.merge(
-                this.getMergeableSourcesForNode(sourceNode, curNode),
-                sourceNode.getName(),
-                false,
-                (key: string) => ((key === curNode.getName()) ? sourceNode.getName() : key),
-              );
-            } catch (err) {
-              throw err;
-            }
-          },
-        );
+        this.feedLinkedSources(curNode, curNodeRawInputs, sourceNodes);
 
         this.logger.debug('connector.connect.node.feeds', () => ({ node: curNode.getName(), keys: curNodeRawInputs.getKeys() }));
       },
@@ -140,5 +126,24 @@ export abstract class NodeConnector {
     this.logger.debug('connector.connect.nodes', () => ({ nodes: _.map(detectedExternalInputNodes, (n: GraphNode) => n.getName()) }));
 
     return _.uniq(detectedExternalInputNodes);
+  }
+
+
+  protected feedLinkedSources(curNode: GraphNode, curNodeRawInputs: DeferredInputCollection, sourceNodes: GraphNode[]): void {
+    _.each(
+      sourceNodes,
+      (sourceNode: GraphNode) => {
+        try {
+          curNodeRawInputs.merge(
+            this.getMergeableSourcesForNode(sourceNode, curNode),
+            sourceNode.getName(),
+            false,
+            (key: string) => ((key === curNode.getName()) ? sourceNode.getName() : key),
+          );
+        } catch (err) {
+          throw err;
+        }
+      },
+    );
   }
 }
