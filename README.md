@@ -26,7 +26,7 @@ From-the-ground-up implementation for:
 
 *   From-the-ground-up implementation for all standard deep learning operations
 *   Compatibility with Node.js, modern browsers, and AWS Lambda
-*   Not optimized -- written for research purposes, not for speed.
+*   Not optimized – written for research purposes, not for speed
 
 
 
