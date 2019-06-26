@@ -8,7 +8,6 @@
 import _ from 'lodash';
 
 import {
-  DeferredInputFeed,
   MemoryInputFeed,
   Dense,
   Model,
@@ -39,7 +38,7 @@ export class Dense2x extends SampleGenerator {
   }
 
 
-  public samples(count: number): DeferredInputFeed {
+  public samples(count: number): MemoryInputFeed {
     return MemoryInputFeed.factory(
       _.times(
         count,

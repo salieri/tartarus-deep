@@ -27,7 +27,7 @@ export class ConcatSum extends SampleGenerator {
     const model = new Model({ optimizer, seed: this.params.seed, loss: 'mean-squared-error' });
 
     /**
-     * An intentionally unnecessarily complex network for figuring out 2X
+     * An intentionally unnecessarily complex network for figuring out a + b
      */
 
     const inputDefinition = new DeferredInputCollection();
@@ -45,7 +45,7 @@ export class ConcatSum extends SampleGenerator {
       .add(new Dense({ units: 3, activation: 'identity' }, 'a'))
       .add(new Dense({ units: 4, activation: 'identity' }, 'b'))
       .add(new Concat({}, 'concat'), ['a', 'b'])
-      .add(new Dense({ units: 4, activation: 'identity' }, 'output'))
+      .add(new Dense({ units: 1, activation: 'identity' }, 'output'), 'concat')
       .output('output');
 
     return model;

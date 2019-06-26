@@ -1,15 +1,21 @@
-import { Dense2x } from '../../examples';
-import { Model } from '../../src';
+import { ConcatSum } from '../../examples';
+
+import {
+  DeferredCollection,
+  DeferredInputCollection,
+  Model,
+  Vector,
+} from '../../src';
 
 
 /**
  * Works, but slow
  * Skipping since it doesn't do anything different from dense-simple-2x.test
  */
-describe.skip(
-  'Dense Network Lifecycle for Dense2x',
+describe.only(
+  'Dense Network Lifecycle for ConcatSum',
   () => {
-    const generator = new Dense2x();
+    const generator = new ConcatSum();
 
     let model: Model;
 
@@ -26,9 +32,9 @@ describe.skip(
     it(
       'should train the model with mini batches',
       async () => {
-        const epochs = 200;
-        const sampleCount = 128;
-        const batchSize = 16;
+        const epochs = 10;
+        const sampleCount = 64;
+        const batchSize = 8;
         const samples = generator.samples(sampleCount);
 
         const fitResult = await model.fit(
@@ -39,16 +45,14 @@ describe.skip(
           },
         );
 
-        fitResult.iterations.should.equal(epochs * sampleCount);
-        fitResult.batches.should.equal((epochs * sampleCount) / batchSize);
-        fitResult.epochs.should.equal(epochs);
+        const input = new DeferredInputCollection();
 
-        for (let i = 100; i < 1000; i += 15) {
-          /* eslint-disable-next-line no-await-in-loop */
-          const result = await model.predict(i);
+        input.set('a', new DeferredCollection(new Vector([12])));
+        input.set('b', new DeferredCollection(new Vector([16, 9])));
 
-          result.getDefaultValue().getAt(0).should.be.closeTo(i * 2, 1);
-        }
+        const result = await model.predict(input);
+
+        result.getDefaultValue().getAt(0).should.be.closeTo(12 + 16 + 9, 1);
       },
     );
   },
