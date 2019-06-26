@@ -27,7 +27,6 @@ From-the-ground-up implementation for:
 
 *   From-the-ground-up implementation for all standard deep learning operations
 *   Compatibility with Node.js, modern browsers, and AWS Lambda
-*   Not optimized – written for research purposes, not for speed
 
 
 
@@ -36,20 +35,22 @@ From-the-ground-up implementation for:
 ```ts
 import { Model, Dense, MemoryInputFeed } from '@tartarus/deep';
 
-// 1. Define a model
+/*
+ * 1. Define a model 
+ *    - with 4 input nodes
+ *    - with an hidden layer with 5 nodes and sigmoid activation
+ *    - with an output layer with 3 nodes and softmax activation 
+ */
 const model = new Model({ optimizer: 'stochastic', loss: 'mean-squared-error' });
 
 model
-  // Define 4 input nodes
   .input(4)
-  // Hidden layer with 5 nodes and sigmoid activation
   .push(new Dense({ units: 5, activation: 'sigmoid' }))
-  // Output layer with 3 nodes and softmax activation 
   .push(new Dense({ units: 3, activation: 'softmax' }));
 
 await model.compile();
 
-// 2. Prepare some training data
+/* 2. Prepare some training data */
 const feed = new MemoryInputFeed();
 
 feed
@@ -57,10 +58,10 @@ feed
   .add([4, 3, 2, 1], [0, 1, 0])
   .add([5, 6, 7, 8], [0, 0, 1]);
 
-// 3. Train model
+/* 3. Train model */
 await model.fit(feed, { batchSize: 1, epochs: 100 });
 
-// 4. Predict
+/* 4. Predict */
 const result = await model.predict([8, 9, 10, 11]);
 
 console.log(`Prediction: ${result.getDefaultValue().toJSON()}`);
