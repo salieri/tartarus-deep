@@ -63,6 +63,6 @@ await model.fit(feed, { batchSize: 1, epochs: 100 });
 // 4. Predict
 const result = await model.predict([8, 9, 10, 11]);
 
-console.log(result.getDefaultValue());
+console.log(`Prediction: ${result.getDefaultValue().toJSON()}`);
 ```
 

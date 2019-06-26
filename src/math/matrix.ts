@@ -149,5 +149,10 @@ export class Matrix extends NDArray {
   protected instantiate<T extends NDArray>(this: T, ...dimensions: number[]): T {
     return new Matrix(...dimensions) as unknown as T;
   }
+
+
+  public toString(): string {
+    return `Matrix#${this.id}: ${this.data.toString()}`;
+  }
 }
 

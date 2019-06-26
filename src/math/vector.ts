@@ -239,4 +239,9 @@ export class Vector extends NDArray {
   protected instantiate<T extends NDArray>(this: T, ...dimensions: number[]): T {
     return new Vector(...dimensions) as unknown as T;
   }
+
+
+  public toString(): string {
+    return `Vector#${this.id}: ${this.data.toString()}`;
+  }
 }

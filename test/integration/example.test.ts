@@ -32,6 +32,8 @@ describe(
 
         // 4. Predict
         const result = await model.predict([8, 9, 10, 11]);
+
+        console.log(`Prediction: ${result.getDefaultValue().toJSON()}`);
       },
     );
   },
