@@ -16,7 +16,8 @@
 From-the-ground-up implementation for:
 
 *   **Math:** Vector and Matrix operations, seeded randomization
-*   **Graph:** Acyclic networks, automated data routing
+*   **Graph:** Acyclic networks, automated data routing, support for multiple
+    input and output layers
 *   **Machine Learning:** Forward and back propagation, logistic regression,
     gradient descent, loss (cost) functions, activation functions, optimizers,
     metrics, dense layers, concat layers
@@ -39,20 +40,20 @@ import { Model, Dense, MemoryInputFeed } from '@tartarus/deep';
 const model = new Model({ optimizer: 'stochastic', loss: 'mean-squared-error' });
 
 model
-  // 4 input nodes
+  // Define 4 input nodes
   .input(4)
-  // Hidden layer with 5 units and sigmoid activation
+  // Hidden layer with 5 nodes and sigmoid activation
   .push(new Dense({ units: 5, activation: 'sigmoid' }))
-  // Output layer with 3 units and softmax activation 
+  // Output layer with 3 nodes and softmax activation 
   .push(new Dense({ units: 3, activation: 'softmax' }));
 
 await model.compile();
 
-// 2. Prepare input data with labels
+// 2. Prepare some training data
 const feed = new MemoryInputFeed();
 
 feed
-  .add([1, 2, 3, 4], [1, 0, 0]) // input, expected label
+  .add([1, 2, 3, 4], [1, 0, 0]) // .add(input, expected output)
   .add([4, 3, 2, 1], [0, 1, 0])
   .add([5, 6, 7, 8], [0, 0, 1]);
 
@@ -61,31 +62,7 @@ await model.fit(feed, { batchSize: 1, epochs: 100 });
 
 // 4. Predict
 const result = await model.predict([8, 9, 10, 11]);
+
+console.log(result.getDefaultValue());
 ```
-
-
-## Acknowledgements
-
-Many ideas, designs, algorithms, and approaches have been shamelessly stolen from:
-
-*   <https://towardsdatascience.com/>
-*   <https://www.coursera.org/specializations/deep-learning>
-*   <https://ml-cheatsheet.readthedocs.io/en/latest/>
-*   <https://keras.io/>
-*   <https://www.tensorflow.org/api_docs/python/>
-*   <http://www.numpy.org/>
-*   <https://en.wikipedia.org/wiki/Activation_function>
-*   <https://mathinsight.org/>
-*   <https://stackoverflow.com/a/47593316/844771>
-*   <https://www.quora.com/How-does-Keras-calculate-accuracy>
-*   <https://brilliant.org/>
-*   <https://mattmazur.com/>
-*   <https://eli.thegreenplace.net/>
-*   <https://theclevermachine.wordpress.com/>
-*   <https://sefiks.com/category/machine-learning/>
-*   <https://isaacchanghau.github.io/post/loss_functions/>
-*   <https://deepnotes.io/softmax-crossentropy/>
-*   <https://cup-of-char.com/>
-*   <https://www.youtube.com/watch?v=PPLop4L2eGk&list=PLLssT5z_DsK-h9vYZkQkYNWcItqhlRJLN>
-*   <https://www.anotsorandomwalk.com/>
 
