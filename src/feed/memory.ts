@@ -12,7 +12,7 @@ import { NDArray, NDArrayCollection } from '../math';
 import { DeferredInputCollection, DeferredCollection } from '../nn';
 
 
-export type ProtoSampleData = NDArray|NDArrayCollection;
+export type ProtoSampleData = NDArray|NDArrayCollection|number[];
 
 export interface ProtoSample {
   x: ProtoSampleData;
@@ -20,26 +20,94 @@ export interface ProtoSample {
 }
 
 
-export class DeferredMemoryInputFeed extends DeferredInputFeed {
+export class MemoryInputFeed extends DeferredInputFeed {
   protected offsetPtr: number = 0;
 
   protected readonly samples: Sample[];
 
-  protected readonly labels?: Label[];
+  protected labels?: Label[];
 
-  public constructor(samples: Sample[], labels?: Label[]) {
+  public constructor(samples: Sample[]|ProtoSample[]|ProtoSampleData[] = [], labels?: Label[]|ProtoSampleData[]) {
     super();
 
     if ((labels) && (samples.length !== labels.length)) {
       throw new Error('Sample and label lengths must match');
     }
 
-    if (samples.length <= 0) {
-      throw new Error('Empty sample set');
+    this.samples = this.prepareSamples(samples);
+
+    if (labels) {
+      this.labels = this.prepareLabels(labels);
+    } else if (this.hasLabelData(samples)) {
+      this.labels = this.prepareLabels(samples as ProtoSample[]);
     }
 
-    this.samples = samples;
-    this.labels = labels;
+    // this is a different test than the one above
+    if ((this.labels) && (this.samples.length !== this.labels.length)) {
+      throw new Error('Sample and label lengths must match');
+    }
+  }
+
+
+  protected hasLabelData(samples: Sample[]|ProtoSample[]|ProtoSampleData[]): boolean {
+    return _.every(
+      samples, (s: any) => ('y' in s),
+    );
+  }
+
+
+  protected prepareSamples(samples: Sample[]|ProtoSample[]|ProtoSampleData[]): Sample[] {
+    return _.map(
+      samples as any,
+      (sample: Sample|ProtoSample|ProtoSampleData) => {
+        if ('x' in sample) {
+          return { raw: MemoryInputFeed.prepareCollection(sample.x) };
+        }
+
+        if ('raw' in sample) {
+          return sample as Sample;
+        }
+
+        return { raw: MemoryInputFeed.prepareCollection(sample) };
+      },
+    );
+  }
+
+
+  protected prepareLabels(labels?: Label[]|ProtoSample[]|ProtoSampleData[]): Label[] {
+    if (!labels) {
+      return [];
+    }
+
+    return _.map(
+      labels as any,
+      (label: Label|ProtoSampleData) => {
+        if ('raw' in label) {
+          return label as Label;
+        }
+
+        if ('y' in label) {
+          return { raw: MemoryInputFeed.prepareCollection(label.y) };
+        }
+
+        return { raw: MemoryInputFeed.prepareCollection(label) };
+      },
+    );
+  }
+
+
+  public add(sample: ProtoSampleData, label?: ProtoSampleData): MemoryInputFeed {
+    this.samples.push({ raw: MemoryInputFeed.prepareCollection(sample) });
+
+    if (!this.labels) {
+      this.labels = [];
+    }
+
+    if (label) {
+      this.labels.push({ raw: MemoryInputFeed.prepareCollection(label) });
+    }
+
+    return this;
   }
 
 
@@ -94,13 +162,14 @@ export class DeferredMemoryInputFeed extends DeferredInputFeed {
 
   protected static prepareCollection(sampleData: ProtoSampleData): DeferredInputCollection {
     const sampleCollection = new DeferredCollection();
+    const finalSampleData = _.isArray(sampleData) ? new NDArray(sampleData as number[]) : sampleData;
 
-    if (sampleData instanceof NDArray) {
-      sampleCollection.declareDefault(sampleData.getDims());
-      sampleCollection.setDefaultValue(sampleData);
+    if (finalSampleData instanceof NDArray) {
+      sampleCollection.declareDefault(finalSampleData.getDims());
+      sampleCollection.setDefaultValue(finalSampleData);
     } else {
       _.each(
-        sampleData,
+        finalSampleData,
         (val: NDArray, key: string) => {
           sampleCollection.declare(key, val.getDims());
           sampleCollection.setValue(key, val);
@@ -112,21 +181,21 @@ export class DeferredMemoryInputFeed extends DeferredInputFeed {
   }
 
 
-  public static factory(protoSamples: ProtoSample[]): DeferredMemoryInputFeed {
+  public static factory(protoSamples: ProtoSample[]): MemoryInputFeed {
     const samples: Sample[] = [];
     const labels: Label[] = [];
 
     _.each(
       protoSamples,
       (proto: ProtoSample) => {
-        samples.push({ raw: DeferredMemoryInputFeed.prepareCollection(proto.x) });
+        samples.push({ raw: MemoryInputFeed.prepareCollection(proto.x) });
 
         if (proto.y) {
-          labels.push({ raw: DeferredMemoryInputFeed.prepareCollection(proto.y) });
+          labels.push({ raw: MemoryInputFeed.prepareCollection(proto.y) });
         }
       },
     );
 
-    return new DeferredMemoryInputFeed(samples, (labels.length > 0) ? labels : undefined);
+    return new MemoryInputFeed(samples, (labels.length > 0) ? labels : undefined);
   }
 }

@@ -21,7 +21,7 @@ describe(
 
         await m.compile();
 
-        m.getState().should.equal(model.ModelState.Compiled);
+        m.getState().should.equal(model.ModelState.Initialized);
 
         const outputs = m.getRawOutputs();
 

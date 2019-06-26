@@ -1,11 +1,15 @@
-import { DenseSimple2x } from '../../examples';
+import { Dense2x } from '../../examples';
 import { Model } from '../../src';
 
 
-describe(
-  'Dense Network Lifecycle',
+/**
+ * Works, but slow
+ * Skipping since it doesn't do anything different from dense-simple-2x.test
+ */
+describe.skip(
+  'Dense Network Lifecycle for Dense2x',
   () => {
-    const generator = new DenseSimple2x();
+    const generator = new Dense2x();
 
     let model: Model;
 
@@ -15,41 +19,6 @@ describe(
         model = generator.model();
 
         await model.compile();
-        await model.initialize();
-      },
-    );
-
-
-    it(
-      'should predict a result on input data',
-      async () => {
-        const result = await model.predict(4);
-        const result2 = await model.predict(2);
-
-        const nd = result.getDefaultValue();
-        const nd2 = result2.getDefaultValue();
-
-        nd.countDims().should.equal(1);
-        nd2.countDims().should.equal(1);
-
-        nd.countElements().should.equal(1);
-        nd.countElements().should.equal(1);
-
-        nd.getId().should.not.equal(nd2.getId());
-        nd.equals(nd2).should.not.equal(true);
-      },
-    );
-
-
-    it(
-      'should evaluate model performance',
-      async () => {
-        const result = await model.evaluate(4, 8);
-
-        const nd = result.losses.getDefaultValue();
-
-        nd.countDims().should.equal(1);
-        nd.countElements().should.equal(1);
       },
     );
 
@@ -57,17 +26,17 @@ describe(
     it(
       'should train the model with mini batches',
       async () => {
-        const epochs = 10;
-        const sampleCount = 64;
-        const batchSize = 8;
+        const epochs = 200;
+        const sampleCount = 128;
+        const batchSize = 16;
         const samples = generator.samples(sampleCount);
 
-        const fitResult = await model.fitBetter(
+        const fitResult = await model.fit(
+          samples,
           {
             epochs,
             batchSize,
           },
-          samples,
         );
 
         fitResult.iterations.should.equal(epochs * sampleCount);
@@ -78,7 +47,7 @@ describe(
           /* eslint-disable-next-line no-await-in-loop */
           const result = await model.predict(i);
 
-          result.getDefaultValue().getAt(0).should.be.closeTo(i * 2, 0.000000001);
+          result.getDefaultValue().getAt(0).should.be.closeTo(i * 2, 1);
         }
       },
     );

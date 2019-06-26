@@ -1,6 +1,7 @@
 import { Dense, Layer, Model } from '../../src/nn';
 import { Matrix, Vector } from '../../src/math';
 import { Stochastic } from '../../src/nn/optimizer';
+import { MemoryInputFeed } from '../../src/feed';
 
 function prepareWeights(h: Dense, o: Dense): void {
   h.data.optimizer.setValue(Dense.WEIGHT_MATRIX, new Matrix([[0.1, 0.3, 0.5], [0.2, 0.4, 0.6]]));
@@ -30,7 +31,6 @@ describe(
           .push(o);
 
         await m.compile();
-        await m.initialize();
       },
     );
 
@@ -59,7 +59,9 @@ describe(
       async () => {
         prepareWeights(h, o);
 
-        await m.fit([1, 4, 5], [0.1, 0.05]);
+        const feed = new MemoryInputFeed([[1, 4, 5]], [[0.1, 0.05]]);
+
+        await m.fit(feed, { batchSize: 1, epochs: 1 });
 
         const oBack = o.data.backpropOutput.getValue(Layer.ERROR_TERM);
         const hBack = h.data.backpropOutput.getValue(Layer.ERROR_TERM);
@@ -80,7 +82,9 @@ describe(
       async () => {
         prepareWeights(h, o);
 
-        await m.fit([1, 4, 5], [0.1, 0.05]);
+        const feed = new MemoryInputFeed([[1, 4, 5]], [[0.1, 0.05]]);
+
+        await m.fit(feed, { batchSize: 1, epochs: 1 });
 
         const oBack = o.data.backpropOutput.getValue(Layer.ERROR_TERM);
         const hBack = h.data.backpropOutput.getValue(Layer.ERROR_TERM);
@@ -122,7 +126,9 @@ describe(
       async () => {
         prepareWeights(h, o);
 
-        await m.fit([1, 4, 5], [0.1, 0.05]);
+        const feed = new MemoryInputFeed([[1, 4, 5]], [[0.1, 0.05]]);
+
+        await m.fit(feed, { batchSize: 1, epochs: 1 });
 
         const oWeight = o.data.optimizer.getValue(Dense.WEIGHT_MATRIX);
         const hWeight = h.data.optimizer.getValue(Dense.WEIGHT_MATRIX);

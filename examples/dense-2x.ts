@@ -9,18 +9,20 @@ import _ from 'lodash';
 
 import {
   DeferredInputFeed,
-  DeferredMemoryInputFeed,
+  MemoryInputFeed,
   Dense,
   Model,
   NDArray,
 } from '../src';
 
 import { SampleGenerator } from './sample-generator';
+import { Stochastic } from '../src/nn/optimizer';
 
 
 export class Dense2x extends SampleGenerator {
   public model(): Model {
-    const model = new Model({ seed: this.params.seed });
+    const optimizer = new Stochastic({ rate: 0.001 });
+    const model = new Model({ optimizer, seed: this.params.seed, loss: 'mean-squared-error' });
 
     /**
      * An intentionally unnecessarily complex network for figuring out 2X
@@ -38,8 +40,15 @@ export class Dense2x extends SampleGenerator {
 
 
   public samples(count: number): DeferredInputFeed {
-    return DeferredMemoryInputFeed.factory(
-      _.times(count, n => ({ x: new NDArray([n]), y: new NDArray([n * 2]) })),
+    return MemoryInputFeed.factory(
+      _.times(
+        count,
+        (n: number) => {
+          const x = n % 25;
+
+          return { x: new NDArray([x]), y: new NDArray([x * 2]) };
+        },
+      ),
     );
   }
 }

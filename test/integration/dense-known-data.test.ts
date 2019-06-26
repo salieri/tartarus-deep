@@ -30,7 +30,6 @@ describe(
           .push(o);
 
         await m.compile();
-        await m.initialize();
       },
     );
 

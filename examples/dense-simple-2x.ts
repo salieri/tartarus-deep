@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 import {
   DeferredInputFeed,
-  DeferredMemoryInputFeed,
+  MemoryInputFeed,
   Dense,
   Model,
   NDArray,
@@ -22,7 +22,6 @@ import { Stochastic } from '../src/nn/optimizer';
 export class DenseSimple2x extends SampleGenerator {
   public model(): Model {
     const optimizer = new Stochastic({ rate: 0.002 });
-
     const model = new Model({ optimizer, seed: this.params.seed, loss: 'mean-squared-error' });
 
     model
@@ -35,7 +34,7 @@ export class DenseSimple2x extends SampleGenerator {
 
 
   public samples(count: number): DeferredInputFeed {
-    return DeferredMemoryInputFeed.factory(
+    return MemoryInputFeed.factory(
       _.times(
         count,
         (n: number) => {

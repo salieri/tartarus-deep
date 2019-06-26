@@ -11,90 +11,81 @@
 [![David](https://david-dm.org/salieri/tartarus-deep/dev-status.svg)](https://david-dm.org/salieri/tartarus-deep?type=dev)
 
 
-## Platform Goals
+## Features
 
-### 1. From-The-Ground-Up Implementation
+From-the-ground-up implementation for:
 
-*   Vector operations ✔
-*   Matrix operations ✔
-*   Backpropagation ✔
-*   Forward propagation ✔
-*   Optimization ✔
-*   Logistic regression ✔
-*   Gradient descent ✔
-*   Loss functions ✔
-*   Activation functions ✔
-*   Cost functions ✔
-*   Neural networks ✔
-*   Acyclic networks ✔
-*   CNNs
-*   RNNs
-*   Regularization
-*   Graph networks ✔
-*   Chainable models ✔
-*   Randomization ✔
-*   Metrics ✔
-*   Optimizers ✔
+*   **Math:** Vector and Matrix operations, seeded randomization
+*   **Graph:** Acyclic networks, automated data routing
+*   **Machine Learning:** Forward and back propagation, logistic regression,
+    gradient descent, loss (cost) functions, activation functions, optimizers,
+    metrics, dense layers, concat layers
+
+
+## Goals
+
+*   From-the-ground-up implementation for all standard deep learning operations
+*   Compatibility with Node.js, modern browsers, and AWS Lambda
+*   Not optimized -- written for research purposes, not for speed.
 
 
 
-### 2. Compatibility
+## Example
 
+```ts
+import { Model, Dense, MemoryInputFeed } from '@tartarus/deep';
 
-*   Runs on Node.js ✔
-*   Runs on modern browsers
-*   Runs on AWS Lambda
+// 1. Define a model
+const model = new Model({ optimizer: 'stochastic', loss: 'mean-squared-error' });
 
+model
+  // 4 input nodes
+  .input(4)
+  // Hidden layer with 5 units and sigmoid activation
+  .push(new Dense({ units: 5, activation: 'sigmoid' }))
+  // Output layer with 3 units and softmax activation 
+  .push(new Dense({ units: 3, activation: 'softmax' }));
 
-### 3. Speed
+await model.compile();
 
-*   Decidedly unoptimized -- written for research purposes, not for speed.
+// 2. Prepare input data with labels
+const feed = new MemoryInputFeed();
 
+feed
+  .add([1, 2, 3, 4], [1, 0, 0]) // input, expected label
+  .add([4, 3, 2, 1], [0, 1, 0])
+  .add([5, 6, 7, 8], [0, 0, 1]);
+
+// 3. Train model
+await model.fit(feed, { batchSize: 1, epochs: 100 });
+
+// 4. Predict
+const result = await model.predict([8, 9, 10, 11]);
+```
 
 
 ## Acknowledgements
 
 Many ideas, designs, algorithms, and approaches have been shamelessly stolen from:
 
-*   <https://isaacchanghau.github.io/post/loss_functions/>
+*   <https://towardsdatascience.com/>
+*   <https://www.coursera.org/specializations/deep-learning>
 *   <https://ml-cheatsheet.readthedocs.io/en/latest/>
-*   <https://en.wikipedia.org/wiki/Activation_function>
 *   <https://keras.io/>
 *   <https://www.tensorflow.org/api_docs/python/>
-*   <https://mathinsight.org/matrix_vector_multiplication>
-*   <https://stackoverflow.com/a/47593316/844771>
 *   <http://www.numpy.org/>
-*   <https://www.coursera.org/specializations/deep-learning>
+*   <https://en.wikipedia.org/wiki/Activation_function>
+*   <https://mathinsight.org/>
+*   <https://stackoverflow.com/a/47593316/844771>
 *   <https://www.quora.com/How-does-Keras-calculate-accuracy>
-*   <https://brilliant.org/wiki/backpropagation/>
-*   <https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/>
-*   <https://eli.thegreenplace.net/2018/backpropagation-through-a-fully-connected-layer/>
-*   <https://towardsdatascience.com/recurrent-neural-networks-and-lstm-4b601dd822a5>
-*   <https://theclevermachine.wordpress.com/2014/09/08/derivation-derivatives-for-common-neural-network-activation-functions/>
+*   <https://brilliant.org/>
+*   <https://mattmazur.com/>
+*   <https://eli.thegreenplace.net/>
+*   <https://theclevermachine.wordpress.com/>
 *   <https://sefiks.com/category/machine-learning/>
-*   <https://deepnotes.io/softmax-crossentropy>
-*   <https://cup-of-char.com/writing-activation-functions-from-mostly-scratch-in-python/>
+*   <https://isaacchanghau.github.io/post/loss_functions/>
+*   <https://deepnotes.io/softmax-crossentropy/>
+*   <https://cup-of-char.com/>
 *   <https://www.youtube.com/watch?v=PPLop4L2eGk&list=PLLssT5z_DsK-h9vYZkQkYNWcItqhlRJLN>
-*   <https://www.anotsorandomwalk.com/backpropagation-example-with-numbers-step-by-step/>
+*   <https://www.anotsorandomwalk.com/>
 
-
-## Glossary
-
-| Term                 | Description                                            |
-| :------------------- | :------------------------------------------------------|
-| `a` | Activation |
-| `b` | Bias |
-| `c` |  |
-| `w` | Weight |
-| `x` | Input |
-| `yHat` | Predicted output
-| `<t>` | Time _t_ denotation |
-| `[l]` | Layer _l_ denotation |
-
-
-
-
-## Quality
-
-*   TypeScript: ESLint & TSLint with Airbnb-like presets
-*   Markdown: Remark Lint with recommended presets

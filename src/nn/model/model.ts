@@ -280,6 +280,8 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
     await (_.isUndefined(stage) ? this.compileAsMaster() : this.compileAsMember(stage));
 
     this.state = ModelState.Compiled;
+
+    await this.initialize();
   }
 
 
@@ -294,23 +296,23 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
 
     this.state = ModelState.Initialized;
   }
+  //
+  //
+  // public async fit(input: RelaxedDeclarationCollectionDefinition, expectedOutput: RelaxedDataCollectionDefinition): Promise<void> {
+  //   await this.evaluate(input, expectedOutput);
+  //
+  //   const coercedExpectedOutput = Model.coerceData(expectedOutput);
+  //
+  //   this.assignTrainingLabels(coercedExpectedOutput);
+  //
+  //   await this.backward();
+  //   await this.optimize();
+  // }
 
 
-  public async fit(input: RelaxedDeclarationCollectionDefinition, expectedOutput: RelaxedDataCollectionDefinition): Promise<void> {
-    await this.evaluate(input, expectedOutput);
-
-    const coercedExpectedOutput = Model.coerceData(expectedOutput);
-
-    this.assignTrainingLabels(coercedExpectedOutput);
-
-    await this.backward();
-    await this.optimize();
-  }
-
-
-  public async fitBetter(
-    params: FitterParams = {},
+  public async fit(
     data: DeferredInputFeed,
+    params: FitterParams = {},
   ): Promise<FitResult> {
     const fitter = new ModelFitter(this, data, params);
 
