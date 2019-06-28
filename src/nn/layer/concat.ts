@@ -41,8 +41,27 @@ export class Concat extends Layer<ConcatParams> {
   }
 
 
+  protected resolveBackpropInputDefaultSource(): DeferredCollectionWrapper {
+    try {
+      return this.raw.backpropInputs.getDefault();
+    } catch (err) {
+      if (!(err instanceof KeyNotFoundError)) {
+        throw err;
+      }
+    }
+
+    if (this.raw.backpropInputs.count() !== 1) {
+      throw new Error(`Could not resolve backpropagation input for concat layer '${this.getName()}'`);
+    }
+
+    return this.raw.backpropInputs.first();
+  }
+
+
   protected async backwardExec(): Promise<void> {
-    const v = this.data.backpropInput.getValue(Layer.ERROR_TERM) as Vector;
+    const bpInput = this.resolveBackpropInputDefaultSource();
+
+    const v = bpInput.getValue(Layer.ERROR_TERM) as Vector;
 
     let curPos = 0;
 
@@ -217,13 +236,8 @@ export class Concat extends Layer<ConcatParams> {
 
         const bpOutput = this.raw.backpropOutputs.get(layerKey).getCollection();
 
-        if (!bpOutput.has(Dense.WEIGHT_MATRIX)) {
-          bpOutput.declare(Dense.WEIGHT_MATRIX, 1);
-        }
-
-        if (!bpOutput.has(Layer.ERROR_TERM)) {
-          bpOutput.declare(Layer.ERROR_TERM, field.getDims());
-        }
+        bpOutput.declare(Dense.WEIGHT_MATRIX, 1);
+        bpOutput.declare(Layer.ERROR_TERM, field.getDims());
       },
     );
   }

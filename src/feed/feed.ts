@@ -23,7 +23,7 @@ export interface InputFeedRecord {
 }
 
 
-export abstract class DeferredInputFeed {
+export abstract class InputFeed {
   /**
    * Prepare next set of sample data
    */

@@ -37,8 +37,8 @@ export class ConcatSum extends SampleGenerator {
     inputA.declareDefault(1);
     inputB.declareDefault(2);
 
-    inputDefinition.set('a', new DeferredCollection());
-    inputDefinition.set('b', new DeferredCollection());
+    inputDefinition.set('a', inputA);
+    inputDefinition.set('b', inputB);
 
     model
       .input(inputDefinition)

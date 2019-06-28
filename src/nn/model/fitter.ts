@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { ContextLogger, JoiEx, JoiExSchema } from '../../util';
 import { Parameters, Parameterized } from '../../generic';
 import { Model } from './model';
-import { DeferredInputFeed } from '../../feed';
+import { InputFeed } from '../../feed';
 import { DeferredInputCollection } from '../symbols/deferred';
 import { NDArray } from '../../math';
 import { GraphNode } from '../graph';
@@ -54,12 +54,12 @@ export interface EpochResult {
 export class ModelFitter extends Parameterized<FitterParams> {
   protected model: Model;
 
-  protected feed: DeferredInputFeed;
+  protected feed: InputFeed;
 
   protected logger: ContextLogger;
 
 
-  public constructor(model: Model, feed: DeferredInputFeed, params: FitterParams) {
+  public constructor(model: Model, feed: InputFeed, params: FitterParams) {
     super(params);
 
     if (!feed.hasLabels()) {

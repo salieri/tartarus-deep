@@ -24,7 +24,7 @@ import { Cost } from '../cost';
 import { Loss } from '../loss';
 import { Metric } from '../metric';
 import { FitResult, FitterParams, ModelFitter } from './fitter';
-import { DeferredInputFeed } from '../../feed';
+import { InputFeed } from '../../feed';
 import { Optimizer } from '../optimizer';
 
 
@@ -311,10 +311,10 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
 
 
   public async fit(
-    data: DeferredInputFeed,
+    feed: InputFeed,
     params: FitterParams = {},
   ): Promise<FitResult> {
-    const fitter = new ModelFitter(this, data, params);
+    const fitter = new ModelFitter(this, feed, params);
 
     return fitter.fit();
   }
