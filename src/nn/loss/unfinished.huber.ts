@@ -33,5 +33,9 @@ export class Huber extends Loss<HuberParams> {
       },
     );
   }
+
+  public gradient(yHat: Vector, y: Vector): Vector {
+    return y.zero(); // UNFINISHED
+  }
 }
 

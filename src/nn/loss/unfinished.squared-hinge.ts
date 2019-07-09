@@ -28,4 +28,8 @@ export class SquaredHinge extends Loss<SquaredHingeParams> {
       },
     );
   }
+
+  public gradient(yHat: Vector, y: Vector): Vector {
+    return y.zero(); // UNFINISHED
+  }
 }

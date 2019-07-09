@@ -9,4 +9,8 @@ export class Poisson extends Loss {
     // sum( yHat - y * log( yHat ) ) / y.size
     return yHat.sub(y.mul(yHat.log())).mean();
   }
+
+  public gradient(yHat: Vector, y: Vector): Vector {
+    return y.zero(); // UNFINISHED
+  }
 }

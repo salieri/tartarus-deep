@@ -1,21 +1,22 @@
 {
   "compilerOptions": {
-    "target"            : "esnext",
+    "target"            : "es5",
     "moduleResolution"  : "node",
-    "module"            : "CommonJS",
-    "allowJs"           : true,
-    "checkJs"           : true,
-    "noEmit"            : true,
+    "module"            : "commonjs",
+    "allowJs"           : false,
+    "checkJs"           : false,
     "strict"            : true,
-    "isolatedModules"   : true,
+    "isolatedModules"   : false,
     "esModuleInterop"   : true,
     "sourceMap"         : true,
     "resolveJsonModule" : true,
     "noImplicitAny"     : true,
-    "outDir"            : "./build"
+    "declaration"       : true,
+    "declarationMap"    : true,
+    "outDir"            : "./dist"
   },
 
   "include": [
-    "src"
+    "./src/**/*.ts"
   ]
 }

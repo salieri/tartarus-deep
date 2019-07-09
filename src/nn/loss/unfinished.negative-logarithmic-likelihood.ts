@@ -10,5 +10,9 @@ export class NegativeLogarithmicLikelihood extends Loss {
     // -sum( log( yHat ) ) / y.size
     return -yHat.log().mean();
   }
+
+  public gradient(yHat: Vector, y: Vector): Vector {
+    return y.zero(); // UNFINISHED
+  }
 }
 

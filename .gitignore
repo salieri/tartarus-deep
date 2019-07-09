@@ -86,3 +86,6 @@ src/**/*.js
 test/**/*.js
 !test/typescriptify.js
 
+
+/dist/
+

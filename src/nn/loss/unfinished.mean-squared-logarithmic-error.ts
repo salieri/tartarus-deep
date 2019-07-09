@@ -13,5 +13,9 @@ export class MeanSquaredLogarithmicError extends Loss {
 
     return yPlusOneLog.sub(yHatPlusOneLog).pow(2).mean();
   }
+
+  public gradient(yHat: Vector, y: Vector): Vector {
+    return y.zero(); // UNFINISHED
+  }
 }
 

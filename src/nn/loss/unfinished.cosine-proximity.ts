@@ -13,4 +13,9 @@ export class CosineProximity extends Loss {
 
     return -dividend / divisor;
   }
+
+  public gradient(yHat: Vector, y: Vector): Vector {
+    return y.zero(); // UNFINISHED
+  }
 }
+

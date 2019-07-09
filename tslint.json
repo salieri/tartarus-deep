@@ -6,5 +6,9 @@
 	  "import-name"                 : false,
     "no-consecutive-blank-lines"  : [true, 2],
     "max-line-length"             : [true, 140]
+  },
+
+  "linterOptions": {
+    "exclude": ["./dist/**/*"]
   }
 }

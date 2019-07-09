@@ -9,5 +9,9 @@ export class L1 extends Loss {
     // sum( abs( yHat - y ) )
     return yHat.sub(y).abs().sum();
   }
+
+  public gradient(yHat: Vector, y: Vector): Vector {
+    return y.zero(); // UNFINISHED
+  }
 }
 
