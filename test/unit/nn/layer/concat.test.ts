@@ -16,6 +16,7 @@ describe(
         const data = LayerOutputUtil.createManyOutputs();
 
         concat.raw.inputs = data;
+        concat.raw.backpropInputs = LayerOutputUtil.createBackpropOutput();
 
         await concat.compile();
         await concat.initialize();
@@ -43,6 +44,7 @@ describe(
         const data = LayerOutputUtil.createManyOutputs();
 
         concat.raw.inputs = data;
+        concat.raw.backpropInputs = LayerOutputUtil.createBackpropOutput();
 
         await concat.compile();
         await concat.initialize();
@@ -69,6 +71,7 @@ describe(
         const data = LayerOutputUtil.createManyOutputs();
 
         concat.raw.inputs = data;
+        concat.raw.backpropInputs = LayerOutputUtil.createBackpropOutput();
 
         await concat.compile();
         await concat.initialize();
@@ -94,6 +97,7 @@ describe(
         const concat = new Concat({ fields: ['layer-2', 'layer-1'] });
 
         const data = LayerOutputUtil.createManyOutputs();
+        concat.raw.backpropInputs = LayerOutputUtil.createBackpropOutput();
 
         concat.raw.inputs = data;
 
@@ -138,6 +142,7 @@ describe(
         const data = LayerOutputUtil.createManyOutputs();
 
         concat.raw.inputs = data;
+        concat.raw.backpropInputs = LayerOutputUtil.createBackpropOutput();
 
         await concat.compile();
         await concat.initialize();
@@ -175,6 +180,7 @@ describe(
         const data = LayerOutputUtil.createManyOutputs();
 
         concat.raw.inputs = data;
+        concat.raw.backpropInputs = LayerOutputUtil.createBackpropOutput();
 
         await concat.compile().should.be.rejectedWith(/Concat layer .* requires field .* from layer .* which has not been declared/);
       },
@@ -188,6 +194,7 @@ describe(
         const data = LayerOutputUtil.createManyOutputs();
 
         concat.raw.inputs = data;
+        concat.raw.backpropInputs = LayerOutputUtil.createBackpropOutput();
 
         await concat.compile().should.be.rejectedWith(/Concat layer .* expects input from layer .* which is not linked to this layer/);
       },
@@ -201,6 +208,7 @@ describe(
         const data = LayerOutputUtil.createManyOutputs();
 
         concat.raw.inputs = data;
+        concat.raw.backpropInputs = LayerOutputUtil.createBackpropOutput();
 
         await concat.compile().should.be.rejectedWith(/Concat layer .* has more input layers than defined in the .* parameter/);
       },

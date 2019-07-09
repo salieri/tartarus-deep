@@ -9,6 +9,7 @@ import { Session } from '../session';
 import { ContextLogger, Logger, MuteLogger } from '../../util';
 import { Loss } from '../loss';
 import { Optimizer } from '../optimizer';
+import { ValueNotDeclaredError } from '../../error';
 
 
 export enum GraphState {
@@ -285,6 +286,7 @@ export class Graph {
     }
 
     this.checkForUnconnectedNodes();
+    this.checkForUndeclaredInputs();
   }
 
 
@@ -333,7 +335,13 @@ export class Graph {
             return node.getRawInputs().areAllDeclared();
 
           case GraphProcessorDirection.Backward:
-            return (node.getRawTrainingLabels().areAllDeclared() || node.getRawBackpropInputs().areAllDeclared());
+            // eslint-disable-next-line no-case-declarations
+            const train = node.getRawTrainingLabels();
+
+            return (
+              ((train.count() > 0) && (train.areAllDeclared()))
+              || node.getRawBackpropInputs().areAllDeclared()
+            );
 
           default:
             throw new Error('Unsupported direction');
@@ -388,6 +396,18 @@ export class Graph {
 
         if ((inputCount === 0) && (outputCount === 0) && (!_.find(this.outputNodes, (n: GraphNode) => (n === node)))) {
           throw new Error(`Node '${node.getName()}' is not connected with any other node or output`);
+        }
+      },
+    );
+  }
+
+
+  protected checkForUndeclaredInputs(): void {
+    _.each(
+      this.rawInputs.getKeys(),
+      (key: string) => {
+        if (!this.rawInputs.get(key).areAllDeclared()) {
+          throw new ValueNotDeclaredError(`Input node '${key}' does not have all of its input dimensions declared.`);
         }
       },
     );
@@ -500,7 +520,7 @@ export class Graph {
     const diff = _.difference(expectedKeys, inputKeys);
 
     if (diff.length > 0) {
-      throw new Error(`Input is missing missing keys: ${diff}`);
+      throw new Error(`Input is missing keys: ${diff}`);
     }
 
     this.rawInputs.assign(inputs);

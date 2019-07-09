@@ -130,9 +130,11 @@ describe(
         m.push(layer2);
 
         const anotherLayer = new Concat({ fields: ['layer-2', 'layer-1'] }, 'another');
+        const finalLayer = new Dense({ units: 7 }, 'final');
 
         m.add(anotherLayer, ['layer-1', 'layer-2']);
-        m.output('another');
+        m.add(finalLayer, anotherLayer);
+        m.output('final');
 
         await m.compile();
 

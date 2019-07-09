@@ -23,11 +23,11 @@ import { Stochastic } from '../src/nn/optimizer';
 
 export class ConcatSum extends SampleGenerator {
   public model(): Model {
-    const optimizer = new Stochastic({ rate: 0.001 });
+    const optimizer = new Stochastic({ rate: 0.0002 });
     const model = new Model({ optimizer, seed: this.params.seed, loss: 'mean-squared-error' });
 
     /**
-     * An intentionally unnecessarily complex network for figuring out 2X
+     * An intentionally unnecessarily complex network for figuring out a + b
      */
 
     const inputDefinition = new DeferredInputCollection();
@@ -37,15 +37,15 @@ export class ConcatSum extends SampleGenerator {
     inputA.declareDefault(1);
     inputB.declareDefault(2);
 
-    inputDefinition.set('a', new DeferredCollection());
-    inputDefinition.set('b', new DeferredCollection());
+    inputDefinition.set('a', inputA);
+    inputDefinition.set('b', inputB);
 
     model
       .input(inputDefinition)
       .add(new Dense({ units: 3, activation: 'identity' }, 'a'))
       .add(new Dense({ units: 4, activation: 'identity' }, 'b'))
       .add(new Concat({}, 'concat'), ['a', 'b'])
-      .add(new Dense({ units: 4, activation: 'identity' }, 'output'))
+      .add(new Dense({ units: 1, activation: 'identity' }, 'output'), 'concat')
       .output('output');
 
     return model;
@@ -60,8 +60,8 @@ export class ConcatSum extends SampleGenerator {
         count,
         () => {
           const a = r.floatBetween(1, 20);
-          const b1 = r.floatBetween(1, 5);
-          const b2 = r.floatBetween(1, 12);
+          const b1 = r.floatBetween(1, 20);
+          const b2 = r.floatBetween(1, 20);
 
           return {
             x: {

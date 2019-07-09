@@ -1,5 +1,5 @@
 import {
-  DeferredInputFeed,
+  InputFeed,
   JoiEx,
   JoiExSchema,
   Model,
@@ -20,7 +20,7 @@ export abstract class SampleGenerator extends Parameterized<SampleGeneratorParam
 
   public abstract model(): Model;
 
-  public abstract samples(count: number): DeferredInputFeed;
+  public abstract samples(count: number): InputFeed;
 
 
   public getParamSchema(): JoiExSchema {

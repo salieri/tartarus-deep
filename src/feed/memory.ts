@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 import {
-  DeferredInputFeed,
+  InputFeed,
   EndOfStreamException,
   InputFeedRecord,
   Sample,
@@ -20,7 +20,7 @@ export interface ProtoSample {
 }
 
 
-export class MemoryInputFeed extends DeferredInputFeed {
+export class MemoryInputFeed extends InputFeed {
   protected offsetPtr: number = 0;
 
   protected readonly samples: Sample[];
@@ -161,23 +161,32 @@ export class MemoryInputFeed extends DeferredInputFeed {
 
 
   protected static prepareCollection(sampleData: ProtoSampleData): DeferredInputCollection {
-    const sampleCollection = new DeferredCollection();
     const finalSampleData = _.isArray(sampleData) ? new NDArray(sampleData as number[]) : sampleData;
 
     if (finalSampleData instanceof NDArray) {
-      sampleCollection.declareDefault(finalSampleData.getDims());
-      sampleCollection.setDefaultValue(finalSampleData);
-    } else {
-      _.each(
-        finalSampleData,
-        (val: NDArray, key: string) => {
-          sampleCollection.declare(key, val.getDims());
-          sampleCollection.setValue(key, val);
-        },
-      );
+      const coll = new DeferredCollection();
+
+      coll.declareDefault(finalSampleData.getDims());
+      coll.setDefaultValue(finalSampleData);
+
+      return new DeferredInputCollection(coll);
     }
 
-    return new DeferredInputCollection(sampleCollection);
+    const input = new DeferredInputCollection();
+
+    _.each(
+      finalSampleData,
+      (val: NDArray, key: string) => {
+        const coll = new DeferredCollection();
+
+        coll.declareDefault(val.getDims());
+        coll.setDefaultValue(val);
+
+        input.set(key, coll);
+      },
+    );
+
+    return input;
   }
 
 

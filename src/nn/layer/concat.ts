@@ -8,7 +8,7 @@ import {
   DeferredCollection,
 } from '../symbols';
 
-import { NDArray, Vector } from '../../math';
+import { Matrix, MatrixDirection, NDArray, Vector } from '../../math';
 import { KeyNotFoundError } from '../../error';
 import { Dense } from './dense';
 
@@ -41,8 +41,39 @@ export class Concat extends Layer<ConcatParams> {
   }
 
 
+  protected resolveBackpropInput(): void {
+    const backpropInput = this.data.backpropInput;
+    const rawBackpropInputs = this.raw.backpropInputs;
+
+    // This needs rewriting to deal with cases where a layer has multiple outputs
+    // This needs rewriting to deal with bias, not just weight
+    try {
+      backpropInput.setCollection(rawBackpropInputs.getDefault());
+      return;
+    } catch (err) {
+      if (!(err instanceof KeyNotFoundError)) {
+        throw err;
+      }
+    }
+
+    if (rawBackpropInputs.count() < 1) {
+      throw new Error(`Missing backprop input for concat layer '${this.getName()}' -- concat layer cannot be an output layer`);
+    }
+
+    if (rawBackpropInputs.count() > 1) {
+      // throw new Error(`Too many inputs for a dense layer '${this.getName()}'`);
+      // DO SOMETHING
+    }
+
+    backpropInput.setCollection(rawBackpropInputs.first());
+  }
+
+
   protected async backwardExec(): Promise<void> {
-    const v = this.data.backpropInput.getValue(Layer.ERROR_TERM) as Vector;
+    const bpInput = this.data.backpropInput;
+
+    const errorTerm = bpInput.getValue(Layer.ERROR_TERM, Vector);
+    const w = bpInput.getValue(Dense.WEIGHT_MATRIX, Matrix);
 
     let curPos = 0;
 
@@ -53,11 +84,11 @@ export class Concat extends Layer<ConcatParams> {
           return; // only default output will have a derivative
         }
 
+        const wm = w.slice(MatrixDirection.Vertical, curPos, field.countElements());
         const coll = this.raw.backpropOutputs.get(layerKey).getCollection();
 
-        const derivative = v.slice([curPos], field.countElements());
-
-        coll.setValue(Layer.ERROR_TERM, derivative);
+        coll.setValue(Dense.WEIGHT_MATRIX, wm);
+        coll.setValue(Layer.ERROR_TERM, errorTerm);
 
         curPos += field.countElements();
       },
@@ -209,6 +240,13 @@ export class Concat extends Layer<ConcatParams> {
 
 
   protected async compileBackPropagation(): Promise<void> {
+    this.resolveBackpropInput();
+
+    const backpropInput = this.data.backpropInput;
+
+    backpropInput.require(Layer.ERROR_TERM);
+    backpropInput.require(Dense.WEIGHT_MATRIX);
+
     this.traverse(
       (field: DeferredValue, fieldKey: string, layerOutput: DeferredCollectionWrapper, layerKey: string): void => {
         if (layerOutput.getDefaultKey() !== fieldKey) {
@@ -216,14 +254,12 @@ export class Concat extends Layer<ConcatParams> {
         }
 
         const bpOutput = this.raw.backpropOutputs.get(layerKey).getCollection();
+        const errorTerm = backpropInput.get(Layer.ERROR_TERM);
+        const nextLayerUnits = errorTerm.countElements();
+        const inputUnits = this.raw.inputs.get(layerKey).get(fieldKey).countElements();
 
-        if (!bpOutput.has(Dense.WEIGHT_MATRIX)) {
-          bpOutput.declare(Dense.WEIGHT_MATRIX, 1);
-        }
-
-        if (!bpOutput.has(Layer.ERROR_TERM)) {
-          bpOutput.declare(Layer.ERROR_TERM, field.getDims());
-        }
+        bpOutput.declare(Dense.WEIGHT_MATRIX, [nextLayerUnits, inputUnits]);
+        bpOutput.declare(Layer.ERROR_TERM, errorTerm.getDims());
       },
     );
   }
