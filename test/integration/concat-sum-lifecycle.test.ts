@@ -29,11 +29,14 @@ const skipped = shouldSkipSlowTests() ? true : describe(
 
     it(
       'should train the model with mini batches',
-      async () => {
+      async function () {
+        this.timeout(10 * 60 * 1000);
+
         const epochs = 100;
         const sampleCount = 72;
         const batchSize = 1;
         const samples = generator.samples(sampleCount);
+
 
         await model.fit(
           samples,
