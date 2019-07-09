@@ -18,13 +18,15 @@ describe(
         const l2a = new Dense({ units: 3 }, 'layer-2a');
         const l2b = new Dense({ units: 3 }, 'layer-2b');
         const l3 = new Concat({}, 'layer-3');
+        const l4 = new Dense({ units: 9 }, 'layer-4');
 
         model.add(l1);
         model.add(l2a, l1);
         model.add(l2b, l1);
         model.add(l3, [l2a, l2b]);
+        model.add(l4, l3);
 
-        model.output(l3);
+        model.output(l4);
 
         await model.compile();
 
@@ -72,6 +74,7 @@ describe(
         callOrder[1].should.equal('layer-2a');
         callOrder[2].should.equal('layer-2b');
         callOrder[3].should.equal('layer-3');
+        callOrder[4].should.equal('layer-4');
       },
     );
 
@@ -90,7 +93,7 @@ describe(
             node.devParams.set(paramName, true);
           },
           (node: GraphNode): boolean => {
-            if (node.getName() === 'layer-3') {
+            if (node.getName() === 'layer-4') {
               return true;
             }
 
@@ -111,10 +114,11 @@ describe(
           },
         );
 
-        callOrder[0].should.equal('layer-3');
-        callOrder[1].should.equal('layer-2a');
-        callOrder[2].should.equal('layer-2b');
-        callOrder[3].should.equal('layer-1');
+        callOrder[0].should.equal('layer-4');
+        callOrder[1].should.equal('layer-3');
+        callOrder[2].should.equal('layer-2a');
+        callOrder[3].should.equal('layer-2b');
+        callOrder[4].should.equal('layer-1');
       },
     );
   },

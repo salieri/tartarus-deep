@@ -6,13 +6,11 @@ import {
   Model,
   Vector,
 } from '../../src';
+import { shouldSkipSlowTests } from '../util';
 
 
-/**
- * Works, but slow
- * Skipping since it doesn't do anything different from dense-simple-2x.test
- */
-describe.only(
+// eslint-disable-next-line no-unused-vars
+const skipped = shouldSkipSlowTests() ? true : describe(
   'Dense Network Lifecycle for ConcatSum',
   () => {
     const generator = new ConcatSum();
@@ -32,12 +30,12 @@ describe.only(
     it(
       'should train the model with mini batches',
       async () => {
-        const epochs = 10;
-        const sampleCount = 64;
-        const batchSize = 8;
+        const epochs = 100;
+        const sampleCount = 72;
+        const batchSize = 1;
         const samples = generator.samples(sampleCount);
 
-        const fitResult = await model.fit(
+        await model.fit(
           samples,
           {
             epochs,
@@ -52,7 +50,7 @@ describe.only(
 
         const result = await model.predict(input);
 
-        result.getDefaultValue().getAt(0).should.be.closeTo(12 + 16 + 9, 1);
+        result.getDefaultValue().getAt(0).should.be.closeTo(12 + 16 + 9, 0.01);
       },
     );
   },

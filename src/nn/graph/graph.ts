@@ -335,7 +335,13 @@ export class Graph {
             return node.getRawInputs().areAllDeclared();
 
           case GraphProcessorDirection.Backward:
-            return (node.getRawTrainingLabels().areAllDeclared() || node.getRawBackpropInputs().areAllDeclared());
+            // eslint-disable-next-line no-case-declarations
+            const train = node.getRawTrainingLabels();
+
+            return (
+              ((train.count() > 0) && (train.areAllDeclared()))
+              || node.getRawBackpropInputs().areAllDeclared()
+            );
 
           default:
             throw new Error('Unsupported direction');

@@ -335,7 +335,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     }
 
     if (rawBackpropInputs.count() < 1) {
-      throw new Error(`Missing input for dense layer '${this.getName()}'`);
+      throw new Error(`Missing backprop input for dense layer '${this.getName()}'`);
     }
 
     if (rawBackpropInputs.count() > 1) {

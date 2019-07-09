@@ -2,6 +2,11 @@ import _ from 'lodash';
 import { NDArray, NDArrayConstructorType, NumberTreeElement } from './ndarray';
 import { Vector } from './vector';
 
+export enum MatrixDirection {
+  Horizontal,
+  Vertical
+}
+
 
 export class Matrix extends NDArray {
   /* public constructor(...dimensions: any[]) {
@@ -148,6 +153,24 @@ export class Matrix extends NDArray {
 
   protected instantiate<T extends NDArray>(this: T, ...dimensions: number[]): T {
     return new Matrix(...dimensions) as unknown as T;
+  }
+
+
+  public slice(direction: MatrixDirection, startPos: number, size: number): Matrix {
+    const newWidth = (direction === MatrixDirection.Vertical) ? size : this.dimensions[1];
+    const newHeight = (direction === MatrixDirection.Vertical) ? this.dimensions[0] : size;
+    const m = new Matrix(newHeight, newWidth);
+    const yAdd = (direction === MatrixDirection.Vertical) ? 0 : startPos;
+    const xAdd = (direction === MatrixDirection.Vertical) ? startPos : 0;
+
+    for (let y = 0; y < newHeight; y += 1) {
+      for (let x = 0; x < newWidth; x += 1) {
+        const v = this.getAt([y + yAdd, x + xAdd]);
+        m.setAt([y, x], v);
+      }
+    }
+
+    return m;
   }
 
 

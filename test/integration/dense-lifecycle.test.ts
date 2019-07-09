@@ -1,12 +1,14 @@
 import { Dense2x } from '../../examples';
 import { Model } from '../../src';
+import { shouldSkipSlowTests } from '../util';
 
 
 /**
  * Works, but slow
  * Skipping since it doesn't do anything different from dense-simple-2x.test
  */
-describe.skip(
+// eslint-disable-next-line no-unused-vars
+const skipped = shouldSkipSlowTests() ? true : describe(
   'Dense Network Lifecycle for Dense2x',
   () => {
     const generator = new Dense2x();

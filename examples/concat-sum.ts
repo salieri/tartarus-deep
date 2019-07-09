@@ -23,7 +23,7 @@ import { Stochastic } from '../src/nn/optimizer';
 
 export class ConcatSum extends SampleGenerator {
   public model(): Model {
-    const optimizer = new Stochastic({ rate: 0.001 });
+    const optimizer = new Stochastic({ rate: 0.0002 });
     const model = new Model({ optimizer, seed: this.params.seed, loss: 'mean-squared-error' });
 
     /**
@@ -60,8 +60,8 @@ export class ConcatSum extends SampleGenerator {
         count,
         () => {
           const a = r.floatBetween(1, 20);
-          const b1 = r.floatBetween(1, 5);
-          const b2 = r.floatBetween(1, 12);
+          const b1 = r.floatBetween(1, 20);
+          const b2 = r.floatBetween(1, 20);
 
           return {
             x: {
