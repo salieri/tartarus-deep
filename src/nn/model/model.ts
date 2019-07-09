@@ -20,7 +20,6 @@ import { Session } from '../session';
 import { NDArray, Randomizer, Vector } from '../../math';
 import { Parameterized, Parameters } from '../../generic';
 import { DeferredCollection, DeferredInputCollection } from '../symbols';
-import { Cost } from '../cost';
 import { Loss } from '../loss';
 import { Metric } from '../metric';
 import { FitResult, FitterParams, ModelFitter } from './fitter';
@@ -37,7 +36,6 @@ export enum ModelState {
 
 export interface ModelParamsInput extends Parameters {
   seed?: string;
-  cost?: Cost|string;
   loss?: Loss|string;
   metrics?: Metric[]|string[];
   optimizer?: Optimizer|string;
@@ -45,7 +43,6 @@ export interface ModelParamsInput extends Parameters {
 
 
 export interface ModelParamsCoerced extends ModelParamsInput {
-  cost: Cost;
   loss: Loss;
   metrics: Metric[];
   optimizer: Optimizer;
@@ -477,7 +474,6 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
     return JoiEx.object().keys(
       {
         seed: JoiEx.string().optional().default('tartarus-random-seed').min(2),
-        cost: JoiEx.cost().optional().default('mean'),
         loss: JoiEx.loss().optional().default('mean-squared-error'),
         optimizer: JoiEx.optimizer().optional().default('stochastic'),
       },

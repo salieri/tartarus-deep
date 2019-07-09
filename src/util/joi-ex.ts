@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { ClassManager } from './class-manager';
 
 import * as activations from '../nn/activation';
-import * as costs from '../nn/cost';
 // import * as layers from '../nn/layer'; // -- this will cause circular dependencies
 import * as losses from '../nn/loss';
 import * as metrics from '../nn/metric';
@@ -53,7 +52,6 @@ function createCMExtension(name: string, cm: ClassManager): Function {
 /* eslint-disable @typescript-eslint/no-namespace */
 declare namespace ExtendedJoi {
   export function activation(): Joi.AnySchema;
-  export function cost(): Joi.AnySchema;
   export function initializer(): Joi.AnySchema;
   export function loss(): Joi.AnySchema;
   export function metric(): Joi.AnySchema;
@@ -70,18 +68,11 @@ function joify(customJoi: typeof Joi): (typeof Joi & typeof ExtendedJoi) {
 const customJoi = joify(Joi.extend(
   [
     createCMExtension('activation', new ClassManager(activations, activations.Activation)),
-    createCMExtension('cost', new ClassManager(costs, costs.Cost)),
-    // createCMExtension( 'constraint', new ClassManager( constraints, constraints.Constraint ) ),
     createCMExtension('initializer', new ClassManager(initializers, initializers.Initializer)),
-
-    // createCMExtension( 'layer', new ClassManager( layers, layers.Layer ) ), // -- this will cause circular dependencies
-
     createCMExtension('loss', new ClassManager(losses, losses.Loss)),
     createCMExtension('metric', new ClassManager(metrics, metrics.Metric)),
     createCMExtension('randomizer', new ClassManager(randomizers, randomizers.Randomizer)),
     createCMExtension('optimizer', new ClassManager(optimizers, optimizers.Optimizer)),
-
-    // createCMExtension( 'regularizer', new ClassManager( regularizers, regularizers.Regularizer ) )
   ],
 ));
 
