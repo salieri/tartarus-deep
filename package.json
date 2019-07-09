@@ -22,10 +22,14 @@
   },
   "keywords": [
     "deep",
-    "deep-learning",
+    "deep learning",
     "typescript",
-    "machine-learning",
-    "ml"
+    "machine learning",
+    "ml",
+    "neural network",
+    "artificial intelligence",
+    "ai",
+    "nn"
   ],
   "engines": {
     "node": ">= 8.0.0"
