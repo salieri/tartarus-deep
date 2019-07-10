@@ -5,6 +5,7 @@
 
 [![Travis CI](https://travis-ci.org/salieri/tartarus-deep.svg?branch=master)](https://travis-ci.org/salieri/tartarus-deep/)
 [![Coverage Status](https://coveralls.io/repos/github/salieri/tartarus-deep/badge.svg?branch=master)](https://coveralls.io/github/salieri/tartarus-deep?branch=master)
+[![Codecov](https://codecov.io/gh/salieri/tartarus-deep/branch/master/graph/badge.svg)](https://codecov.io/gh/salieri/tartarus-deep)
 [![Codacy](https://api.codacy.com/project/badge/Grade/a7f08c24980f47e9b33a791903545fca)](https://www.codacy.com/app/salieri/tartarus-deep?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=salieri/tartarus-deep&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8ff95e28307f14562c3c/maintainability)](https://codeclimate.com/github/salieri/tartarus-deep/maintainability)
 [![David](https://david-dm.org/salieri/tartarus-deep.svg)](https://david-dm.org/salieri/tartarus-deep)
