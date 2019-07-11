@@ -1,8 +1,13 @@
 language: node_js
 node_js:
   - "10"
-script:
+install:
   - npm install codecov -g
+script:
+  - npm run ci-init
+  - npm run coverage
+  - npm run ci-reports
 after_success:
-  - npm run coveralls
-  - codecov
+  - npm run ci-coveralls
+  - npm run ci-codecov
+
