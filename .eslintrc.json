@@ -9,7 +9,7 @@
 	"extends": [
 	  "plugin:@typescript-eslint/recommended",
 	  "prettier/@typescript-eslint",
-	  "eslint-config-airbnb"
+	  "eslint-config-airbnb-base"
 	],
   "parserOptions": {
     "ecmaVersion": 2018,

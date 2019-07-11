@@ -89,7 +89,7 @@ model.compile()
 
 ### Initializers
 
-###  Metrics
+### Metrics
 
 ### Input
 
