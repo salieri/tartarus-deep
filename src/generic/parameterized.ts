@@ -47,6 +47,7 @@ export abstract class Parameterized<TInput extends Parameters, TCoerced extends 
   }
 
 
+  /*
   public getDefaultInstantiationFlag(): boolean {
     return this.defaultInstantiation;
   }
@@ -55,5 +56,6 @@ export abstract class Parameterized<TInput extends Parameters, TCoerced extends 
   public getInstantiatedFlag(): boolean {
     return this.instantiated;
   }
+  */
 }
 

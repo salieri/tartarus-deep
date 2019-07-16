@@ -523,7 +523,7 @@ describe(
       'should do elementwise math operations',
       () => {
         const vals = [-1, 0, 1, 0.4, 0.2];
-        const ops = ['sqrt', 'atan', 'acos', 'asin', 'tan', 'cos', 'sin', 'exp', 'log', 'abs'];
+        const ops = ['sqrt', 'atan', 'acos', 'asin', 'tan', 'tanh', 'cos', 'sin', 'exp', 'log', 'abs', 'round'];
 
         _.each(
           ops,
@@ -704,6 +704,49 @@ describe(
 
         // @ts-ignore
         (() => nd.validatePosition([0, 0])).should.not.Throw();
+      },
+    );
+
+    it(
+      'should binary compare two arrays',
+      () => {
+        const a1 = new NDArray([1, 2, 3]);
+        const a2 = new NDArray([1, 2, 3]);
+        const b = new NDArray([3, 1, 3]);
+
+        a1.equal(a2).get().should.deep.equal([1, 1, 1]);
+        a1.equal(b).get().should.deep.equal([0, 0, 1]);
+      },
+    );
+
+
+    it(
+      'should find the minimum value from the array',
+      () => {
+        const n = new NDArray([1, 2, 3, 4, -10, 7, 2]);
+
+        n.min().should.equal(-10);
+      },
+    );
+
+
+    it(
+      'should find the maximum value from the array',
+      () => {
+        const n = new NDArray([1, 2, 3, 4, -10, 7, 2]);
+
+        n.max().should.equal(7);
+      },
+    );
+
+
+    it(
+      'should reject min and max, if array has no values',
+      () => {
+        const n = new NDArray(0);
+
+        (() => n.min()).should.Throw(/NDArray has no values/);
+        (() => n.max()).should.Throw(/NDArray has no values/);
       },
     );
   },

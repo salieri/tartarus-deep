@@ -614,7 +614,6 @@ export class NDArray {
   public equal<T extends NDArray>(this: T, anotherArray: T): T {
     return this.iterate(
       (values: number[]): number => (values[0] === values[1] ? 1 : 0),
-      this,
       anotherArray,
     );
   }
