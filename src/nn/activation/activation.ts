@@ -23,7 +23,7 @@ export abstract class Activation
    * @param z Linear output
    * @param y? Expected label
    */
-  public abstract derivative(a: Vector, z: Vector, y?: Vector): Vector;
+  public abstract gradient(a: Vector, z: Vector, y?: Vector): Vector;
 
   public getParamSchema(): Joi.Schema {
     return Joi.object();

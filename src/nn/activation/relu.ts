@@ -19,7 +19,7 @@ export class ReLU extends Activation<ReLUParams> {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     return z.apply((val: number): number => (val >= 0 ? 1 : this.params.leak));
   }
 

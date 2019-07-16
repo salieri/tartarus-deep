@@ -24,7 +24,7 @@ export class Softmax extends Activation {
   }
 
 
-  public derivative(a: Vector, z: Vector, y?: Vector): Vector {
+  public gradient(a: Vector, z: Vector, y?: Vector): Vector {
     if (!y) {
       throw new Error('Expected training label to be defined');
     }

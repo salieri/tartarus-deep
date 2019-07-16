@@ -19,7 +19,7 @@ export class SiLU extends Activation {
    * @param a activated value (result of this.calculate(z))
    * @param z linear value
    */
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     const one = a.set(1);
 
     return a.add(SiLU.sigmoid.calculate(z).mul(one.sub(a)));

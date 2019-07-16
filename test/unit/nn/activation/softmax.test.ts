@@ -45,7 +45,7 @@ describe(
         const input = new Vector([-1, -1, 1]);
         const softmax = sa.calculate(input);
         const target = new Vector([0, 1, 0]);
-        const derivative = sa.derivative(softmax, input, target);
+        const derivative = sa.gradient(softmax, input, target);
         const softmaxMinusTarget = softmax.sub(target); // should equal derivative
 
         derivative.iterate(

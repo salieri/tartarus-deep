@@ -19,7 +19,7 @@ export class ISRU extends Activation<ISRUParams> {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     const one = z.set(1);
 
     // ( 1 / sqrt( 1 + alpha * z ^ 2 ) ) ^ 3

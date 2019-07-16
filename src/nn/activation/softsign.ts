@@ -13,7 +13,7 @@ export class Softsign extends Activation {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     const one = z.set(1);
 
     // 1 / ((1 + |z|)^2)

@@ -18,8 +18,8 @@ export class ISRLU extends Activation<ISRLUParamsInput> {
     return z.apply(
       (val: number): number => {
         if (val < 0) {
-          // 1 / sqrt( 1 + alpha * x^2 )
-          return 1.0 / Math.sqrt(1.0 + this.params.alpha * (val ** 2));
+          // x / sqrt( 1 + alpha * x^2 )
+          return val / Math.sqrt(1 + (this.params.alpha * (val ** 2)));
         }
 
         return val;
@@ -28,15 +28,15 @@ export class ISRLU extends Activation<ISRLUParamsInput> {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     return z.apply(
       (val: number): number => {
         if (val >= 0) {
-          return val;
+          return 1;
         }
 
         // (1 / sqrt( 1 + alpha * z^2 ))^3
-        return (1 / Math.sqrt(1 + this.params.alpha * (val ** 2))) ** 3;
+        return 1 / (Math.sqrt(1 + (this.params.alpha * (val ** 2))) ** 3);
       },
     );
   }
@@ -45,7 +45,7 @@ export class ISRLU extends Activation<ISRLUParamsInput> {
   public getParamSchema(): Joi.Schema {
     return Joi.object().keys(
       {
-        alpha: Joi.number().optional().default(0.0).description('Multiplier'),
+        alpha: Joi.number().optional().default(0.01).description('Multiplier'),
       },
     );
   }

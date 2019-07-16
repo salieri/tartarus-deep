@@ -13,7 +13,7 @@ export class Gaussian extends Activation {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     const two = z.set(2);
 
     // -2xe^(-x^2)

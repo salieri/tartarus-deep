@@ -14,7 +14,7 @@ export class Sinc extends Activation {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     return z.apply(
       (val: number) => {
         if (val === 0) {

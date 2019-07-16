@@ -11,7 +11,7 @@ export class ArcTan extends Activation {
     return z.atan();
   }
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     const one = z.set(1);
 
     return one.div(one.add(z.pow(2)));

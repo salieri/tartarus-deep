@@ -8,7 +8,13 @@ import {
   DeferredCollection,
 } from '../symbols';
 
-import { Matrix, MatrixDirection, NDArray, Vector } from '../../math';
+import {
+  Matrix,
+  MatrixDirection,
+  NDArray,
+  Vector,
+} from '../../math';
+
 import { KeyNotFoundError } from '../../error';
 import { Dense } from './dense';
 

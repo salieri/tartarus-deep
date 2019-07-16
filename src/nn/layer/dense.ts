@@ -81,7 +81,7 @@ export class Dense extends Layer<DenseParamsInput, DenseParamsCoerced> {
     const linear = output.getValue(Dense.LINEAR_OUTPUT, Vector);
     const y = this.isOutputLayer() ? trainer.getDefaultValue(Vector) : undefined;
 
-    return this.params.activation.derivative(activated, linear, y);
+    return this.params.activation.gradient(activated, linear, y);
   }
 
 

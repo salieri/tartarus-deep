@@ -15,7 +15,7 @@ export class Sigmoid extends Activation {
   }
 
 
-  public derivative(a: Vector): Vector {
+  public gradient(a: Vector): Vector {
     const one = a.set(1);
 
     // S'(z) = S(z) * (1 - S(z))

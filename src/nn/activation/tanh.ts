@@ -13,7 +13,7 @@ export class TanH extends Activation {
   }
 
 
-  public derivative(a: Vector): Vector {
+  public gradient(a: Vector): Vector {
     const one = a.set(1);
 
     // tanh'(z) = 1 - tanh(z)^2 = 1 - a^2

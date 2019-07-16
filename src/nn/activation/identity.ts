@@ -11,7 +11,7 @@ export class Identity extends Activation {
   }
 
 
-  public derivative(a: Vector): Vector {
+  public gradient(a: Vector): Vector {
     return a.set(1);
   }
 }

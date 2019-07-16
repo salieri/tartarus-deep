@@ -15,7 +15,7 @@ export class BentIdentity extends Activation {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     const one = z.set(1);
     const two = z.set(2);
 

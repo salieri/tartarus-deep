@@ -24,7 +24,7 @@ export class ELU extends Activation<ELUParamsInput, ELUParamsCoerced> {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     const leak = this.params.leak;
 
     return a.iterate(

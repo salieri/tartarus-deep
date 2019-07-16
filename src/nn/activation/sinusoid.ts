@@ -12,7 +12,7 @@ export class Sinusoid extends Activation {
   }
 
 
-  public derivative(a: Vector, z: Vector): Vector {
+  public gradient(a: Vector, z: Vector): Vector {
     return z.cos();
   }
 }
