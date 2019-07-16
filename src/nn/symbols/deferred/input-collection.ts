@@ -182,7 +182,7 @@ export class DeferredInputCollection {
   */
   public snapshot(): DeferredInputCollection {
     if (!this.areAllSet()) {
-      throw new Error('Cannot snapshopt -- some declared values in the input collection are not set');
+      throw new Error('Cannot snapshot -- some declared values in the input collection are not set');
     }
 
     return _.cloneDeep(this);

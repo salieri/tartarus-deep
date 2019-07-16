@@ -103,14 +103,15 @@ export class Graph {
 
     const resolvedParents = this.resolveEntities(parentEntities);
 
-    _.each(
-      resolvedParents,
-      (node: GraphNode) => {
-        if (node.getEntity() === entity) {
-          throw new Error('Parent entity cannot be same instance than the entity being added');
-        }
-      },
-    );
+    // Unnecessary test -- this.exists(entity) cancels this out above
+    // _.each(
+    //   resolvedParents,
+    //   (node: GraphNode) => {
+    //     if (node.getEntity() === entity) {
+    //       throw new Error('Parent entity cannot be same instance than the entity being added');
+    //     }
+    //   },
+    // );
 
 
     const newNode = new GraphNode(entity);

@@ -15,8 +15,7 @@ describe(
     );
 
 
-    it(
-      'should prepare a test model',
+    before(
       async () => {
         model
           .input(2)
@@ -80,46 +79,6 @@ describe(
 
         // @ts-ignore
         d3.data.input.getDefault().get().should.equal(v2);
-      },
-    );
-
-
-    // @todo: needs to be rewritten
-    it.skip(
-      'should connect raw backprop input and output feeds to each other',
-      async () => {
-        const l1 = model.getGraph().find('layer-1');
-        const l2 = model.getGraph().find('layer-2');
-        const l3 = model.getGraph().find('layer-3');
-
-        const d1 = l1.getEntity() as Dense;
-        const d2 = l2.getEntity() as Dense;
-        const d3 = l3.getEntity() as Dense;
-
-        const bv2 = new NDArray([-1, -2, -3]);
-        const bv3 = new NDArray([-4, -5, -6, -7]);
-
-        // @ts-ignore
-        d3.rawBackpropInputs.getDefault().get('weight').get().should.equal(initialBackpropInput.get('weight').get());
-
-        // @ts-ignore
-        d3.rawBackpropInputs.getDefault().get('derivative').get().should.equal(initialBackpropInput.get('derivative').get());
-
-        // @ts-ignore
-        d3.backpropInput.getValue('weight').should.equal(initialBackpropInput.get('weight').get());
-
-        // @ts-ignore
-        d3.backpropInput.getValue('derivative').should.equal(initialBackpropInput.get('derivative').get());
-
-        d3.backpropOutput.setValue('derivative', bv3);
-
-        // @ts-ignore
-        d2.backpropInput.getValue('derivative').should.equal(bv3);
-
-        d2.backpropOutput.setValue('derivative', bv2);
-
-        // @ts-ignore
-        d1.backpropInput.getValue('derivative').should.equal(bv2);
       },
     );
   },

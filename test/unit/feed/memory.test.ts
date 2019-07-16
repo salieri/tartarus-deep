@@ -268,5 +268,18 @@ describe(
         }
       },
     );
+
+    it(
+      'should allow samples to be added to the feed',
+      async () => {
+        const m = new MemoryInputFeed();
+
+        m.add(new NDArray([1101]));
+
+        const r = await m.next();
+
+        r.sample.raw.getDefaultValue().get().should.deep.equal([1101]);
+      },
+    );
   },
 );
