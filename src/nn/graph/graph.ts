@@ -182,41 +182,38 @@ export class Graph {
   }
 
 
-  /**
-   * Unlink two entities
-   * @param outputEntity
-   * @param inputEntity
-   */
-  public unlink(outputEntity: GraphEntity, inputEntity: GraphEntity): void {
-    this.canModify();
-
-    const outputNode  = this.find(outputEntity);
-    const inputNode   = this.find(inputEntity);
-
-    outputNode.removeOutput(inputNode);
-    inputNode.removeInput(outputNode);
-  }
-
-
-  /**
-   * Remove entity from the graph
-   * @param entity
-   */
-  public remove(entity: GraphEntity): void {
-    this.canModify();
-
-    const node = this.find(entity);
-
-    _.each(
-      this.nodes,
-      (e: GraphNode) => {
-        e.removeInput(node);
-        e.removeOutput(node);
-      },
-    );
-
-    _.remove(this.nodes, (e: GraphNode) => (e === node));
-  }
+  // /**
+  //  * Unlink two entities
+  //  */
+  // public unlink(outputEntity: GraphEntity, inputEntity: GraphEntity): void {
+  //   this.canModify();
+  //
+  //   const outputNode  = this.find(outputEntity);
+  //   const inputNode   = this.find(inputEntity);
+  //
+  //   outputNode.removeOutput(inputNode);
+  //   inputNode.removeInput(outputNode);
+  // }
+  //
+  //
+  // /**
+  //  * Remove entity from the graph
+  //  */
+  // public remove(entity: GraphEntity): void {
+  //   this.canModify();
+  //
+  //   const node = this.find(entity);
+  //
+  //   _.each(
+  //     this.nodes,
+  //     (e: GraphNode) => {
+  //       e.removeInput(node);
+  //       e.removeOutput(node);
+  //     },
+  //   );
+  //
+  //   _.remove(this.nodes, (e: GraphNode) => (e === node));
+  // }
 
 
   /**
@@ -429,39 +426,39 @@ export class Graph {
   }
 
 
-  public setRawBackpropInputs(inputs: DeferredInputCollection): void {
-    this.rawBackpropInputs = inputs;
-  }
+  // public setRawBackpropInputs(inputs: DeferredInputCollection): void {
+  //   this.rawBackpropInputs = inputs;
+  // }
+  //
+  //
+  // public getRawBackpropInputs(): DeferredInputCollection {
+  //   return this.rawBackpropInputs;
+  // }
 
 
-  public getRawBackpropInputs(): DeferredInputCollection {
-    return this.rawBackpropInputs;
-  }
-
-
-  public getRawBackpropOutputs(): DeferredInputCollection {
-    if (this.inputNodes.length === 0) {
-      throw new Error('No input nodes');
-    }
-
-    if (this.inputNodes.length === 1) {
-      const collection = new DeferredInputCollection();
-
-      // don't re-map default output
-      collection.merge(this.inputNodes[0].getRawBackpropOutputs());
-
-      return collection;
-    }
-
-    const out = new DeferredInputCollection();
-
-    _.each(
-      this.inputNodes,
-      (inputNode: GraphNode) => (out.merge(inputNode.getRawBackpropOutputs(), inputNode.getName())),
-    );
-
-    return out;
-  }
+  // public getRawBackpropOutputs(): DeferredInputCollection {
+  //   if (this.inputNodes.length === 0) {
+  //     throw new Error('No input nodes');
+  //   }
+  //
+  //   if (this.inputNodes.length === 1) {
+  //     const collection = new DeferredInputCollection();
+  //
+  //     // don't re-map default output
+  //     collection.merge(this.inputNodes[0].getRawBackpropOutputs());
+  //
+  //     return collection;
+  //   }
+  //
+  //   const out = new DeferredInputCollection();
+  //
+  //   _.each(
+  //     this.inputNodes,
+  //     (inputNode: GraphNode) => (out.merge(inputNode.getRawBackpropOutputs(), inputNode.getName())),
+  //   );
+  //
+  //   return out;
+  // }
 
 
   public getRawOutputs(): DeferredInputCollection {
@@ -619,17 +616,17 @@ export class Graph {
   }
 
 
-  public getOptimizerSnapshot(): DeferredInputCollection {
-    const optimizer = new DeferredInputCollection();
-
-    _.each(
-      this.nodes,
-      (node: GraphNode) => {
-        optimizer.set(this.getName(), node.getEntity().data.optimizer.clone());
-      },
-    );
-
-    return optimizer;
-  }
+  // public getOptimizerSnapshot(): DeferredInputCollection {
+  //   const optimizer = new DeferredInputCollection();
+  //
+  //   _.each(
+  //     this.nodes,
+  //     (node: GraphNode) => {
+  //       optimizer.set(this.getName(), node.getEntity().data.optimizer.clone());
+  //     },
+  //   );
+  //
+  //   return optimizer;
+  // }
 }
 

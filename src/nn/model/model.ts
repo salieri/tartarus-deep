@@ -147,14 +147,14 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   }
 
 
-  public getRawBackpropInputs(): DeferredInputCollection {
-    return this.graph.getRawBackpropInputs();
-  }
+  // public getRawBackpropInputs(): DeferredInputCollection {
+  //   return this.graph.getRawBackpropInputs();
+  // }
 
 
-  public setRawBackpropInputs(inputs: DeferredInputCollection): void {
-    this.graph.setRawBackpropInputs(inputs);
-  }
+  // public setRawBackpropInputs(inputs: DeferredInputCollection): void {
+  //   this.graph.setRawBackpropInputs(inputs);
+  // }
 
 
   public setRawInputs(inputs: DeferredInputCollection): void {
@@ -162,9 +162,9 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   }
 
 
-  public getRawInputs(): DeferredInputCollection {
-    return this.graph.getRawInputs();
-  }
+  // public getRawInputs(): DeferredInputCollection {
+  //   return this.graph.getRawInputs();
+  // }
 
 
   public getRawOutputs(): DeferredInputCollection {
@@ -172,9 +172,9 @@ export class Model extends Parameterized<ModelParamsInput, ModelParamsCoerced> {
   }
 
 
-  public getRawBackpropOutputs(): DeferredInputCollection {
-    return this.graph.getRawBackpropOutputs();
-  }
+  // public getRawBackpropOutputs(): DeferredInputCollection {
+  //   return this.graph.getRawBackpropOutputs();
+  // }
 
 
   public getOutputNodes(): GraphNode[] {
