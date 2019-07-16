@@ -10,7 +10,7 @@ export interface LogObject {
   [key: string]: any;
 }
 
-export type LogData = string|number|boolean|LogObject|LogObject[]|string[]|number[]|boolean[]|Function;
+export type LogData = string|number|boolean|undefined|null|LogObject|LogObject[]|string[]|number[]|boolean[]|Function;
 
 
 export enum LogLevel {

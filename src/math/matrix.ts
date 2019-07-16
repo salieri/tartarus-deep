@@ -9,11 +9,6 @@ export enum MatrixDirection {
 
 
 export class Matrix extends NDArray {
-  /* public constructor(...dimensions: any[]) {
-    super(...dimensions);
-  } */
-
-
   protected validateConstructor(dimensions: NDArrayConstructorType): void {
     super.validateConstructor(dimensions);
 
