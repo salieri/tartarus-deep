@@ -1,4 +1,8 @@
-import { NDArray, Vector, VectorDirection } from '../../../src/math';
+import {
+  NDArray,
+  Vector,
+  VectorDirection,
+} from '../../../src/math';
 
 
 describe(
@@ -71,6 +75,80 @@ describe(
         m2.getAt([0, 1]).should.equal(3);
         m2.getAt([1, 1]).should.equal(4);
         m2.getAt([2, 1]).should.equal(5);
+      },
+    );
+
+
+    it(
+      'should slice a vector',
+      () => {
+        const v = new Vector([11, 22, 33, 44, 55, 66, 77, 88]);
+
+        const s = v.slice([2], 3);
+
+        s.should.be.an.instanceOf(Vector);
+
+        s.get().should.deep.equal([33, 44, 55]);
+      },
+    );
+
+
+    it(
+      'should test whether index is in top K',
+      () => {
+        const v = new Vector([1, 2, 3, -10, 7, 2]);
+
+        v.inTopK(0, 2).should.equal(false);
+        v.inTopK(1, 2).should.equal(false);
+        v.inTopK(2, 2).should.equal(true);
+        v.inTopK(3, 2).should.equal(false);
+        v.inTopK(4, 2).should.equal(true);
+        v.inTopK(5, 2).should.equal(false);
+      },
+    );
+
+    it(
+      'should select the top K values',
+      () => {
+        const v = new Vector([1, 2, 3, -10, 7, 2]);
+
+        const result = v.topK(2);
+
+        result[0].value.should.equal(7);
+        result[0].index.should.equal(4);
+
+        result[1].value.should.equal(3);
+        result[1].index.should.equal(2);
+      },
+    );
+
+
+    it(
+      'should find the index of the lowest value',
+      () => {
+        const v = new Vector([1, 2, 3, -10, 7, 2]);
+
+        v.argmin().should.deep.equal([3]);
+      },
+    );
+
+
+    it(
+      'should find the index of the highest value',
+      () => {
+        const v = new Vector([1, 2, 3, -10, 7, 2]);
+
+        v.argmax().should.deep.equal([4]);
+      },
+    );
+
+
+    it(
+      'should print out a vector',
+      () => {
+        const v = new Vector([13, 19]);
+
+        v.toString().should.match(/Vector#.*: 13,19/);
       },
     );
   },

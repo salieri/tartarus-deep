@@ -1,4 +1,9 @@
-import { Matrix, NDArray } from '../../../src/math';
+import {
+  Matrix,
+  MatrixDirection,
+  NDArray,
+  Vector,
+} from '../../../src/math';
 
 
 describe(
@@ -102,6 +107,93 @@ describe(
         const m = new Matrix(values);
 
         m.clone().get().should.deep.equal(values);
+      },
+    );
+
+
+    it(
+      'should pick values diagonally from a matrix',
+      () => {
+        const m = new Matrix(
+          [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+          ],
+        );
+
+        m.pickDiagonal().get().should.deep.equal([1, 5, 9]);
+      },
+    );
+
+
+    it(
+      'should fail to pick values diagonally from a non-square matrix',
+      () => {
+        const m = new Matrix(
+          [
+            [1, 2, 3, 4],
+            [4, 5, 6, 7],
+            [7, 8, 9, 8],
+          ],
+        );
+
+        (() => m.pickDiagonal()).should.Throw(/Cannot pick diagonally across a matrix which columns and rows are not equal size/);
+      },
+    );
+
+
+    it(
+      'should slice matrices',
+      () => {
+        const m = new Matrix(
+          [
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+          ],
+        );
+
+        m.slice(MatrixDirection.Horizontal, 0, 1).get().should.deep.equal([[1, 2, 3]]);
+        m.slice(MatrixDirection.Horizontal, 0, 2).get().should.deep.equal([[1, 2, 3], [4, 5, 6]]);
+
+        m.slice(MatrixDirection.Vertical, 1, 1).get().should.deep.equal([[2], [5], [8]]);
+      },
+    );
+
+
+    it(
+      'should calculate dot products with other matrices',
+      () => {
+        const m = new Matrix([[1, 2, 3]]);
+        const m2 = new Matrix([[3], [2], [1]]);
+
+        const result = m.dot(m2);
+
+        result.should.be.instanceOf(Matrix);
+      },
+    );
+
+
+    it(
+      'should calculate dot products with vectors',
+      () => {
+        const m = new Matrix([[1, 2, 3]]);
+        const v = new Vector([3, 2, 1]);
+
+        const result = m.dot(v);
+
+        result.should.be.instanceOf(Vector);
+      },
+    );
+
+
+    it(
+      'should print out a matrix',
+      () => {
+        const m = new Matrix([[15, 17]]);
+
+        m.toString().should.match(/Matrix#.*: 15,17/);
       },
     );
   },

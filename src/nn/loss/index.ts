@@ -1,9 +1,11 @@
 export * from './cross-entropy';
 export * from './hinge';
 export * from './generalized-kl-divergence';
+export * from './kl-divergence';
 export * from './loss';
 export * from './mean-absolute-error';
 export * from './mean-squared-error';
+export * from './squared-error';
 
 export * from './unfinished.cosine-proximity';
 export * from './unfinished.huber';

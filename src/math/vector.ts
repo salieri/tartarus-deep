@@ -173,14 +173,14 @@ export class Vector extends NDArray {
    * Get the index of the highest value in the array
    */
   public argmax(): NDArrayPosition {
-    let index = null;
+    let index: number|null = null;
     let knownMax: number|null = null;
 
     this.traverse(
       (value, position) => {
         if ((knownMax === null) || (value > knownMax)) {
           knownMax = value;
-          index = position;
+          index = position[0];
         }
       },
     );
@@ -197,14 +197,14 @@ export class Vector extends NDArray {
    * Get the index of the lowest value in the array
    */
   public argmin(): NDArrayPosition {
-    let index = null;
+    let index: number|null = null;
     let knownMin: number|null = null;
 
     this.traverse(
       (value, position) => {
         if ((knownMin === null) || (value < knownMin)) {
           knownMin = value;
-          index = position;
+          index = position[0];
         }
       },
     );
@@ -213,7 +213,7 @@ export class Vector extends NDArray {
       throw new Error('Vector has no values');
     }
 
-    return index;
+    return [index];
   }
 
 
