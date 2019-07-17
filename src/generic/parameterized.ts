@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 
 /* eslint-disable-next-line @typescript-eslint/no-empty-interface */
 export interface Parameters {}

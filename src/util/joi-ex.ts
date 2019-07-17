@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 import _ from 'lodash';
 
 import { ClassManager } from './class-manager';

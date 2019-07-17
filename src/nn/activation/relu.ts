@@ -1,4 +1,4 @@
-import Joi from 'joi'; // Can't use JoiEx here -- circular dependency
+import Joi from '@hapi/joi'; // Can't use JoiEx here -- circular dependency
 import { Activation, ActivationParams } from './activation';
 import { Vector } from '../../math';
 

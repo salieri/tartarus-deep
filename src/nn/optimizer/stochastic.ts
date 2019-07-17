@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 
 import { Optimizer } from './optimizer';
 import { Matrix, Vector } from '../../math';

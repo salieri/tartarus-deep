@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from '@hapi/joi';
 import { Initializer, InitializerParams } from './initializer';
 import { NDArray } from '../../math';
 

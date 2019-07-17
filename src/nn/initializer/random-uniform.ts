@@ -1,4 +1,4 @@
-import Joi from 'joi'; // can't use JoiEx here -- circular dependency
+import Joi from '@hapi/joi'; // can't use JoiEx here -- circular dependency
 
 import { Initializer, InitializerParams } from './initializer';
 import { NDArray } from '../../math';
