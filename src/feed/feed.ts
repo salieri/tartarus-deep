@@ -1,6 +1,13 @@
 import { DeferredInputCollection } from '../nn';
 
-export class EndOfStreamException extends Error {}
+// @link https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes#extending-built-ins-like-error-array-and-map-may-no-longer-work
+export class EndOfStreamException extends Error {
+  public constructor(m: string) {
+    super(m);
+
+    Object.setPrototypeOf(this, EndOfStreamException.prototype);
+  }
+}
 
 
 export interface Sample {
